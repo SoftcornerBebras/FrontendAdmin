@@ -1,0 +1,159 @@
+.react-select__placeholder{
+  color: black;
+}
+.sidenav a {
+
+  position: absolute;
+  right: -165px;
+  transition: 0.3s;
+  padding: 15px;
+  padding-left:60px;
+  padding-right:0px;
+  
+  width: 225px;
+  text-decoration: none;
+  font-size: 20px;
+  color: white;
+  border-radius: 5px 0 0 5px;
+}
+
+.sidenav a:hover {
+  right: 0;
+}
+
+.directions{
+  top: 160px;
+  background-color: #101b91;
+}
+
+.contact {
+    top: 230px;
+    background-color: #0d47a1;
+}
+
+.registeredBy {
+  top: 300px;
+  background-color: #1565c0;
+}
+
+.studentsEnrolled {
+  top: 370px;
+  width:300px;
+  background-color: #1976d2;
+}
+
+.analysis {
+  top: 440px;
+  background-color: #1e88e5
+}
+
+.download {
+    top: 510px;
+    background-color: #2196f3
+  }
+  /*
+.sidenavMenu {
+    width: 40%;
+    height: 50%;
+    position: fixed;
+    z-index: 1;
+   margin-left: 80%;
+
+    background: #eee;
+    overflow-x: hidden;
+    padding: 8px 0;
+}
+
+.sidenavMenu a {
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #2196F3;
+    display: block;
+}
+
+.sidenavMenu a:hover {
+    color: #064579;
+}
+
+.active {
+  background-color: green;
+  color: white;
+}
+
+.dropdown-container {
+  display: none;
+  background-color: #262626;
+  padding-left: 8px;
+}
+
+.fa-caret-down {
+  float: right;
+  padding-right: 8px;
+}
+ */
+ .sidenavMenu {
+  margin-left: 80%;
+  width: 200px;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #111;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+
+/* Style the sidenav links and the dropdown button */
+.sidenavMenu a {
+  padding: 6px 8px 6px 16px;
+  text-decoration: none;
+  font-size: 20px;
+  color: #818181;
+  display: block;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+ .dropdown-btn{
+  padding: 6px 8px 6px 16px;
+  text-decoration: none;
+  font-size: 20px;
+  color: #818181;
+  display: block;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+/* On mouse-over */
+.sidenavMenu a:hover{
+    color: #f1f1f1;
+}
+.dropdown-btn:hover {
+  color: #f1f1f1;
+}
+
+/* Add an active class to the active dropdown button */
+.active {
+  background-color: green;
+  color: white;
+}
+
+/* Dropdown container (hidden by default). Optional: add a lighter background color and some left padding to change the design of the dropdown content */
+.dropdown-container {
+  display: none;
+  background-color: #262626;
+  padding-left: 8px;
+}
+
+/* Optional: Style the caret down icon */
+.fa-caret-down {
+  float: right;
+  padding-right: 8px;
+}
