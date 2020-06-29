@@ -52,7 +52,7 @@ class SelectAges extends React.PureComponent {
      + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
     let endTime = new Date(compInfo[1].detail)
     let currTime = new Date(timer)
-    if(currTime >= endTime) {
+    if(currTime >= endTime && compInfo[0].detail=='Main Challenge') {
       this.setState({compStarted:true})
     }
 
