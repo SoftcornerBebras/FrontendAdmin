@@ -58,8 +58,8 @@ class AddGroup extends React.PureComponent {
         this.setState({openS2:true})
     });
      languages.length=0;
-     for(let i = 0; i<this.state.languagesList.length ; i++) {
-          let x =this.state.languagesList[i].codeName;
+     for(let i = 0; i<gLanguage.data.length ; i++) {
+          let x = gLanguage.data[i].codeName;
           languages.push({"value": x, "label": x });
     }
      let gClasses = await axios.get(baseURL+'api/com/getClasses/',{

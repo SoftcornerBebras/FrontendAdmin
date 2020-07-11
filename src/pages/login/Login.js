@@ -214,7 +214,7 @@ function Login( props) {
                       <DialogContentText>
                         Please go to the below link given to access your account:
                         <br/>
-                        <a href='https://54.196.61.229:3001/studenthome' target="_blank">Bebras User Site</a>
+                        <a href='http://54.196.61.229:3001' target="_blank">Bebras User Site</a>
                       </DialogContentText>
                     </DialogContent>
                   </Dialog>

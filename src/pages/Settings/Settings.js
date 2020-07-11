@@ -661,7 +661,7 @@ handleGroup=(newValue)=>{
       <Paper elevation={3} style={{width:'1000px',marginLeft:'100px'}}>
       <Box display="flex" flexDirection="row" p={1} m={1}>
       <Typography variant="h6" color='textSecondary' style={{margin:'20px'}}  >
-          Download Existing Certificate Template
+          Download Bulk Upload Template
           </Typography>
           <Button
               variant="contained"
