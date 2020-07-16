@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { Grid , IconButton , CircularProgress, Box} from "@material-ui/core";
-import { Close as CloseIcon } from "@material-ui/icons";
+import React from "react";
+import { Grid , IconButton , CircularProgress, Box, TextField, InputAdornment} from "@material-ui/core";
+import { Close as CloseIcon, Search } from "@material-ui/icons";
 import AddUser from "../../pages/users/AddUser"
+import { withStyles } from '@material-ui/core/styles';
 import PageTitle from "../../components/PageTitle/PageTitle";
 import { Typography, Button } from "../../components/Wrappers/Wrappers";
 import axios from 'axios';
 import MUIDataTable from "mui-datatables";
 import green from '@material-ui/core/colors/green';
 import Edit from "@material-ui/icons/Edit"
-import {useHistory,Link,Route,Redirect} from 'react-router-dom';
+import {useHistory,Route,Redirect} from 'react-router-dom';
 import {baseURL} from "../constants.js";
 import ErrorBoundary from'../error/ErrorBoundary'
 import Select from 'react-select';
+import PropTypes from 'prop-types';
 
 const userStatus = { active : "unapproved", approved : "approved" , inactive : "inactive"};
 
@@ -22,21 +24,28 @@ const states = {
   pending: "#FFC260"//warning
 };
 
+const styles = theme => ({
+  root: {
+    background: "#fff"
+  }
+});
 const headerList=[{name:"Name",options:{download:true}},
         {name:"LoginID",options:{download:true}},
-        {name:"Phone",options:{download:true}},
+        {name:"Phone",options:{download:true,display:false,filter:false,viewColumns:false}},
         {name:"Role",options:{download:true}},
         {name:"Created On",options:{download:true}},
-        {name:"Created By",options:{download:true}},
+        {name:"Created By",options:{download:true,display:false,filter:false,viewColumns:false}},
+        {name:"userRoleID",options:{display:false,filter:false,viewColumns:false}},
+        {name:"userID",options:{display:false,filter:false,viewColumns:false}},
+        {name:"RoleID",options:{display:false,filter:false,viewColumns:false}},
+        {name:"Email",options:{display:false,filter:false,viewColumns:false}},
+        {name:"Birthdate",options:{display:false,filter:false,viewColumns:false}},
+        {name:"Gender",options:{display:false,filter:false,viewColumns:false}},
+        {name:"Modified By",options:{display:false,filter:false,viewColumns:false}},
+        {name:"Modified On",options:{display:false,filter:false,viewColumns:false}},
+        {name:"Is Active",options:{display:false,filter:false,viewColumns:false}},
         {name:"Status",options:{download:true}},
-        {name:"Approval",options:{download:true}},
-        "Edit",{
-    name:"",
-    options: {
-        filter:false,
-        viewColumns:false,
-    }
-}];
+        {name:"Approval",options:{download:true}}];
 
 class UsersPage extends React.PureComponent {
 
@@ -45,29 +54,19 @@ class UsersPage extends React.PureComponent {
       super(props);
       this.state = {
         countRows:0,
+        countRows2:0,
         pageSize:10,
+        page:0,
+        searchValue:"",
         nextLink:'',
         prevLink:'',
         getValue:[],
-        years:[],
-        selectedYear:""
+        getValue2:[],
       }
     };
 
     async componentDidMount () {
         try{
-
-        let gyear = await axios.get(baseURL+'api/usr/getUserYears/',{
-        headers:{
-             'Content-Type' : 'application/json',
-                 Authorization: 'Token '+localStorage.getItem('id_token')
-         }
-     })
-     let yearData = gyear.data.data
-    for(let i = 0 ; i < yearData.length ; i ++) {
-      this.setState(prevState => ({years:[...prevState.years,{"label":yearData[yearData.length-1-i].substring(0,4),
-      "value":yearData[yearData.length-1-i].substring(0,4)}]}))
-    }
 
             let gresult = await axios.get(
             baseURL+'api/usr/viewUsers/', {
@@ -81,16 +80,13 @@ class UsersPage extends React.PureComponent {
 
     };
 
-    async getYearData(year){
-        this.setState({getValue:[]})
-        let gresult = await axios.get(
-            baseURL+'api/usr/getUsersYearWise/'+year, {
-                 headers: {Authorization: 'Token '+localStorage.getItem('id_token')}
-            }
-            );
-            this.setState({getValue : gresult.data.results})
-            this.setState({nextLink:gresult.data.links.next,pageSize:gresult.data.page_size,prevLink:gresult.data.links.previous,countRows:gresult.data.count})
-
+    async getSearchedData(data){
+      this.setState({getValue2:[],page:0})
+      let gresult = await axios.post(baseURL + 'api/usr/getUserSearch/',{"feed":data},
+      {headers: { Authorization:"Token "+localStorage.getItem('id_token')}}
+      ).catch(error => {this.setState({open_error:true})})
+      this.setState({getValue2 : gresult.data, page:0})
+      this.setState({page:0,pageSize:gresult.page_size,countRows2:gresult.count})
     }
 
    async handlePageChange() {
@@ -129,29 +125,58 @@ class UsersPage extends React.PureComponent {
         }
    };
 
-   handleChangeYear = year => {
-    this.setState({selectedYear:year});
-    this.getYearData(year.value)
+   handleChangeData = data => {
+    this.getSearchedData(data)
+  }
+
+  handleSearchChange = newValue => {
+    this.setState({searchValue:newValue})
+  }
+  enterPressAlert = (e) => {
+    var code = (e.keyCode ? e.keyCode : e.which);
+    if(code == 13) { //Enter keycode
+     this.getSearchedData(e.target.value)
+    }
   }
 
   render(){
 
+  const classes = this.props;
+
   return (
     <ErrorBoundary>
       <PageTitle title="Users" />
-      <Box display="flex" flexDirection="row">
-      <Box p={1} m={1} style={{width : "200px", marginTop:"-4%",marginLeft:"20%",zIndex:"300"}}>
-      <Select style={{color:"red"}}
-        value={this.selectedYear}
-        onChange={this.handleChangeYear}
-        options={this.state.years}
-        placeholder="Select Year" />
-      </Box>
-      </Box>
-      <Button color="primary" variant="contained" style={{ marginBottom: '10px',marginLeft:'90%',marginTop:'-60px' }}
+        <Grid item >
+          <TextField
+            placeholder='Search'
+            onKeyPress={e => this.enterPressAlert(e)}
+            className = {classes.root}
+            style={{width:"300px",height:'20px', marginLeft:'30%',marginTop:'-3%',marginBottom: '-10px'}}
+            value={this.state.searchValue}
+            onChange={ e => this.handleSearchChange(e.target.value)}
+            InputProps={{
+                  classes: {
+                    underline: classes.textFieldUnderline,
+                    input: classes.textField,
+                  },
+                  endAdornment:(
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={()=>this.handleChangeData(this.state.searchValue)}
+                >
+                  <Search />
+                </IconButton>
+              </InputAdornment>
+            )
+            }}
+          />
+        </Grid>
+
+      <Button color="primary" variant="contained" style={{ marginBottom: '-10px',marginLeft:'90%',marginTop:'-10%' }}
       onClick={() => this.props.history.push("/app/user/add")}>
       ADD</Button>
-
+      <Grid container spacing={4}>
+      {this.state.searchValue === "" ?
       <Grid item xs={12} style={{zIndex:"0"}}>
          <MUIDataTable
             title="User List"
@@ -163,22 +188,25 @@ class UsersPage extends React.PureComponent {
                   item.RoleID.RoleName,
                   item.userID.created_on,
                   item.userID.created_by,
+                  item.userID.userID,
+                  item.userRoleID,
+                  item.RoleID.RoleID,
+                  item.userID.email,
+                  item.userID.birthdate,
+                  item.userID.gender.codeName,
+                  item.userID.modified_by,
+                  item.userID.modified_on,
+                  item.userID.is_active.codeName,
                   <h4 style = {{color:states[this.finalStatus(item.userID.is_active.codeName).toLowerCase()]}}>{this.finalStatus(item.userID.is_active.codeName)}</h4>,
                   <h4 style = {{color:states[this.finalApproval(item.userID.is_active.codeName).toLowerCase()]}}>{this.finalApproval(item.userID.is_active.codeName)}</h4>,
-                   <Link to={{
-                        pathname :"/app/user/update",
-                        data : item
-                   }}>
-                  <IconButton >
-                    <Edit />
-                  </IconButton>
-                  </Link>
             ]})}
            columns={headerList}
              options={{
                selectableRows:false,
+               onRowClick:rowData=>func(rowData,this.props.history),
                rowsPerPage: this.state.pageSize,
                download:false,
+               page:this.state.page,
                onDownload:true,
                print:false,
                serverSide: false,
@@ -192,10 +220,85 @@ class UsersPage extends React.PureComponent {
                 },
              }}
            />
+        </Grid> :
+            <Grid item xs={12} style={{zIndex:"0"}}>
+         <MUIDataTable
+            title="User List"
+            data={this.state.getValue2.map(item =>{
+              return [
+                  item.userID.username,
+                  item.userID.loginID,
+                  item.userID.phone,
+                  item.RoleID.RoleName,
+                  item.userID.created_on,
+                  item.userID.created_by,
+                  item.userID.userID,
+                  item.userRoleID,
+                  item.RoleID.RoleID,
+                  item.userID.email,
+                  item.userID.birthdate,
+                  item.userID.gender.codeName,
+                  item.userID.modified_by,
+                  item.userID.modified_on,
+                  item.userID.is_active.codeName,
+                  <h4 style = {{color:states[this.finalStatus(item.userID.is_active.codeName).toLowerCase()]}}>{this.finalStatus(item.userID.is_active.codeName)}</h4>,
+                  <h4 style = {{color:states[this.finalApproval(item.userID.is_active.codeName).toLowerCase()]}}>{this.finalApproval(item.userID.is_active.codeName)}</h4>,
+            ]})}
+           columns={headerList}
+             options={{
+               selectableRows:false,
+               onRowClick:rowData=>func(rowData,this.props.history),
+               rowsPerPage: this.state.pageSize,
+               download:false,
+               page:this.state.page,
+               onDownload:true,
+               print:false,
+               serverSide: false,
+                rowsPerPageOptions:[this.state.pageSize],
+                count: this.state.countRows2 ,
+                textLabels: {
+                  body: {
+                      noMatch: <CircularProgress variant='indeterminate' style={{color:'primary'}}/>,
+                  },
+                },
+             }}
+           />
         </Grid>
+        }
+      </Grid>
     </ErrorBoundary>
   );
  }
 }
 
-export default UsersPage;
+UsersPage.propTypes= {
+  classes: PropTypes.object.isRequired,
+};
+
+export default withStyles(styles)(UsersPage);
+
+function func(rowData,history)
+{
+  var data = [{
+    "userRoleID":rowData[7] ,
+    "RoleID":{
+      "RoleID":rowData[8],
+      "RoleName":rowData[3],
+    },
+    "userID":{
+      "birthdate": rowData[10],
+      "created_by": rowData[5],
+      "created_on":rowData[4] ,
+      "email": rowData[9],
+      "gender":{codeName:rowData[11]},
+      "is_active":{codeName:rowData[14]},
+      "loginID":rowData[1],
+      "modified_by":rowData[12],
+      "modified_on":rowData[13],
+      "phone":rowData[2],
+      "userID":rowData[6],
+      "username": rowData[0]
+    }
+  }]
+  history.push({pathname:'/app/user/update',data:data})
+}

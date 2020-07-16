@@ -11,6 +11,7 @@ import Select from "@material-ui/core/Select";
 import IconButton from "@material-ui/core/IconButton";
 import ClearIcon from "@material-ui/icons/Clear";
 import Autocomplete from "@material-ui/lab/Autocomplete";
+import Tooltip from "@material-ui/core/Tooltip";
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import FormHelperText from '@material-ui/core/FormHelperText';
@@ -54,7 +55,10 @@ let count = 0;
 const styles = theme => ({
   formControl: {
     minWidth: 120
-  }
+  },
+  noMaxWidth: {
+    maxWidth: 'none',
+  },
 });
 
 export function requiredBackground() {
@@ -393,6 +397,7 @@ render(){
           </FormHelperText>
         </Grid>
         <Grid item xs={7}>
+          <Tooltip classes={{ tooltip: classes.noMaxWidth }} title="Please include year in yyyy format at the start and language code at the end" arrow>
           <TextField
             id="identifier"
             name="identifier"
@@ -401,6 +406,7 @@ render(){
             autoComplete="cap"
             onChange={(e) => this.handleChangeIdentifier(e.target.value)}
             defaultValue={quesInfo[1].detail} />
+            </Tooltip>
           <FormHelperText
             id="errId"
             style={{ color: "red", marginLeft: "13px", display: "none" }}

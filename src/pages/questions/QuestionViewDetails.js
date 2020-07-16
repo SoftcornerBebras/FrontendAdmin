@@ -109,7 +109,7 @@ class ViewQuestionDetails extends React.PureComponent {
                 </Tabs>
               </AppBar>
               <TabPanel value={this.state.tabValue} index={0}>
-                <QuestionPreview data={this.state.dataX}/>
+                <QuestionPreview data={this.state.dataX} fromPage="QuestionDetails" />
               </TabPanel>
               <TabPanel value={this.state.tabValue} index={1}>
                <QuestionExplanation data={this.state.dataX}/>
@@ -122,8 +122,7 @@ class ViewQuestionDetails extends React.PureComponent {
                 </React.Fragment>
               </TabPanel>
               <TabPanel value={this.state.tabValue} index={3}>
-                <QuestionTranslations data={this.state.dataX.questionID} history={this.props.history}
-                    ansText={this.state.dataX.ansText} background={this.state.dataX.background}/>
+                <QuestionTranslations history={this.props.history} allData={this.state.dataX} />
               </TabPanel>
               <TabPanel value={this.state.tabValue} index={4}>
                 <QuestionAgeGroup data={this.state.dataX.questionID}/>

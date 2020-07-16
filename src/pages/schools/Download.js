@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Backdrop from '@material-ui/core/Backdrop';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import List from '@material-ui/core/List';
 import Snackbar from '@material-ui/core/Snackbar';
@@ -23,7 +25,15 @@ import Select from 'react-select';
 import { arr } from './SchoolDetail';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import {baseURL} from '../constants'
+import {baseURL,metabaseURL,metabaseSecretKey} from '../constants'
+import PersonIcon from '@material-ui/icons/Person';
+import PhoneIcon from '@material-ui/icons/Phone';
+import BarChartIcon from '@material-ui/icons/BarChart';
+import PeopleIcon from '@material-ui/icons/People'; 
+import ErrorIcon from '@material-ui/icons/Error';
+import RoomIcon from '@material-ui/icons/Room'; 
+import './styles.css';
+var jwt = require("jsonwebtoken");
 
 export var cmpYear=[{year: ""}]
 
@@ -37,22 +47,15 @@ var placeAge='Select Competition Age Group..'
 var success=false;
 var readOnly=false;    
 var classes=[];
-var year=[];
-var total={};
-var timeTaken=[];
-var groupName=[];
-var score=[];
 var competition=[];
 var compAgeGrp=[]
-
 var cmpval='Select Competition..';
+var certval={"value":"Participation","label":"Participation"}
 var agegrpval='Select Competition Age Group..';
-var categories=[{value:"Gender Wise Participation",label:"Gender Wise Participation"}]
+var certificateType=[{"value":"Participation","label":"Participation"},
+{"value":"Toppers","label":"Toppers"}]
 var schoolClassID=[];
 var group=''
-var obj = [
-
-];
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
@@ -70,6 +73,7 @@ const styles = theme =>({
   },
 })
 
+var gresultSchoolClassStudents;
 var sch=''
 class Download extends Component {
   constructor(props){
@@ -89,6 +93,7 @@ class Download extends Component {
     competition:null,
     readOnly:false,
     agegrp:null,
+    certval:null,
     openS1:false,
     openS2:false,
     openS3:false,
@@ -101,7 +106,6 @@ class Download extends Component {
     openS10:false,
     openprogress:false,
     openError:false,
-    compAgeGrp:[],
     rerender:false
   }
 
@@ -182,7 +186,7 @@ handleCloseS10=(event,reason)=>{
     var getCompAge
     var cmp=cmpval['value'];
     cmpYear[0].year=cmp;
-    this.empty()
+    compAgeGrp.length=0;
     try{
       getCompAge=await axios.get(
         baseURL+'api/cmp/getAgeCmpWise/'+ cmp+"/",{
@@ -191,18 +195,11 @@ handleCloseS10=(event,reason)=>{
       );
     for(var i=0;i<getCompAge.data.AgeGrp.length;i++)
     {
-        this.setState(prev=>({compAgeGrp:[...prev.compAgeGrp,
-        {"value":getCompAge.data.AgeGrp[i].AgeGroupID,"label":getCompAge.data.AgeGrp[i].AgeGroupName}]}))
+      compAgeGrp.push({"value":getCompAge.data.AgeGrp[i].AgeGroupID,"label":getCompAge.data.AgeGrp[i].AgeGroupName})
     }
-    this.setState({rerender:!this.state.rerender})
     }
     catch(error){
-       	this.setState({openError:true})}
- }
-
- empty=()=>{
-    this.state.compAgeGrp.length=0;
-    this.setState({rerender:!this.state.rerender})
+        this.setState({openError:true})}
  }
 
   handleClassChange =(newValue)=> {
@@ -210,6 +207,23 @@ handleCloseS10=(event,reason)=>{
     this.setState({class:newValue});
     selectedClass=newValue;
     index=classes.indexOf(selectedClass)
+
+   if(selectedClass!='Select Class..' & cmpval!='Select Competition..'){
+
+       axios({
+         method: 'get',
+               url: baseURL+'api/cmp/getClassWiseAgeGroup/'+cmpval['value']+"&"+selectedClass['value']+"/",
+               headers:{Authorization:"Token "+localStorage.getItem('id_token')}
+       })
+       .then(response =>{
+             success=true
+             group=response.data.AgeGroupName
+        })
+        .catch(function (response) {
+          success=false
+           this.setState({openError:true})
+           });
+   }
   }
 
   handleCompetitionChange=(newValue)=>{
@@ -245,21 +259,36 @@ handleCloseS10=(event,reason)=>{
   agegrpval="Select Competition Age Group.."
 
   }
-
+  handleCertificateTypeChange=(newValue)=>{
+    this.setState({certval:newValue})
+    certval=newValue
+    if (certval['value']=="Toppers"){
+      this.handleToppers()
+    }
+    else if(certval['value']=="Participation"){
+      this.handleECert()
+    }
+  }
   handleAgeGroupChange=(newValue)=>{
     this.setState({agegrp:newValue})
     agegrpval=newValue
   }
 
    async componentDidMount() {
-    if(sch.data!=null)
+    if(sch.data==null){
+    certval="Select Certificate Type.."
+    }
+     if(sch.data!=null)
     {
+      
       if(sch.data.split('_')[1]=='School Toppers')
       {
+       certval=[{"value":"Toppers","label":"Toppers"}]
        this.handleToppers()
       }
       if(sch.data!=null & sch.data.split('_')[1]=='Participation')
       {
+        certval=[{"value":"Participation","label":"Participation"}]
         this.handleECert()
       }
     }
@@ -318,7 +347,6 @@ handleCloseS10=(event,reason)=>{
       else{
       readOnly=true
       this.handleToggle()
-     try{
       axios({
       method: 'get',
       url: baseURL+'api/cmp/getSchoolTopperCertificates/'+cmpval['value']+"&"+agegrpval['value']+"&"+arr[0].schoolID +"/",
@@ -327,7 +355,6 @@ handleCloseS10=(event,reason)=>{
     .then(response =>{
     if(response.status==200){
      this.sleep(5000).then(()=>{
-     try{
      fetch(baseURL+'media/output/'+arr[0].schoolName+', '+arr[0].City+'-Toppers-'+agegrpval['label']+'-'+cmpval['label'].toString().split(" ")[2]+'.zip',{
      })
       .then(response => {
@@ -340,46 +367,32 @@ handleCloseS10=(event,reason)=>{
       readOnly=false
       this.handleCloseProgress()
       this.setState({openS9:true})
-
       axios({
       method: 'get',
         url: baseURL+'api/cmp/deleteFiles/'+arr[0].schoolID+'&'+0+'&'+agegrpval['label']+'&'+cmpval['label'].toString().split(" ")[2]+'&'+'schoolToppers'+'/',
         headers:{Authorization:"Token "+localStorage.getItem('id_token')}
       });
     });
-   }).catch(error=>{
-
+   })
+    .catch(error=>{
         this.handleCloseProgress()
         readOnly=false
         this.setState({openS10:true})
-      })
-    }catch(error){
-
-        this.handleCloseProgress()
-        readOnly=false
-        this.setState({openS10:true})
-      }
+      });
   })}
   if(response.status==204){
     this.setState({openS7:true})
     this.handleCloseProgress()
        readOnly=false
   }
-  }).catch(error =>{
+  })
+  .catch(error=> {
        this.handleCloseProgress()
        readOnly=false
        if(error.status==204) {
             this.setState({openS7:true})
         }
-        else this.setState({openError:true})
-      })
-  }catch(error) {
-       this.handleCloseProgress()
-       readOnly=false
-       if(error.status==204) {
-            this.setState({openS7:true})
-        }else this.setState({openError:true})
-      }
+      });
       }
     }
   check2=()=>{
@@ -421,12 +434,12 @@ handleCloseS10=(event,reason)=>{
             readOnly=false
             this.handleCloseProgress()
             this.setState({openS9:true})
-            group = 'null'
          axios({
            method: 'get',
-           url: baseURL+'api/cmp/deleteFiles/'+arr[0].schoolID+'&'+selectedClass['value']+'&'+group+'&'+cmpval['label'].toString().split(" ")[2]+'&'+'participation'+'/',
+           url: baseURL+'api/cmp/deleteFiles/'+arr[0].schoolID+'&'+selectedClass['value']+'&'+cmpval['label'].toString().split(" ")[2]+'&'+'participation'+'/',
            headers:{Authorization:"Token "+localStorage.getItem('id_token')}
-         })
+         }).then(response=>{});
+
          });
        })
         .catch(error=>{
@@ -442,12 +455,10 @@ handleCloseS10=(event,reason)=>{
            readOnly=false
       }
       })
-       	.catch(error=> {
+        .catch(error=> {
         this.handleCloseProgress()
         readOnly=false
-        if(error.status==204){
-        this.setState({openS7:true})}
-        else this.setState({openError:true})
+        this.setState({openError:true})
           });
     }
   }
@@ -486,7 +497,14 @@ handleCloseS10=(event,reason)=>{
     return (
     <div>
       <PageTitle title="Download"/>
-
+      <div className="sidenav">
+    <a href="#/app/school/directions" className="directions"><RoomIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Directions</a>
+    <a href="#/app/school/ContactInfo" className="contact"><PhoneIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Contact Info</a>
+  <a href="#/app/school/RegisteredBy" className="registeredBy" ><PersonIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Registered By</a>
+  <a href="#/app/school/StudentDetails" className="studentsEnrolled" ><PeopleIcon style={{marginLeft:"-40px",marginRight:"20px"}}/>Student Details</a>
+  <a href= {metabaseURL + "public/dashboard/be229927-122f-443f-8ea8-685c5255e5ca"} className="analysis" ><BarChartIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Analysis</a>
+  <a href="#/app/school/download" className="download" ><GetAppIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Download</a>
+  </div>
       <Snackbar open={this.state.openS1} autoHideDuration={3000} onClose={this.handleCloseS1} anchorOrigin={{ vertical:'top', horizontal:'center'} }>
         <Alert onClose={this.handleCloseS1} severity="warning">
           Select Competition Age Group!
@@ -548,11 +566,29 @@ handleCloseS10=(event,reason)=>{
           Error occured!
         </Alert>
      </Snackbar>
+     <Paper  elevation={3} style={{width:'90%',marginLeft:'5%',marginTop:"50px"}} >
+     <Box display="flex" flexDirection="row" p={1} m={1} >
+        <Box p={1} m={1} style={{marginTop:'5%',marginLeft:'5%'}} >
+        
+     <Typography variant='h6'  color='textSecondary'>Select Certificate Type</Typography>
+</Box>
+<Box  p={1} m={1} style={{width:"40%",marginTop:"5%",marginLeft:'30px'}}>
+<Select
+        value={certval}
+        onChange={this.handleCertificateTypeChange}
+        options={certificateType}
+        placeholder="Select Certificate Type.."
+        isDisabled={readOnly}
+      />
+      </Box>
 
-      <div id="Toppers" style={{display:"none"}}>
+</Box>
 
- <Box display="flex" flexDirection="row" p={1} m={1}>
-<Box  p={1} m={1} style={{width:"25%"}}>
+<Box display="flex" flexDirection="row" p={1} m={1} >
+        <Box p={1} m={1} style={{marginLeft:'5%',marginTop:'-2%'}}>
+        <Typography variant='h6'  color='textSecondary'>Select Competition </Typography>
+  </Box>
+  <Box  p={1} m={1} style={{width:"40%",marginTop:"-2%",marginLeft:'58px'}}>
 <Select
         value={cmpval}
         onChange={this.handleCompetitionChange}
@@ -561,33 +597,15 @@ handleCloseS10=(event,reason)=>{
         isDisabled={readOnly}
       />
       </Box>
-      <Box  p={1} m={1} style={{width:"25%"}}>
-       <Select
-        value={agegrpval}
-        onChange={this.handleAgeGroupChange}
-        options={this.state.compAgeGrp}
-        placeholder={placeAge}
-        isDisabled={readOnly}
-      />
-   </Box>
 
-   <Box p={1} m={1} id='downloadToppers'>
-   <Button
+</Box>
+<div id="Ecertificate" style={{display:"none"}}  >
+<Box display="flex" flexDirection="row" p={1} m={1} >
+        <Box p={1} m={1} style={{marginLeft:'5%',marginTop:'-2%'}}>
+        <Typography variant='h6'  color='textSecondary'>Select Class</Typography>
+</Box>
 
-        variant="contained"
-        color="primary"
-        onClick={this.check1}
-        startIcon={<GetAppIcon />}
-        disabled={readOnly}
-        >
-        Download
-      </Button>
-    </Box>
-   </Box>
-  </div>
-  <div id="Ecertificate"  >
-  <Box display="flex" flexDirection="row" p={1} m={1}style={{zIndex:"100"}}>
-  <Box  p={1} m={1} style={{width:"25%"}}>
+  <Box  p={1} m={1} style={{width:"40%",marginTop:"-2%",marginLeft:'116px'}}>
        <Select
         value={selectedClass}
         onChange={this.handleClassChange}
@@ -596,16 +614,11 @@ handleCloseS10=(event,reason)=>{
         isDisabled={readOnly}
       />
   </Box>
-  <Box  p={1} m={1} style={{width:"25%"}}>
-  <Select
-        value={cmpval}
-        onChange={this.handleCompetitionChange}
-        options={competition}
-        placeholder={placeComp}
-        isDisabled={readOnly}
-      />
-      </Box>
-  <Box p={1} m={1} id="downloadECert">
+  
+  </Box>
+  <Box display="flex" flexDirection="row" p={1} m={1} >
+
+  <Box p={1} m={1} id="downloadECert" style={{marginLeft:"20%"}}>
   <Button
         variant="contained"
         color="primary"
@@ -613,54 +626,47 @@ handleCloseS10=(event,reason)=>{
         startIcon={<GetAppIcon />}
         disabled={readOnly}
       >
-        Download
+        Download Participation Certificates
       </Button>
   </Box>
   </Box>
+
   </div>
-  <div>
-      <Drawer
-        variant="permanent"
-        anchor="right"
-        classes={{paper: classesP.paper}}
+<div id="Toppers" style={{display:"none"}}>
+<Box display="flex" flexDirection="row" p={1} m={1} >
+        <Box p={1} m={1} style={{marginLeft:'5%',marginTop:'-2%'}}>
+        <Typography variant='h6'  color='textSecondary'>Select Age Group</Typography>
+</Box>
+
+<Box  p={1} m={1} style={{width:"40%",marginTop:"-2%",marginLeft:'76px'}}>
+       <Select
+        value={agegrpval}
+        onChange={this.handleAgeGroupChange}
+        options={compAgeGrp}
+        placeholder={placeAge}
+        isDisabled={readOnly}
+      />
+   </Box>
+</Box>
+
+<Box display="flex" flexDirection="row" p={1} m={1} >
+<Box p={1} m={1} id='downloadToppers' style={{marginLeft:"20%"}}>
+   <Button
+
+        variant="contained"
+        color="primary"
+        onClick={this.check1}
+        startIcon={<GetAppIcon />}
+        disabled={readOnly}
         >
-          <List
-      component="nav"
-      aria-labelledby="nested-list-subheader"
-      subheader={
-        <ListSubheader component="div" id="nested-list-subheader">
-          <b><h3>Download Options</h3></b>
-        </ListSubheader>
-      }
-    >
-        <ListItem button  onClick={this.handleClick}>
-        <ListItemIcon>
-        <ClassIcon />
-        </ListItemIcon>
-        <ListItemText primary="Certificates" />
-        {this.state.open ? <ExpandLess /> : <ExpandMore />}
-      </ListItem>
-      <Collapse in={this.state.open} timeout="auto" unmountOnExit>
-        <List component="div" disablePadding>
-          <ListItem button id='participants' onClick={this.handleECert} style={{paddingLeft:"25px"}}>
-            <ListItemIcon>
-              <FiberManualRecordIcon
-              style={{height:"10px"}} />
-            </ListItemIcon>
-            <ListItemText primary="Participants" />
-          </ListItem>
-          <ListItem button id='schoolToppers' onClick={this.handleToppers} style={{paddingLeft:"25px"}}>
-            <ListItemIcon>
-              <FiberManualRecordIcon
-              style={{height:"10px"}} />
-            </ListItemIcon>
-            <ListItemText primary="Toppers" />
-          </ListItem>
-          </List>
-      </Collapse>
-    </List>
-       </Drawer>
+        Download School Toppers Certificates
+      </Button>
+    </Box>
+    </Box>
     </div>
+     
+  </Paper>
+
    <Backdrop className={classesP.backdrop}  open={this.state.openprogress} >
 
        <CircularProgress color="primary" />

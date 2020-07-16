@@ -469,9 +469,9 @@ async fetchGroup(){
        headers: {Authorization: 'Token '+localStorage.getItem('id_token')}
       }
     );
-    for(var i=0;i<getGroups.data.length;i++)
+    for(var i=0;i<getGroups.data.data.length;i++)
     {
-      this.setState(prev=>({groups:[...prev.groups,{"value":getGroups.data[i].codeID,"label":getGroups.data[i].codeName}]}))
+      this.setState(prev=>({groups:[...prev.groups,{"value":getGroups.data.data[i].codeID,"label":getGroups.data.data[i].codeName}]}))
     }
   }
   catch(error){
@@ -487,9 +487,9 @@ async fetchType(){
        headers: {Authorization: 'Token '+localStorage.getItem('id_token')}
       }
     );
-    for(var i=0;i<getTypes.data.length;i++)
+    for(var i=0;i<getTypes.data.data.length;i++)
     {
-      this.setState(prev=>({types:[...prev.types,{"value":getTypes.data[i].codeID,"label":getTypes.data[i].codeName}]}))
+      this.setState(prev=>({types:[...prev.types,{"value":getTypes.data.data[i].codeID,"label":getTypes.data.data[i].codeName}]}))
     }
   }
   catch(error){

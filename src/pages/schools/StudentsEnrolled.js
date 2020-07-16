@@ -20,15 +20,23 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import {Link} from 'react-router-dom';
-import {baseURL} from '../constants'
+import {baseURL,metabaseURL, metabaseSecretKey} from '../constants'
+import RoomIcon from '@material-ui/icons/Room';
+import PersonIcon from '@material-ui/icons/Person';
+import PhoneIcon from '@material-ui/icons/Phone';
+import BarChartIcon from '@material-ui/icons/BarChart';
+import PeopleIcon from '@material-ui/icons/People';
+import GetAppIcon from '@material-ui/icons/GetApp';
+import './styles.css';
+var jwt = require("jsonwebtoken");
 
 var d = new Date();
 var students=[]
 var yearOptions=[{"value":d.getFullYear(),"label":d.getFullYear()},{"value":2019,"label":2019},{"value":2018,"label":2018}]
 
 
-var cmpval='Select Competition..';
-var cmpvalue='Select Competition..';
+var cmpval='Select Competition To Check Results...';
+var cmpvalue='Select Competition To Check Students Enrolled...';
 var competition=[]
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -43,7 +51,16 @@ const states = {
 };
 var classes=[];
 const userStatus = { active : "active", approved : "approved" , inactive : "inactive"};
-const headerList=["Name","Class","Gender","Created On","Created By","Status","Approval","Edit"];
+const headerList=["Name","LoginID","Gender","Created On",
+  {name:"UserID",options:{display:false,filter:false,viewColumns:false}},
+  {name:"Created By",options:{display:false,filter:false,viewColumns:false}},
+  {name:"Role",options:{display:false,filter:false,viewColumns:false}},
+  {name:"UserRoleID",options:{display:false,filter:false,viewColumns:false}},
+  {name:"Birthdate",options:{display:false,filter:false,viewColumns:false}},
+  {name:"Phone",options:{display:false,filter:false,viewColumns:false}},
+  {name:"Email",options:{display:false,filter:false,viewColumns:false}},
+  {name:"Is Active",options:{display:false,filter:false,viewColumns:false}},"Status","Approval",
+];
 const headerList1=["Name","LoginID","Gender","Class","Age Group","Score","Total Marks"];
 const status='';
 const approval='';
@@ -51,12 +68,23 @@ var gresult,gresultClasses,gresultSchool;
 let gresUserRoleID;
 var gresult,gresultClasses,gresultSchool;
 var getStudents;
+
+//for schools dashboard
+var payload = {
+  resource: { dashboard: 34 },
+  params: {},
+  exp: Math.round(Date.now() / 1000) + (10 * 60) // 10 minute expiration
+};
+var token = jwt.sign(payload, metabaseSecretKey);
+var srcSchools = metabaseURL + "/embed/dashboard/" + token + "#bordered=true&titled=true";
+
 class StudentsEnrolled extends React.PureComponent{
   state={
     notificationsPosition:2,
     errorToastId:null,
     getValue:[],
     getRes:[],
+    page:0,
     countRows:0,
     countRowsC:0,
     pageSize:10,
@@ -72,7 +100,9 @@ class StudentsEnrolled extends React.PureComponent{
     competition:null,
     comp:'',
     openError:false,
-    loadingData:false
+    loadingData:false,
+    noStudents:false,
+    title:"Students Enrolled"
   }
 
   handleClose=(event,reason)=>{
@@ -80,14 +110,14 @@ class StudentsEnrolled extends React.PureComponent{
       return;
     }
 
-    this.setState({openS1:false,openError:false,loadingData:false});
+    this.setState({openS1:false,openError:false,loadingData:false,noStudents:false});
   }
 
   handleCmpChange=newValue=>{
     this.setState({comp:newValue})
     cmpvalue=newValue
     this.setState({getValue:[]})
-    if(cmpvalue!='Select Competition..')
+    if(cmpvalue!='Select Competition To Check Students Enrolled...')
     {
       document.getElementById('Enrolled').style.display="none"
       this.fetchData();
@@ -98,14 +128,153 @@ class StudentsEnrolled extends React.PureComponent{
   handleCompetitionChange=(newValue)=>{
     this.setState({competition:newValue})
       cmpval=newValue;
-    if(cmpval!='Select Competition..')
+    if(cmpval!='Select Competition To Check Results...')
     {
       document.getElementById('Results').style.display="block"
       this.fetch();
     }
     }
 
-async fetch(){
+async fetchData () {
+
+var cmp=cmpvalue['value'];
+      try{
+        getStudents=await axios.get(
+          baseURL+'api/cmp/viewSchoolStudentsDetailCmpWise/'+arr[0].schoolID+"&"+cmp+"/",{
+               headers: {Authorization: "Token "+localStorage.getItem('id_token')}
+          }
+        );
+    this.state.getValue.length=0
+      for(var i=0;i<getStudents.data.StudData.results.length;i++)
+      {
+        this.setState(prev=>({getValue:[...prev.getValue,{
+               userID:getStudents.data.StudData.results[i].userID.userID,
+               username:getStudents.data.StudData.results[i].userID.username,
+               loginID:getStudents.data.StudData.results[i].userID.loginID,
+               createdBy:getStudents.data.StudData.results[i].userID.created_by,
+               createdOn:getStudents.data.StudData.results[i].userID.created_on,
+               classNumber:getStudents.data.StudData.results[i].schoolClassID.classNumber,
+               gender:getStudents.data.StudData.results[i].userID.gender,
+               birthdate:getStudents.data.StudData.results[i].userID.birthdate,
+               phone:getStudents.data.StudData.results[i].userID.phone,
+               email:getStudents.data.StudData.results[i].userID.email,
+               userRoleID:getStudents.data.RoleData[i].userRoleID,
+               role:getStudents.data.RoleData[i].RoleID.RoleName,
+               is_active:getStudents.data.StudData.results[i].userID.is_active.codeName,
+    }]}))
+      }
+      if(this.state.getValue.length==0){
+        this.setState({noStudents:true})
+        document.getElementById('Enrolled').style.display="none"
+      }
+
+        this.setState({countRows: getStudents.data.StudData.count});
+       this.setState({pageSize : getStudents.data.StudData.page_size,nextLink:getStudents.data.StudData.links.next,prevLink:getStudents.data.StudData.links.previous});
+
+      this.setState({loadingData:true})
+       }
+      catch(error){
+        this.setState({noStudents:true})
+        document.getElementById('Enrolled').style.display="none"
+      }
+  }
+   results=()=>{
+    this.setState({title:"Results"})
+    document.getElementById('Enrolled').style.display="none"
+    document.getElementById('competition').style.display="block"
+    document.getElementById('cmp').style.display="none"
+    document.getElementById('checkResults').style.display="none"
+    document.getElementById('back').style.display="block"
+    if(this.state.getRes.length!=0){
+    document.getElementById('Results').style.display="block"
+    }
+  }
+  enrolled=()=>{
+    this.setState({title:"Students Enrolled"})
+    document.getElementById('Results').style.display="none"
+    document.getElementById('Enrolled').style.display="block"
+    document.getElementById('competition').style.display="none"
+    document.getElementById('cmp').style.display="block"
+    document.getElementById('back').style.display="none"
+    document.getElementById('checkResults').style.display="block"
+ }
+
+
+async componentDidMount(){
+
+     cmpvalue = "Select Competition To Check Students Enrolled..."
+     cmpval="Select Competition To Check Results..."
+    var gresultCmp
+    try{
+      gresultCmp= await axios.get(
+        baseURL+'api/cmp/getCompetitionSchoolWise/'+arr[0].schoolID+"/",{
+             headers: {Authorization: "Token "+localStorage.getItem('id_token')}
+        }
+      );
+    competition.length=0;
+    for(var i=0;i<gresultCmp.data.length;i++)
+    {
+       if(gresultCmp.data[i].competitionName.toString().includes(gresultCmp.data[i].startDate.toString().split("-")[0])){
+
+          competition.push({"value":gresultCmp.data[i].competitionID,"label":gresultCmp.data[i].competitionName})
+      }
+      else
+      {
+        competition.push({"value":gresultCmp.data[i].competitionID,"label":gresultCmp.data[i].competitionName +' '+gresultCmp.data[i].startDate.toString().split("-")[0] })
+
+      }
+  }
+    }
+    catch(error){this.props.history.push('/app/dashboard')}
+
+    try{
+      getStudents =await axios.get(
+        baseURL+'api/cmp/getAllRegisteredStudentsSchoolWise/'+ arr[0].schoolID+"/",{
+            headers: {Authorization: "Token "+localStorage.getItem('id_token')}
+        }
+      );
+     for(var i=0;i<getStudents.data.StudData.results.length;i++)
+     {
+           this.setState(prev=>({getValue:[...prev.getValue,{
+               userID:getStudents.data.StudData.results[i].userID.userID,
+               username:getStudents.data.StudData.results[i].userID.username,
+               loginID:getStudents.data.StudData.results[i].userID.loginID,
+               createdBy:getStudents.data.StudData.results[i].userID.created_by,
+               createdOn:getStudents.data.StudData.results[i].userID.created_on,
+               gender:getStudents.data.StudData.results[i].userID.gender,
+               birthdate:getStudents.data.StudData.results[i].userID.birthdate,
+               phone:getStudents.data.StudData.results[i].userID.phone,
+               email:getStudents.data.StudData.results[i].userID.email,
+               userRoleID:getStudents.data.StudData.results[i].userRoleID,
+               role:getStudents.data.StudData.results[i].RoleID.RoleName,
+               is_active:getStudents.data.StudData.results[i].userID.is_active.codeName,
+       }]}))
+     }
+        if(getStudents.data.StudData.results.length==0){
+          this.setState({noStudents:true})
+          document.getElementById('Enrolled').style.display="none"
+        }
+         this.setState({nextLink:getStudents.data.StudData.links.next,pageSize:getStudents.data.StudData.page_size,prevLink:getStudents.data.StudData.links.previous,countRows:getStudents.data.StudData.count})
+
+     }
+     catch(error){this.props.history.push('/app/dashboard')}
+
+     try{
+       gresultClasses= await axios.get(
+         baseURL+'api/com/getSchoolWiseClasses/' + arr[0].schoolID+"/",{
+            headers: {Authorization: "Token "+localStorage.getItem('id_token')}
+         }
+       );
+     for(var i=0;i<gresultClasses.data.length;i++)
+     {
+     classes.push(gresultClasses.data[i].classNumber);
+     }
+      this.setState({class:classes[0]+"-"+classes[(classes.length-1)]})
+     }
+     catch(error){this.props.history.push('/app/dashboard')}
+    }
+
+ async fetch(){
      var cmp=cmpval['value'];
     this.state.getRes.length=0;
     try{
@@ -147,136 +316,14 @@ async fetch(){
   }]}))
     }
     }
+
+    if(this.state.getRes.length==0){
+      this.setState({noStudents:true})
+      document.getElementById('Results').style.display="none"
+    }
+
     this.setState({nextLinkC:getStudents.data.links.next,pageSizeC:getStudents.data.page_size,prevLinkC:getStudents.data.links.previous,countRowsC:getStudents.data.count})
   }
-
-   results=()=>{
-    document.getElementById('Enrolled').style.display="none"
-    document.getElementById('competition').style.display="block"
-    document.getElementById('cmp').style.display="none"
-    document.getElementById('checkResults').style.display="none"
-    document.getElementById('back').style.display="block"
-    if(this.state.getRes.length!=0){
-    document.getElementById('Results').style.display="block"
-    }
-  }
-  enrolled=()=>{
-     document.getElementById('Results').style.display="none"
-    document.getElementById('Enrolled').style.display="block"
-    document.getElementById('competition').style.display="none"
-    document.getElementById('cmp').style.display="block"
-    document.getElementById('back').style.display="none"
-    document.getElementById('checkResults').style.display="block"
- }
-
-
-async componentDidMount(){
-
-     cmpvalue =  cmpval="Select Competition.."
-    var gresultCmp
-    try{
-      gresultCmp= await axios.get(
-        baseURL+'api/cmp/getCompetitionSchoolWise/'+arr[0].schoolID+"/",{
-             headers: {Authorization: "Token "+localStorage.getItem('id_token')}
-        }
-      );
-    competition.length=0;
-    for(var i=0;i<gresultCmp.data.length;i++)
-    {
-       if(gresultCmp.data[i].competitionName.toString().includes(gresultCmp.data[i].startDate.toString().split("-")[0])){
-
-          competition.push({"value":gresultCmp.data[i].competitionID,"label":gresultCmp.data[i].competitionName})
-      }
-      else
-      {
-        competition.push({"value":gresultCmp.data[i].competitionID,"label":gresultCmp.data[i].competitionName +' '+gresultCmp.data[i].startDate.toString().split("-")[0] })
-
-      }
-  }
-    }
-    catch(error){this.props.history.push('/app/dashboard')}
-
-    try{
-      getStudents =await axios.get(
-        baseURL+'api/cmp/getAllSchoolStudents/'+ arr[0].schoolID+"/",{
-            headers: {Authorization: "Token "+localStorage.getItem('id_token')}
-        }
-      );
-     for(var i=0;i<getStudents.data.StudData.results.length;i++)
-     {
-           this.setState(prev=>({getValue:[...prev.getValue,{
-               userID:getStudents.data.StudData.results[i].userID.userID,
-               username:getStudents.data.StudData.results[i].userID.username,
-               loginID:getStudents.data.StudData.results[i].userID.loginID,
-               createdBy:getStudents.data.StudData.results[i].userID.created_by,
-               createdOn:getStudents.data.StudData.results[i].userID.created_on,
-               classNumber:getStudents.data.StudData.results[i].schoolClassID.classNumber,
-               gender:getStudents.data.StudData.results[i].userID.gender,
-               birthdate:getStudents.data.StudData.results[i].userID.birthdate,
-               phone:getStudents.data.StudData.results[i].userID.phone,
-               email:getStudents.data.StudData.results[i].userID.email,
-               userRoleID:getStudents.data.RoleData[i].userRoleID,
-               role:getStudents.data.RoleData[i].RoleID.RoleName,
-               is_active:getStudents.data.StudData.results[i].userID.is_active.codeName,
-       }]}))
-     }
-         this.setState({nextLink:getStudents.data.StudData.links.next,pageSize:getStudents.data.StudData.page_size,prevLink:getStudents.data.StudData.links.previous,countRows:getStudents.data.StudData.count})
-
-     }
-     catch(error){this.props.history.push('/app/dashboard')}
-
-     try{
-       gresultClasses= await axios.get(
-         baseURL+'api/com/getSchoolWiseClasses/' + arr[0].schoolID+"/",{
-            headers: {Authorization: "Token "+localStorage.getItem('id_token')}
-         }
-       );
-     for(var i=0;i<gresultClasses.data.length;i++)
-     {
-     classes.push(gresultClasses.data[i].classNumber);
-     }
-      this.setState({class:classes[0]+"-"+classes[(classes.length-1)]})
-     }
-     catch(error){this.props.history.push('/app/dashboard')}
-    }
-
- async fetchData () {
-
-var cmp=cmpvalue['value'];
-      try{
-        getStudents=await axios.get(
-          baseURL+'api/cmp/viewSchoolStudentsDetailCmpWise/'+arr[0].schoolID+"&"+cmp+"/",{
-               headers: {Authorization: "Token "+localStorage.getItem('id_token')}
-          }
-        );
-    this.state.getValue.length=0
-      for(var i=0;i<getStudents.data.StudData.results.length;i++)
-      {
-        this.setState(prev=>({getValue:[...prev.getValue,{
-               userID:getStudents.data.StudData.results[i].userID.userID,
-               username:getStudents.data.StudData.results[i].userID.username,
-               loginID:getStudents.data.StudData.results[i].userID.loginID,
-               createdBy:getStudents.data.StudData.results[i].userID.created_by,
-               createdOn:getStudents.data.StudData.results[i].userID.created_on,
-               classNumber:getStudents.data.StudData.results[i].schoolClassID.classNumber,
-               gender:getStudents.data.StudData.results[i].userID.gender,
-               birthdate:getStudents.data.StudData.results[i].userID.birthdate,
-               phone:getStudents.data.StudData.results[i].userID.phone,
-               email:getStudents.data.StudData.results[i].userID.email,
-               userRoleID:getStudents.data.RoleData[i].userRoleID,
-               role:getStudents.data.RoleData[i].RoleID.RoleName,
-               is_active:getStudents.data.StudData.results[i].userID.is_active.codeName,
-    }]}))
-      }
-
-        this.setState({countRows: getStudents.data.StudData.count});
-       this.setState({pageSize : getStudents.data.StudData.page_size,nextLink:getStudents.data.StudData.links.next,prevLink:getStudents.data.StudData.links.previous});
-
-      this.setState({loadingData:true})
-       }
-      catch(error){this.setState({openError:true})}
-  }
-
 
 
 finalApproval = (approval) => {
@@ -304,29 +351,27 @@ finalApproval = (approval) => {
    };
    async  handlePageChange() {
 
-    try {
+     try {
        if(this.state.nextLink!=null) {
         getStudents = await axios.get(this.state.nextLink , {
             headers: {Authorization: 'Token '+localStorage.getItem('id_token')}
         });
-        if(cmpval=="Select Competition..."){
+        if(cmpvalue == "Select Competition To Check Students Enrolled..."){
        for(var i=0;i<getStudents.data.StudData.results.length;i++)
        {
-
-               this.setState(prev=>({getValue:[...prev.getValue,{
-                   userID:getStudents.data.StudData.results[i].userID.userID,
-                   username:getStudents.data.StudData.results[i].userID.username,
-                   loginID:getStudents.data.StudData.results[i].userID.loginID,
-                   createdBy:getStudents.data.StudData.results[i].userID.created_by,
-                   createdOn:getStudents.data.StudData.results[i].userID.created_on,
-                   classNumber:getStudents.data.StudData.results[i].schoolClassID.classNumber,
-                   gender:getStudents.data.StudData.results[i].userID.gender,
-                   birthdate:getStudents.data.StudData.results[i].userID.birthdate,
-                   phone:getStudents.data.StudData.results[i].userID.phone,
-                   email:getStudents.data.StudData.results[i].userID.email,
-                   userRoleID:getStudents.data.RoleData[i].userRoleID,
-                   role:getStudents.data.RoleData[i].RoleID.RoleName,
-                   is_active:getStudents.data.StudData.results[i].userID.is_active.codeName,
+         this.setState(prev=>({getValue:[...prev.getValue,{
+              userID:getStudents.data.StudData.results[i].userID.userID,
+               username:getStudents.data.StudData.results[i].userID.username,
+               loginID:getStudents.data.StudData.results[i].userID.loginID,
+               createdBy:getStudents.data.StudData.results[i].userID.created_by,
+               createdOn:getStudents.data.StudData.results[i].userID.created_on,
+               gender:getStudents.data.StudData.results[i].userID.gender,
+               birthdate:getStudents.data.StudData.results[i].userID.birthdate,
+               phone:getStudents.data.StudData.results[i].userID.phone,
+               email:getStudents.data.StudData.results[i].userID.email,
+               userRoleID:getStudents.data.StudData.results[i].userRoleID,
+               role:getStudents.data.StudData.results[i].RoleID.RoleName,
+               is_active:getStudents.data.StudData.results[i].userID.is_active.codeName,
 
            }]}))
        }
@@ -338,12 +383,11 @@ finalApproval = (approval) => {
       {
 
         this.setState(prev=>({getValue:[...prev.getValue,{
-               userID:getStudents.data.StudData.results[i].userID.userID,
+                userID:getStudents.data.StudData.results[i].userID.userID,
                username:getStudents.data.StudData.results[i].userID.username,
                loginID:getStudents.data.StudData.results[i].userID.loginID,
                createdBy:getStudents.data.StudData.results[i].userID.created_by,
                createdOn:getStudents.data.StudData.results[i].userID.created_on,
-               classNumber:getStudents.data.StudData.results[i].schoolClassID.classNumber,
                gender:getStudents.data.StudData.results[i].userID.gender,
                birthdate:getStudents.data.StudData.results[i].userID.birthdate,
                phone:getStudents.data.StudData.results[i].userID.phone,
@@ -362,6 +406,7 @@ finalApproval = (approval) => {
     }catch(error){this.setState({openError:true})}
 
    }
+
 
  async  handlePageChange1() {
 
@@ -426,10 +471,25 @@ render(){
           New Data Loaded!
         </Alert>
       </Snackbar>
+      <Snackbar open={this.state.noStudents} autoHideDuration={3000} onClose={this.handleClose} anchorOrigin={{ vertical:'top', horizontal:'center'} }>
+        <Alert onClose={this.handleClose} severity="warning">
+          No Students Present!
+        </Alert>
+      </Snackbar>
+
+      <div className="sidenav">
+        <a href="#/app/school/directions" className="directions"><RoomIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Directions</a>
+        <a href="#/app/school/ContactInfo" className="contact"><PhoneIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Contact Info</a>
+        <a href="#/app/school/RegisteredBy" className="registeredBy" ><PersonIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Registered By</a>
+        <a href="#/app/school/StudentDetails" className="studentsEnrolled" ><PeopleIcon style={{marginLeft:"-40px",marginRight:"20px"}}/>Student Details</a>
+        <a href= {srcSchools} className="analysis" ><BarChartIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Analysis</a>
+        <a href="#/app/school/download" className="download" ><GetAppIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Download</a>
+      </div>
+
     <Box display="flex" flexDirection="row" style={{marginTop:"-0.8%"}} >
     <Box p={1} m={1}  >
 
-    <PageTitle title="Students Enrolled" />
+    <PageTitle title={this.state.title} />
    </Box>
    <Box p={1} m={1} id="cmp" style={{zIndex:"300",marginTop:"4%",width:"20%",marginLeft:"20%"}} >
 
@@ -437,7 +497,7 @@ render(){
    value={cmpvalue}
     options={competition}
     onChange={this.handleCmpChange}
-    placeholder="Select Competition..."
+    placeholder="Select Competition To Check Students Enrolled..."
     />
    </Box>
 
@@ -448,7 +508,7 @@ render(){
       id='comp'
       options={competition}
       onChange={this.handleCompetitionChange}
-      placeholder="Select Competition..."
+      placeholder="Select Competition To Check Results..."
       />
       </Box>
 
@@ -467,14 +527,13 @@ render(){
     <Button
     variant="contained" color="primary"
     onClick={this.enrolled}
+    style={{width:'110%'}}
     startIcon={<ArrowBackIcon />}
-    >Back</Button>
+    >Back to Students Enrolled</Button>
 
    </Box>
    </Box>
-        <ExpansionPanel
-
-       >
+        <ExpansionPanel style={{width:'95%'}}>
         <ExpansionPanelSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
@@ -494,34 +553,34 @@ render(){
   </ExpansionPanelDetails>
       </ExpansionPanel>
 
-
-
       <br></br>
       <div id="Enrolled">
-      <Grid item xs={12} style={{zIndex:'0'}}>
+      <Grid item xs={12} style={{zIndex:'0',width:'95%'}}>
          <MUIDataTable
             title="School Students"
             data={this.state.getValue.map(item => {
               return [
                   item.username,
-                  item.classNumber,
+                  item.loginID,
                   item.gender.codeName,
                   item.createdOn,
+                  item.userID,
                   item.createdBy,
-                <h4 style = {{color:states[this.finalStatus(item.is_active).toLowerCase()]}}>{this.finalStatus(item.is_active)}</h4>,
-                  <h4 style = {{color:states[this.finalApproval(item.is_active).toLowerCase()]}}>{this.finalApproval(item.is_active)}</h4>,
-                   <Link to={{
-                        pathname :"/app/user/update",
-                        data : item
-                   }}>
-                  <IconButton >
-                    <Edit />
-                  </IconButton>
-                  </Link>
+                  item.role,
+                  item.userRoleID,
+                  item.birthdate,
+                  item.phone,
+                  item.email,
+                  item.is_active,
+                  <h4 style = {{color:states[this.finalStatus(item.is_active).toLowerCase()]}}>{this.finalStatus(item.is_active)}</h4>,
+                  <h4 style = {{color:states[this.finalApproval(item.is_active).toLowerCase()]}}>{this.finalApproval(item.is_active)}</h4>
+
             ]})}
           columns={headerList}
              options={{
                selectableRows:false,
+               onRowClick:item=> funcEnrolled(item,this.props.history),
+               page:this.state.page,
                rowsPerPage: this.state.pageSize,
                print:false,
                serverSide: false,
@@ -533,20 +592,16 @@ render(){
                     noMatch:<CircularProgress id='CircularP' variant='indeterminate' style={{color:'primary'}}/>
                   },
               },
-
               }}
-
           />
         </Grid>
         </div>
         <div id="Results" style={{display:"none"}}>
-      <Grid item xs={12} style={{zIndex:'0'}}>
+      <Grid item xs={12} style={{zIndex:'0',width:'95%'}}>
          <MUIDataTable
-            title="School Students"
-
+            title="School Students Results"
             data={this.state.getRes.map(item => {
               return [
-
                   item.username,
                   item.loginID,
                   item.gender,
@@ -557,6 +612,7 @@ render(){
             ]})}
           columns={headerList1}
              options={{
+              page:this.state.page,
                selectableRows:false,
                rowsPerPage: this.state.pageSizeC,
                print:false,
@@ -569,21 +625,33 @@ render(){
                     noMatch:<CircularProgress id='CircularP' variant='indeterminate' style={{color:'primary'}}/>
                   },
               },
-
-              }}
-
+            }}
           />
         </Grid>
         </div>
     </>
   );
 
-            }
-          }
+  }
+}
 
-//function func({rowData},{props})
-//{
-//
-//   props.history.push('/app/school/school-detail')
-//}
 export default StudentsEnrolled;
+
+function funcEnrolled(rowData,history)
+{
+  var data = [{
+    userID:rowData[4],
+    username:rowData[0],
+    loginID:rowData[1],
+    createdBy:rowData[5],
+    createdOn:rowData[3],
+    gender:rowData[2],
+    birthdate:rowData[8],
+    phone:rowData[9],
+    email:rowData[10],
+    userRoleID:rowData[7],
+    role:rowData[6],
+    is_active:rowData[11]
+  }]
+  history.push({pathname:'/app/user/update', data:data})
+}

@@ -188,7 +188,7 @@ class CheckOut extends React.PureComponent {
           <DialogTitle id="form-dialog-title">Alert</DialogTitle>
             <DialogContent>
             <DialogContentText>
-              <Typography variant="h6">Do you really want to insert question?</Typography>
+              <Typography variant="h6">Do you really want to add the question?</Typography>
             </DialogContentText>
             </DialogContent>
            <DialogActions>

@@ -90,6 +90,7 @@ function loginUser(dispatch, login, password, history, setIsLoading, setError , 
           localStorage.setItem('username',login)
           localStorage.setItem("tokenExpiry",today )
           localStorage.setItem("timeRemaining",0)
+          localStorage.setItem("helpDialog",1)
           setError(false)
           setIsLoading(false)
           dispatch({ type: 'LOGIN_SUCCESS' , payload:login })
@@ -107,7 +108,7 @@ function loginUser(dispatch, login, password, history, setIsLoading, setError , 
 
 function signOut(dispatch, history) {
 
-   fetch(baseURL + "api/usr/logout/", { method:"POST",    headers: {Authorization: 'Token '+localStorage.getItem('id_token')}})
+  fetch(baseURL + "api/usr/logout/", { method:"POST",    headers: {Authorization: 'Token '+localStorage.getItem('id_token')}})
   .then(response => {
     if(response.status == 204)
     {

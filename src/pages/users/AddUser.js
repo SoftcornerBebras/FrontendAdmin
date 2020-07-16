@@ -54,7 +54,7 @@ class AddUser extends React.PureComponent{
           phone:"",
           userRoleID:"",
           userID:"",
-          date: new Date(),
+          date: null,
           error: false,
           error_input:false,
           approval:'approved',
@@ -76,7 +76,6 @@ class AddUser extends React.PureComponent{
            error_email:false,
            error_role:false,
            error_gender:false,
-           openPassError:false,
            error_phone:false,
            is_active:"",
            userName: localStorage.getItem("username"),
@@ -207,7 +206,7 @@ class AddUser extends React.PureComponent{
   }
 
   handleClose = () => {
-    this.setState({openAlert:false,openError:false,openPassError:false});
+    this.setState({openAlert:false,openError:false});
   };
 
   handlePhoneChange = () => {
@@ -226,13 +225,6 @@ class AddUser extends React.PureComponent{
   onSubmit = () => {
 
     this.handlePhoneChange();
-
-    var re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,}$/;
-          if(!this.state.password.match(re))
-          {
-            this.setState({openPassError:true})
-            return
-          }
 
       if(this.state.password=='')
       {
@@ -344,20 +336,19 @@ else{
   render(){
 
     const { selectedOption,selectedOption_role } = this.state;
-
+    const customStyles={
+      control:base=> ({
+        ...base,
+        height:'56px',
+        fontSize:'16px'
+      })
+    }
     const{classes} = this.props;
 
     return (
 
       <ErrorBoundary>
         <PageTitle title="Add New User"/>
-        <Snackbar open={this.state.openPassError} autoHideDuration={6000} anchorOrigin={{ vertical:'top', horizontal:'center'} }
-         onClose={this.handleClose}>
-        <Alert onClose={this.handleClose} variant="filled" severity="info">
-        <b>Please check if your password length is abover 8 characters and contains atleast one lowercase letter, one uppercase letter,
-        one numeric digit, and one special character!</b>
-        </Alert>
-      </Snackbar>
         <Snackbar open={this.state.openError} autoHideDuration={4000} anchorOrigin={{ vertical:'top', horizontal:'center'} }
          onClose={this.handleClose}>
         <Alert onClose={this.handleClose} variant="filled" severity="error">
@@ -370,22 +361,21 @@ else{
         <b>User Added Successfully!</b>
         </Alert>
       </Snackbar>
-        <Paper elevation={3} style={{width:'1000px',margin:'100px'}}>
+        <Paper elevation={3} style={{width:'1000px',marginLeft:'10%',marginTop:'2%', paddingLeft:'3%'}}>
         <div>
         <Box display="flex" flexDirection="row" p={1} m={1} >
         <Box p={1} m={1} style={{marginTop:"40px"}}>
         <Typography variant="h5" color='textSecondary'  >
-          FirstName
+          First Name
           </Typography>
         </Box>
         <Box p={1} style={{marginTop:"30px"}}>
         <TextField
            id="outlined-textarea"
-           label={this.state.error_firstname?"Enter firstname":''}
+           label={this.state.error_firstname?"Enter First Name":''}
            helperText={this.state.error_firstname ? 'Required* ' : ''}
            error={this.state.error_firstname}
            onChange={ e => this.handleFirstnameChange(e.target.value) }
-
            style={{marginLeft:'130px',width:'300px',display:'flex'}}
            placeholder="Enter First Name"
            variant="outlined"
@@ -398,10 +388,11 @@ else{
           }}/>
         </Box>
         </Box>
+
         <Box display="flex" flexDirection="row" p={1} m={1} >
         <Box p={1} m={1} >
         <Typography variant="h5" color='textSecondary'  >
-          LastName
+          Last Name
           </Typography>
         </Box>
         <Box p={1}>
@@ -413,6 +404,7 @@ else{
            variant="outlined" />
         </Box>
         </Box>
+
         <Box display="flex" flexDirection="row" p={1} m={1}>
         <Box p={1} m={1} >
         <Typography variant="h5" color='textSecondary'  >
@@ -420,7 +412,7 @@ else{
           </Typography>
         </Box>
 
-        <Box p={1} >
+        <Box p={1} style={{marginLeft:"4px"}}>
 
 
 <FormControl className={classes.margin, classes.textField} variant="outlined" style={{marginLeft:'135px',width:'300px',display:'flex'}}>
@@ -450,28 +442,22 @@ else{
           {this.state.error_pass?<FormHelperText style={{color:"red"}}>
         Required*</FormHelperText>:''}
         </FormControl>
-
+        </Box>
         </Box>
 
-        </Box>
         <Box display="flex" flexDirection="row" p={1} m={1}>
         <Box p={1} m={1}>
         <Typography variant="h5" color='textSecondary'  >
           Gender
           </Typography>
         </Box>
-
-
-        <Box p={1} style={{marginLeft:'160px',width:'300px',display:'flex'}}>
-        <div style={{width: '360px'}}>
-
+        <Box p={1} style={{marginLeft:'164px',width:'320px',display:'flex'}}>
+        <div style={{width: '320px'}}>
         <Select  style={{color:"red"}}
-
+        styles={customStyles}
         value={selectedOption}
         onChange={this.handleChange}
-        options={options}
-
-      />
+        options={options} />
       {this.state.error_gender?<FormHelperText style={{color:"red",marginLeft:"13px"}}> Required*</FormHelperText>:''}
       </div>
         </Box>
@@ -485,8 +471,8 @@ else{
         </Box>
         <Box p={1} >
         <PhoneInput
-          containerStyle={{marginTop:'10px',marginLeft:'170px',height:'40px'}}
-          inputStyle={{height:'40px'}}
+          containerStyle={{marginTop:'10px',marginLeft:'170px',height:'56px'}}
+          inputStyle={{height:'56px',fontSize:'16px'}}
           country={'in'}
           value={this.state.phone}
           onChange={phone=>this.setState({phone:phone})}
@@ -541,26 +527,24 @@ else{
         </Box>
 
         <Box display="flex" flexDirection="row" p={1} m={1}>
-        <Box p={1} m={1}>
+        <Box p={1} m={1} marginTop='20px'>
         <Typography variant="h5" color='textSecondary'  >
           Date Of Birth
         </Typography>
-
         </Box>
-
-        <Box p={1} style={{marginLeft:'100px',width:'300px',display:'flex'}}>
-        <div style={{marginTop:"10px"}}>
+        <Box p={1} style={{marginLeft:'116px',width:'300px',display:'flex'}}>
+        <div style={{marginTop:"10px",height:'56px',fontSize:'16px'}}>
         <DatePicker
           onChange={this.onChange}
           value={this.state.date}
-          format="yyyy-MM-dd"
+          format="dd-MM-yyyy"
           className={classes.datePicker}
 
         />
         </div>
+        </Box>
+        </Box>
 
-        </Box>
-        </Box>
         <Box display="flex" flexDirection="row" p={1} m={1}>
         <Box p={1} m={1} >
         <Typography variant="h5" color='textSecondary'  >
@@ -572,7 +556,7 @@ else{
         <TextField
           disabled
           id="outlined-textarea"
-          style={{marginLeft:'150px',width:'300px',display:'flex'}}
+          style={{marginLeft:'156px',width:'300px',display:'flex'}}
           placeholder="Login ID"
           variant="outlined"
            value={this.state.loginID}
@@ -594,9 +578,10 @@ else{
         </Box>
 
 
-        <Box p={1} style={{marginLeft:'190px',width:'300px',display:'flex'}}>
-        <div style={{width: '360px'}}>
+        <Box p={1} style={{marginLeft:'190px',width:'320px',display:'flex'}}>
+        <div style={{width: '320px'}}>
         <Select
+        styles={customStyles}
         value={selectedOption_role}
         onChange={this.handleChange_role}
         options={options_role}
@@ -617,8 +602,6 @@ else{
      </Box>
      </Box>
 
-        </div>
-        <div>
         </div>
         </Paper>
        </ErrorBoundary>

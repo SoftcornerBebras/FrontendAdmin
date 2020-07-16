@@ -21,13 +21,14 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 import ErrorIcon from '@material-ui/icons/Error';
 import Fab from '@material-ui/core/Fab';
 import PhoneInput from 'react-phone-input-2'
-import {baseURL,metabaseURL} from '../constants';
+import {baseURL,metabaseURL, metabaseSecretKey} from '../constants';
 import './styles.css';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Select from 'react-select';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import 'react-phone-input-2/lib/style.css';
+var jwt = require("jsonwebtoken");
 const styles = theme => ({
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
@@ -39,6 +40,14 @@ const styles = theme => ({
 var labeld='',valued='';
 export const arr=[{schoolName: "",schoolType:"",UDISECode:"",Phone:"",AddressLine1:"",AddressLine2:"",City:"",District:"",State:"",Pincode:"",Country:"",schoolID:"",latitude:"",longitude:"",registeredBy:"",registeredOn:""}];
 
+//for schools dashboard
+var payload = {
+  resource: { dashboard: 34 },
+  params: {},
+  exp: Math.round(Date.now() / 1000) + (10 * 60) // 10 minute expiration
+};
+var token = jwt.sign(payload, metabaseSecretKey);
+var srcSchools = metabaseURL + "/embed/dashboard/" + token + "#bordered=true&titled=true";
 
 let schooln="";
 let dist="";
@@ -48,6 +57,7 @@ var options_country=[];
 var options_schoolType=[];
 var options_schoolGroup=[];
 var phone='',errorPhone=false
+
 class SchoolDetail extends Component {
   state={
     readOnly:true,
@@ -344,8 +354,8 @@ this.setState({open:true});
         }
         )
         this.setState({selectedOptionSchoolType:arr[0].schoolType})
-        for (var i=0;i<gresultSchoolTypes.data.length;i++){
-          options_schoolType.push({"value":gresultSchoolTypes.data[i].codeName,"label":gresultSchoolTypes.data[i].codeName})
+        for (var i=0;i<gresultSchoolTypes.data.data.length;i++){
+          options_schoolType.push({"value":gresultSchoolTypes.data.data[i].codeName,"label":gresultSchoolTypes.data.data[i].codeName})
         }
       }
       catch(error){ this.props.history.push('/app/dashboard') }
@@ -359,11 +369,13 @@ this.setState({open:true});
         }
         )
         this.setState({selectedOptionSchoolGroup:arr[0].schoolGroup})
-        for (var i=0;i<gresultSchoolGroups.data.length;i++){
-          options_schoolGroup.push({"value":gresultSchoolGroups.data[i].codeName,"label":gresultSchoolGroups.data[i].codeName})
+        for (var i=0;i<gresultSchoolGroups.data.data.length;i++){
+          options_schoolGroup.push({"value":gresultSchoolGroups.data.data[i].codeName,"label":gresultSchoolGroups.data.data[i].codeName})
         }
       }
-      catch(error){ this.props.history.push('/app/dashboard') }
+      catch(error){ 
+        this.props.history.push('/app/dashboard') 
+      }
 
       if(arr[0].schoolName==="") this.props.history.push('/app/dashboard')
 }
@@ -499,6 +511,26 @@ async submitData()
   }
 
   }
+  onCancel=()=>{
+    document.getElementById('SchoolName').value=arr[0].schoolName
+    document.getElementById('UDISECode').value=arr[0].UDISECode
+    document.getElementById('Line1').value=arr[0].AddressLine1
+    document.getElementById('Line2').value=arr[0].AddressLine2
+    document.getElementById('City').value=arr[0].City
+    document.getElementById('Pincode').value=arr[0].Pincode
+    this.setState({phone:arr[0].Phone})
+    this.setState({placeholder:arr[0].District})
+    this.setState({placeholderState:this.state.oldstate})
+    this.setState({placeholderCountry:arr[0].Country})
+    this.setState({placeholderSchoolType:arr[0].schoolType})
+    this.setState({placeholderSchoolGroup:arr[0].schoolGroup})
+    this.setState({selectedOption:arr[0].District})
+    this.setState({selectedOptionState:this.state.oldstate})
+    this.setState({selectedOptionCountry:arr[0].Country})
+    this.setState({selectedOptionSchoolType:arr[0].schoolType})
+    this.setState({selectedOptionSchoolGroup:arr[0].schoolGroup})
+    this.setState({readOnly:true,clicked:false,isHidden:true});
+    }
 
   render(){
 
@@ -545,30 +577,36 @@ async submitData()
     <a href="#/app/school/ContactInfo" className="contact"><PhoneIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Contact Info</a>
   <a href="#/app/school/RegisteredBy" className="registeredBy" ><PersonIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Registered By</a>
   <a href="#/app/school/StudentDetails" className="studentsEnrolled" ><PeopleIcon style={{marginLeft:"-40px",marginRight:"20px"}}/>Student Details</a>
-  <a href= {metabaseURL + "public/dashboard/be229927-122f-443f-8ea8-685c5255e5ca"} className="analysis" ><BarChartIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Analysis</a>
+  <a href= {srcSchools} className="analysis" ><BarChartIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Analysis</a>
   <a href="#/app/school/download" className="download" ><GetAppIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Download</a>
   </div>
-    <Card style={{width:"1000px",marginLeft:"70px"}}>
+    <Card style={{width:"1000px",marginLeft:"5%"}}>
       <CardContent>
       <Box display="flex" flexDirection="row"  p={1} m={1} >
         <Box p={1}>
         <TextField
           id="SchoolName"
+          disabled={readOnly}
           label={this.state.error_schoolname?"Enter school name":'School Name'}
            helperText={this.state.error_schoolname ? 'Required* ' : ''}
            error={this.state.error_schoolname}
            onChange={e => this.handleSchoolNameChange(e.target.value)}
           defaultValue={arr[0].schoolName}
+          //variant={readOnly?"filled":"outlined"}
           variant="outlined"
           style={{width:"250px"}}
           InputProps={{
-             readOnly:Boolean(readOnly),
+             //readOnly:Boolean(readOnly),
              endAdornment: (
               <InputAdornment position="end">
               {this.state.error_schoolname?  <ErrorIcon style={{color:"red"}} />:''}
               </InputAdornment>
             ),
             }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+          
         />
         </Box>
         <Box style={{marginLeft:'10px',width:'260px',marginTop:'-20px',zIndex:'200'}} p={1}>School Type
@@ -586,7 +624,7 @@ async submitData()
         ...theme,
         colors: {
             ...theme.colors,
-            neutral50: '#1A1A1A',
+            neutral50: readOnly?'#808080':'#1A1A1A',
         },
     })}
     isDisabled={Boolean(readOnly)}
@@ -609,7 +647,7 @@ async submitData()
       ...theme,
       colors: {
           ...theme.colors,
-          neutral50: '#1A1A1A',
+          neutral50: readOnly?'#808080':'#1A1A1A',
       },
     })}
     isDisabled={Boolean(readOnly)}
@@ -621,31 +659,36 @@ async submitData()
     <Box>
     <TextField
       id="UDISECode"
+      disabled={readOnly}
       label={this.state.error_udisecode?"Enter UDISE Code":'UDISE Code'}
       helperText={this.state.error_udisecode ? 'Required* ' : ''}
       error={this.state.error_udisecode}
       onChange={e => this.handleUDISECodeChange(e.target.value)}
+      //variant={readOnly?"filled":"outlined"}
       variant="outlined"
       defaultValue={arr[0].UDISECode}
       style={{marginLeft:'10px',width:"380px"}}
       InputProps={{
-        readOnly:Boolean(readOnly),
+        //readOnly:Boolean(readOnly),
         endAdornment: (
          <InputAdornment position="end">
          {this.state.error_udisecode?  <ErrorIcon style={{color:"red"}} />:''}
          </InputAdornment>
        ),
        }}
+       InputLabelProps={{
+        shrink: true,
+      }}
     />
   </Box>
   <Box>
   <PhoneInput
   id='Phone'
-  containerStyle={{ marginLeft:'20px', height:'54px'}}
+  containerStyle={{ marginLeft:'20px', height:'54px',width:'125%'}}
   value={this.state.phone}
   country={'in'}
   disabled={readOnly}
-  inputStyle={{height:'54px'}}
+  inputStyle={{height:'54px',width:'125%'}}
   onChange={phone=>this.setState({phone:phone,error_phone:false})}
 />
 {this.state.error_phone?<FormHelperText style={{color:"red",marginLeft:"18px"}}> Required*</FormHelperText>:''}
@@ -655,47 +698,57 @@ async submitData()
         <Box>
         <TextField
           id="Line1"
+          disabled={readOnly}
           label={this.state.error_line1?"Enter Address Line1":'Address Line 1'}
            helperText={this.state.error_line1 ? 'Required* ' : ''}
            error={this.state.error_line1}
            onChange={e => this.handleLine1Change(e.target.value)}
+          //variant={readOnly?"filled":"outlined"}
           variant="outlined"
           defaultValue={arr[0].AddressLine1}
           style={{marginLeft:'10px',width:"380px"}}
           InputProps={{
-            readOnly:Boolean(readOnly),
+            //readOnly:Boolean(readOnly),
             endAdornment: (
              <InputAdornment position="end">
              {this.state.error_line1?  <ErrorIcon style={{color:"red"}} />:''}
              </InputAdornment>
            ),
            }}
+           InputLabelProps={{
+            shrink: true,
+          }}
         />
       </Box>
       <Box >
       <TextField
           id="Line2"
+          disabled={readOnly}
           label={this.state.error_line2?"Enter Address Line2":'Address Line 2'}
            helperText={this.state.error_line2 ? 'Required* ' : ''}
            error={this.state.error_line2}
            onChange={e => this.handleLine2Change(e.target.value)}
 
+          //variant={readOnly?"filled":"outlined"}
           variant="outlined"
           defaultValue={arr[0].AddressLine2}
           style={{width:"380px",marginLeft:'22px'}}
           InputProps={{
-            readOnly:Boolean(readOnly),
+            //readOnly:Boolean(readOnly),
             endAdornment: (
              <InputAdornment position="end">
              {this.state.error_line2?  <ErrorIcon style={{color:"red"}} />:''}
              </InputAdornment>
            ),
            }}
+           InputLabelProps={{
+            shrink: true,
+          }}
         />
       </Box>
       </Box>
       <Box display="flex" flexDirection="row" p={1} m={1}>
-      <Box  style={{width:'260px',marginTop:'-8px'}} p={1}>Country
+      <Box  style={{width:'260px',marginTop:'-8px', zIndex:300}} p={1}>Country
       <Select
       id='Country'
       value={this.state.selectedOptionCountry}
@@ -710,7 +763,7 @@ async submitData()
         ...theme,
         colors: {
             ...theme.colors,
-            neutral50: '#1A1A1A',
+            neutral50: readOnly?'#808080':'#1A1A1A',
         },
     })}
     isDisabled={Boolean(readOnly)}
@@ -718,7 +771,7 @@ async submitData()
    {this.state.error_country?<FormHelperText style={{color:"red",marginLeft:"13px"}}> Required*</FormHelperText>:''}
     </Box>
 
-    <Box style={{marginLeft:'10px',width:'260px',marginTop:'-8px'}} p={1}>State
+    <Box style={{marginLeft:'10px',width:'260px',marginTop:'-8px',zIndex:300}} p={1}>State
       <Select
       id='State'
       label="State"
@@ -735,14 +788,14 @@ async submitData()
         ...theme,
         colors: {
             ...theme.colors,
-            neutral50: '#1A1A1A',
+            neutral50: readOnly?'#808080':'#1A1A1A',
         },
         })}
     isDisabled={Boolean(readOnly)}
     />
    {this.state.error_state?<FormHelperText style={{color:"red",marginLeft:"13px"}}> Required*</FormHelperText>:''}
      </Box>
-      <Box style={{marginLeft:'10px',width:'260px',marginTop:'-8px' }} p={1} >District
+      <Box style={{marginLeft:'10px',width:'260px',marginTop:'-8px',zIndex:300}} p={1} >District
        <Select
         id='District'
         value={this.state.selectedOption}
@@ -756,7 +809,7 @@ async submitData()
           ...theme,
           colors: {
               ...theme.colors,
-              neutral50: '#1A1A1A',
+              neutral50: readOnly?'#808080':'#1A1A1A',
           },
       })}
         variant='outlined'
@@ -767,15 +820,17 @@ async submitData()
       </Box>
       </Box>
       <Box display="flex" flexDirection="row" p={1} m={1} >
-      <Box style={{width:"250px",marginLeft:'150px'}}>&nbsp;&nbsp;City
+      <Box style={{width:"250px",marginLeft:'150px'}}>
       <TextField
           id="City"
-          label={this.state.error_city?"Enter city":''}
+          disabled={readOnly}
+          label={this.state.error_city?"Enter city":'City'}
            helperText={this.state.error_city ? 'Required* ' : ''}
            error={this.state.error_city}
            onChange={e => this.handleCityChange(e.target.value)}
           defaultValue={arr[0].City}
           style={{marginLeft:'10px'}}
+          //variant={readOnly?"filled":"outlined"}
           variant="outlined"
           InputProps={{
             readOnly:Boolean(readOnly),
@@ -785,33 +840,46 @@ async submitData()
              </InputAdornment>
            ),
            }}
+           InputLabelProps={{
+            shrink: true,
+          }}
              />
       </Box>
-        <Box style={{width:"250px"}}>&nbsp;&nbsp;Pincode
+        <Box style={{width:"250px"}}> 
         <TextField
           id="Pincode"
-          label={this.state.error_pincode?"Enter pincode":''}
+          disabled={readOnly}
+          label={this.state.error_pincode?"Enter pincode":'Pincode'}
            helperText={this.state.error_pincode ? 'Required* ' : ''}
            error={this.state.error_pincode}
            onChange={e => this.handlePincodeChange(e.target.value)}
+          //variant={readOnly?"filled":"outlined"}
           variant="outlined"
           defaultValue={arr[0].Pincode}
           style={{marginLeft:'10px'}}
           InputProps={{
-            readOnly:Boolean(readOnly),
+            //readOnly:Boolean(readOnly),
             endAdornment: (
              <InputAdornment position="end">
              {this.state.error_pincode?  <ErrorIcon style={{color:"red"}} />:''}
              </InputAdornment>
            ),
            }}
+           InputLabelProps={{
+            shrink: true,
+          }}
         />
       </Box>
       </Box>
       <Box display="flex" flexDirection="row" p={1} m={1}>
         <Box p={1} m={1}>
-        {!this.state.isHidden? <Button onClick={this.onSubmit} variant="contained" color="primary"  style={{marginLeft:'290px',width:'300px',display:'flex'}}>
+        {!this.state.isHidden? <Button onClick={this.onSubmit} variant="contained" color="primary"  style={{marginLeft:'140%',width:"120%",display:'flex'}}>
         Save Changes
+      </Button>:''}
+     </Box>
+     <Box p={1} m={1}>
+        {!this.state.isHidden? <Button onClick={this.onCancel} variant="contained" color="textSecondary"  style={{marginLeft:'230%',width:"200%",display:'flex'}}>
+        Cancel
       </Button>:''}
      </Box>
      </Box>
@@ -826,8 +894,7 @@ async submitData()
 }
 
 SchoolDetail.propTypes ={
-classes:PropTypes.object.isRequired,
+  classes:PropTypes.object.isRequired,
 };
 
 export default (withStyles)(styles)(SchoolDetail);
-

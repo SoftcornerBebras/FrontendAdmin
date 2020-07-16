@@ -246,7 +246,7 @@ handleClose = () => {
           <DialogTitle id="form-dialog-title">Alert</DialogTitle>
             <DialogContent>
             <DialogContentText>
-              <Typography variant="h6">Do you really want to insert question?</Typography>
+              <Typography variant="h6">Do you really want to add the question?</Typography>
             </DialogContentText>
             </DialogContent>
            <DialogActions>
@@ -768,12 +768,12 @@ handleClose = () => {
 
     switch (this.state.activeStep) {
       case 0:
-//        requiredBackground();
+        requiredBackground();
         if (errorArr[0].desc === "error") return;
         break;
 
       case 2:
-//        requiredAnswersForm();
+        requiredAnswersForm();
         if (errorArr[2].desc === "error") return;
         break;
 

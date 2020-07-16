@@ -22,18 +22,18 @@ import SidebarLink from './components/SidebarLink/SidebarLinkContainer';
 import Dot from './components/Dot';
 
 const structure = [
-  { id: 0, label: "Dashboard", link: "/app/dashboard", icon: <DashboardIcon /> },
+  { id: 0, label: "Dashboard", link: "/app/dashboard",
+    icon: <Tooltip title="Dashboard" arrow placement="right"><DashboardIcon /></Tooltip> },
   {
     id: 1,
     label: "Users",
     link: "/app/users",
-    icon: <PeopleIcon />,
+    icon: <Tooltip title="Users" arrow placement="right"><PeopleIcon /></Tooltip>,
   },
   { id: 2, label: "Schools", link: "/app/schools",
-      icon: <AccountBalanceIcon/>,
+      icon: <Tooltip title="School Details" arrow placement="right"><AccountBalanceIcon/></Tooltip>,
       children: [
         { label: "School Details", link: "/app/schools" },
-
         { label: "Map", link: "/app/ui/maps" },
       ]
   },
@@ -41,34 +41,32 @@ const structure = [
     id: 3,
     label: "Questions",
     link: "/app/questions",
-    icon: <ListAltIcon />,
+    icon: <Tooltip title="Questions" arrow placement="right"><ListAltIcon /></Tooltip>,
   },
   {
     id: 4,
     label: "Competitions",
     link: "/app/competition",
-    icon: <LaptopChromebookIcon />,
+    // link: toggleSidebar(layoutDispatch), 
+    children:[
+      {label:"See Competitions",link:"/app/competition"},
+      {label: "Remove Participants",link:"/app/competitions/removeParticipants"}
+    ],
+    icon: <Tooltip title="Competitions" arrow placement="right"><LaptopChromebookIcon /></Tooltip>,
   },
-  {
-    id: 5,
-    label: "Miscellaneous",
-    icon: <BlurOn/>,
-    children: [
-        {label:"Remove Participants",link:"/app/competitions/removeParticipants"},
-        {label: "Lists",link:"/app/quesAttributes"}
-    ]
-  },
-  { id: 6, label: "Analysis", link: "/app/analysisPage", icon: <BarChartIcon /> },
-  { id: 7, label: "Export", link: "/app/export", icon: <SystemUpdate /> },
-  { id: 8, type: "divider" },
+  { id: 5, label: "Analysis", link: "/app/analysisPage",
+    icon: <Tooltip title="Analysis" arrow placement="right"><BarChartIcon /></Tooltip> },
+  { id: 6, label: "Export", link: "/app/export",
+    icon: <Tooltip title="Export" arrow placement="right"><SystemUpdate /></Tooltip> },
+  { id: 7, type: "divider" },
     {
-    id: 9,
+    id: 8,
     label: "Settings",
     link: "/app/settings",
-    icon: <SettingsIcon />,
+    icon: <Tooltip title="Settings" arrow placement="right"><SettingsIcon /></Tooltip>,
   },
-  { id: 10, label: "FAQ", link: "/app/faqs", icon: <FAQIcon /> },
-
+  { id: 9, label: "FAQ", link: "/app/faqs",
+    icon: <Tooltip title="Help" arrow placement="right"><FAQIcon /></Tooltip> },
 ];
 
 const SidebarView = ({ classes, theme, toggleSidebar, isSidebarOpened, isPermanent, location }) => {

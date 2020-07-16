@@ -5,6 +5,7 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
 import Link from "@material-ui/core/Link";
+import Tooltip from '@material-ui/core/Tooltip';
 import Typography from "@material-ui/core/Typography";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Grid from "@material-ui/core/Grid";
@@ -62,7 +63,7 @@ const useStyles = theme => ({
 });
 
 var ageGroupData=[]
-export var selectedAgeGroupUpdate="", selectedAgeGroupEdit="";
+var selectedAgeGroup=""
 let ageGrpsPrev = [], ageGroups = [];
 class CreateCompetition extends React.PureComponent {
 
@@ -253,8 +254,8 @@ class CreateCompetition extends React.PureComponent {
                 {
                     "AgeGroupID":
                     {
-                        "AgeGroupName":selectedAgeGroupUpdate.AgeGroupName,
-                        "created_on":selectedAgeGroupUpdate.created_on
+                        "AgeGroupName":selectedAgeGroup.AgeGroupName,
+                        "created_on":selectedAgeGroup.created_on
                     }
                 },
              "competitionID":{
@@ -276,7 +277,8 @@ class CreateCompetition extends React.PureComponent {
              pathname: "/app/competitions/update/2/",
               data: compInfo,
               compID: this.state.compID,
-              fromPage: "addNewGroup"
+              fromPage: "addNewGroup",
+              selectedAgeGroup:selectedAgeGroup,
             });
           }).catch(error => {
             this.setState({openError:true})
@@ -286,6 +288,7 @@ class CreateCompetition extends React.PureComponent {
         this.props.history.push({
           pathname: "/app/competitions/edit/2/",
           data: compInfo,
+          selectedAgeGroup:selectedAgeGroup,
           compID: this.state.compID,
           fromPage: "editDetails"
         });
@@ -329,15 +332,15 @@ class CreateCompetition extends React.PureComponent {
      if(this.state.fromPage == "addNewGroup") {
       for(let i=0; i< ageGroups.length; i++) {
         if(value == ageGroups[i].AgeGroupName ) {
-
-          selectedAgeGroupUpdate  = ageGroups[i]
+          selectedAgeGroup  = ageGroups[i]
         }
       }
     }
+
     if(this.state.fromPage == "editDetails") {
       for(let i=0; i< ageGrpsPrev.length; i++) {
         if(value == ageGrpsPrev[i].AgeGroupName) {
-          selectedAgeGroupEdit  = ageGrpsPrev[i]
+          selectedAgeGroup  = ageGrpsPrev[i]
           this.setState({bonus:ageGrpsPrev[i].bonus})
           compInfo[0].bonus = ageGrpsPrev[i].bonus
           document.getElementById("errMarks").style.display = "none";
@@ -380,6 +383,9 @@ class CreateCompetition extends React.PureComponent {
                       onChange={e => this.handleChangeName(e.target.value)}
                       fullWidth
                       defaultValue = {compInfo[0].name}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
 
                     <FormHelperText
@@ -500,13 +506,14 @@ class CreateCompetition extends React.PureComponent {
                 </FormHelperText>
               </Grid>
               <Grid item xs={4}>
+                <Tooltip title="Default Marks that'll be added for all Students" arrow>
                 <TextField
-                  required
                   id="bonusMarks"
                   label="Bonus Marks"
                   onChange={e => this.handleChangeBonus(e.target.value)}
                   value={this.state.bonus}
                   fullWidth />
+                  </Tooltip>
                 <FormHelperText
                   id="errMarks"
                   style={{
@@ -525,10 +532,13 @@ class CreateCompetition extends React.PureComponent {
                   <TextField
                     multiline
                     disabled={this.state.edit}
-                    id="compName"
+                    id="compDesc"
                     label="Additional Information (if any)"
                     onChange={e => this.handleChangeInfo(e.target.value)}
                     fullWidth
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
                     defaultValue={compInfo[0].info}
                   />
                 </Grid>

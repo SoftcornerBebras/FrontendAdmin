@@ -5,6 +5,7 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
 import Link from "@material-ui/core/Link";
+import Tooltip from '@material-ui/core/Tooltip';
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import FormHelperText from "@material-ui/core/FormHelperText";
@@ -60,7 +61,7 @@ const useStyles = theme => ({
 });
 
 var ageGroupData=[];
-export var selectedAgeGroup;
+var selectedAgeGroup="";
 class CreateCompetition extends React.PureComponent {
 
   constructor(props) {
@@ -111,6 +112,7 @@ class CreateCompetition extends React.PureComponent {
         types.push(gcmpType.data[i].codeName);
     }
     this.setState({cmpTypes:types});
+
   }catch(err){this.props.history.push('/app/dashboard')}
   };
 
@@ -237,11 +239,12 @@ class CreateCompetition extends React.PureComponent {
             }
         }
         ).then(response =>{
-              this.props.history.push({
-          pathname: "/app/competitions/create/2/",
-          data: compInfo,
-          fromPage: "createComp"
-        });
+            this.props.history.push({
+              pathname: "/app/competitions/create/2/",
+              data: compInfo,
+              fromPage: "createComp",
+              selectedAgeGroup:selectedAgeGroup
+            });
         })
         .catch(function (response) {
             this.setState({openError:true})
@@ -432,12 +435,13 @@ class CreateCompetition extends React.PureComponent {
                 </FormHelperText>
               </Grid>
               <Grid item xs={4}>
+              <Tooltip title="Default Marks that'll be added for all Students" arrow>
                 <TextField
-                  required
                   id="bonusMarks"
                   label="Bonus Marks"
                   onChange={e => this.handleChangeBonus(e.target.value)}
                   fullWidth />
+                  </Tooltip>
                 <FormHelperText
                   id="errMarks"
                   style={{

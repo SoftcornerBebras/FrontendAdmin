@@ -29,15 +29,19 @@ class Translations extends React.PureComponent {
             background:"",
             quesID:"",
             openError:false,
-            trans:[],
+            quesDetail:[],
+            allData:"",
+            history:null
         };
     }
 
     async componentDidMount(){
 
     try{
-        let quesID = this.props.data
-        this.setState({background:this.props.background,ansText:this.props.ansText,quesID:this.props.data})
+        let quesID = this.props.allData.questionID
+        this.setState({allData:this.props.allData,ansText:this.props.allData.ansText,
+          background:this.props.allData.background,quesID:this.props.allData.questionID,
+          history:this.props.history})
         let gresult;
         try {
             gresult = await axios.get(
@@ -47,18 +51,109 @@ class Translations extends React.PureComponent {
             );
         }catch(error){this.setState({openError:true})}
 
-        for(let i=0;i<gresult.data.length;i++)
-        {
-            this.setState(prev=>({trans:[...prev.trans,{
-                caption: gresult.data[i].translation.caption,
-                languages : gresult.data[i].languageCodeID.codeName,
-                modified_on: gresult.data[i].modified_on,
+        let gResQues = gresult.data.Questions
+        let gResOpt = gresult.data.Options
+        let questions =[], options=[]
+
+        let ansFlag = 0, corrOption = "" , ansText = null
+
+        let quesLang = gResQues.map((elem) =>{return (elem.questionTranslationID.languageCodeID.codeName)})
+     for(let i=0;i<quesLang.length;i++){
+
+            let elem = gResQues[i]
+            let c,a;
+            if(elem.ansText == null){
+                c = elem.optionTranslationID.translationO.option
+            }
+            else if (elem.ansText != null) {
+                a= elem.ansText
+            }
+            questions.push({
+                caption:elem.questionTranslationID.translation.caption,
+                language:elem.questionTranslationID.languageCodeID.codeName,
+                identifier:elem.questionTranslationID.Identifier,
+                questype:elem.questionTranslationID.questionID.questionTypeCodeID.codeName,
+                background:elem.questionTranslationID.translation.background,
+                correctOption: c,
+                ansText : a
+            })
+            corrOption = c
+            ansText = a
+            if(elem.ansText != null) {
+                ansFlag = 1
+            }
+
+          let cnt=0, flag = 0, optionArray=[];
+          if(ansFlag == 0) {
+              optionArray.length=0
+              for(let j=0; j< gResOpt.length; j++) {
+                  let elem = gResOpt[j]
+                  if(quesLang[i] == elem.languageCodeID.codeName) {
+                      optionArray.push({optionID: elem.optionID.optionID, option: elem.translationO.option})
+                      cnt++
+                      if(cnt==4){
+                          optionArray.push({correctOption: corrOption})
+                          break
+                      }
+                  }
+              }
+              options.push(optionArray)
+          }
+          else
+          {
+              options.push({ansText:ansText})
+          }
+        }
+        for(let i=0; i< questions.length ; i++) {
+
+        if(!options[i].hasOwnProperty("ansText")) {
+
+            this.setState(prevState => ({quesDetail:[...prevState.quesDetail,{
+                questype:questions[i].questionType,
+                caption:questions[i].caption,
+                language:questions[i].language,
+                identifier:questions[i].identifier,
+                background:questions[i].background,
+                opt1:options[i][0].option,
+                opt2:options[i][1].option,
+                opt3:options[i][2].option,
+                opt4:options[i][3].option,
+                corrOpt: options[i][4].correctOption,
+                ansText: null
             }]}))
         }
-        }catch(error){this.props.history.push('/app/dasboard')}
+        else {
+
+            this.setState(prevState => ({quesDetail:[...prevState.quesDetail,{
+                questype:questions[i].questionType,
+                caption:questions[i].caption,
+                language:questions[i].language,
+                identifier:questions[i].identifier,
+                background:questions[i].background,
+                opt1:"",
+                opt2:"",
+                opt3:"",
+                opt4:"",
+                corrOpt: "",
+                ansText: options[i].ansText
+            }]}))
+        }
+      }
+    }catch(error){this.state.history.push('/app/dasboard')
+      console.log(error)
+    }
     }
 
     handleAlertClose=()=>{this.setState({openError:false})}
+
+    goToPreview = (e,row) => {
+      this.state.history.push({
+        pathname:'/app/question/preview',
+        allData:this.state.allData,
+        fromPage:'QuesTransPrev',
+        previewData:row
+      })
+    }
 
     render() {
         const { classes } = this.props;
@@ -78,18 +173,18 @@ class Translations extends React.PureComponent {
             <TableHead >
             <TableRow>
               <TableCell component="th" scope="row" width = '50%'className={classes.head}>Caption</TableCell>
+              <TableCell component="th" scope="row" width = '25%'className={classes.head}>Identifier</TableCell>
               <TableCell component="th" scope="row" width = '25%'className={classes.head}>Languages</TableCell>
-              <TableCell component="th" scope="row" width = '25%'className={classes.head}>Modified On</TableCell>
             </TableRow>
             </TableHead>
             <TableBody>
-             {this.state.trans
+             {this.state.quesDetail
                 .map((row) => {
                 return (
-                <TableRow>
+                <TableRow onClick={e=>this.goToPreview(e,row)} >
                   <TableCell align="left">{row.caption}</TableCell>
-                  <TableCell align="left">{row.languages.toUpperCase()}</TableCell>
-                  <TableCell align="left">{row.modified_on}</TableCell>
+                  <TableCell align="left">{row.identifier}</TableCell>
+                  <TableCell align="left">{row.language.toUpperCase()}</TableCell>
                 </TableRow>
                )})}
             </TableBody>

@@ -41,10 +41,9 @@ const structure = [
     icon: <Tooltip title="Users" arrow placement="right"><PeopleIcon /></Tooltip>,
   },
   { id: 2, label: "Schools", link: "/app/schools",
-      icon: <Tooltip title="School Details" arrow placement="right"><AccountBalanceIcon/></Tooltip>,
+      icon: <Tooltip title="Schools & more" arrow placement="right"><AccountBalanceIcon/></Tooltip>,
       children: [
         { label: "School Details", link: "/app/schools" },
-
         { label: "Map", link: "/app/ui/maps" },
       ]
   },
@@ -57,34 +56,27 @@ const structure = [
   {
     id: 4,
     label: "Competitions",
-    link: "/app/competition",
-    icon: <Tooltip title="Competitions" arrow placement="right"><LaptopChromebookIcon /></Tooltip>,
+    link: "/app/competition", 
+    children:[
+      {label:"See Competitions",link:"/app/competition"},
+      {label: "Remove Participants",link:"/app/competitions/removeParticipants"}
+    ],
+    icon: <Tooltip title="Competitions & more" arrow placement="right"><LaptopChromebookIcon /></Tooltip>,
   },
-  {
-    id: 5,
-    label: "Miscellaneous",
-    icon: <Tooltip title="Miscellaneous" arrow placement="right"><BlurOn/></Tooltip>,
-    children: [
-        {label:"Remove Participants",link:"/app/competitions/removeParticipants"},
-        {label: "Lists",link:"/app/quesAttributes"}
-    ]
-  },
-  { id: 6, label: "Analysis", link: "/app/analysisPage",
+  { id: 5, label: "Analysis", link: "/app/analysisPage",
     icon: <Tooltip title="Analysis" arrow placement="right"><BarChartIcon /></Tooltip> },
-  { id: 7, label: "Export", link: "/app/export",
+  { id: 6, label: "Export", link: "/app/export",
     icon: <Tooltip title="Export" arrow placement="right"><SystemUpdate /></Tooltip> },
-  { id: 8, type: "divider" },
+  { id: 7, type: "divider" },
     {
-    id: 9,
+    id: 8,
     label: "Settings",
     link: "/app/settings",
     icon: <Tooltip title="Settings" arrow placement="right"><SettingsIcon /></Tooltip>,
   },
-  { id: 10, label: "FAQ", link: "/app/faqs",
+  { id: 9, label: "FAQ", link: "/app/faqs",
     icon: <Tooltip title="Help" arrow placement="right"><FAQIcon /></Tooltip> },
-
 ];
-
 
 function Sidebar({ location }) {
   var classes = useStyles();

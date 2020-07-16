@@ -12,8 +12,6 @@ import { withStyles } from '@material-ui/core/styles';
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
 import {baseURL} from '../constants'
-import {selectedAgeGroup} from './CreateCompetition'
-import {selectedAgeGroupUpdate, selectedAgeGroupEdit} from './UpdateCompetition'
 
 const styles = theme => ({
   formControl: {
@@ -24,7 +22,7 @@ const styles = theme => ({
   }
 });
 
-var selectedAge="",compInfo=[],
+var selectedAge="",selectedAgeGroup,compInfo=[],
 levels=[],
 error_correct=[false,false,false],error_incorrect=[false,false,false];
 
@@ -49,6 +47,7 @@ class MarkingScheme extends React.PureComponent{
   async componentDidMount ()
   {
 
+    selectedAgeGroup = this.props.location.selectedAgeGroup
      let gQuesLevel = await axios.get(baseURL+'api/com/getQuestionLevel/',{
         headers:{
             'Content-Type' : 'application/json',
@@ -69,7 +68,7 @@ class MarkingScheme extends React.PureComponent{
         if(this.props.location.data != undefined) {
 
           if(this.props.location.fromPage == "editDetails") {
-        await axios.get(baseURL+'api/cmp/getMarksAgeCmpWise/'+selectedAgeGroupEdit.AgeGroupID+"&"+this.props.location.compID+"/",{
+        await axios.get(baseURL+'api/cmp/getMarksAgeCmpWise/'+selectedAgeGroup.AgeGroupID+"&"+this.props.location.compID+"/",{
             headers:{
                 'Content-Type' : 'application/json',
                     Authorization: 'Token '+localStorage.getItem('id_token')
@@ -190,6 +189,7 @@ class MarkingScheme extends React.PureComponent{
         compName:this.state.compName,
         compID: this.state.compID,
         ageGroup: selectedAge,
+        selectedAgeGroup:selectedAgeGroup,
         marks: {
           correctMarks:this.state.correctMarks,
           incorrectMarks:this.state.incorrectMarks
@@ -207,8 +207,8 @@ class MarkingScheme extends React.PureComponent{
           axios.post(
             baseURL+'api/cmp/insertMarkScheme/', {
               "competitionAgeID":{
-                 "created_on": selectedAgeGroupUpdate.created_on,
-                   "AgeGroupName": selectedAgeGroupUpdate.AgeGroupName
+                 "created_on": selectedAgeGroup.created_on,
+                   "AgeGroupName": selectedAgeGroup.AgeGroupName
                     },
                     "CmpData":{
                         "competitionName":this.state.compName,
@@ -233,6 +233,7 @@ class MarkingScheme extends React.PureComponent{
             compName:this.state.compName,
             compID: this.state.compID,
             ageGroup: selectedAge,
+            selectedAgeGroup:selectedAgeGroup,
             marks: {
               correctMarks:this.state.correctMarks,
               incorrectMarks:this.state.incorrectMarks
@@ -250,7 +251,7 @@ class MarkingScheme extends React.PureComponent{
       for(var i = 0; i < levels.length; i++){
           axios.post(
             baseURL+'api/cmp/updateMarks/', {
-                "AgeID":selectedAgeGroupEdit.AgeGroupID,
+                "AgeID":selectedAgeGroup.AgeGroupID,
                 "competitionID":this.state.compID,
                 "queslevelcode":levels[i]['name'],
                 "corrMarks":this.state.correctMarks[i],
@@ -266,6 +267,7 @@ class MarkingScheme extends React.PureComponent{
             pathname: "/app/competitions/edit/3/",
             data: compInfo,
             compName:this.state.compName,
+            selectedAgeGroup:selectedAgeGroup,
             compID: this.state.compID,
             ageGroup: selectedAge,
             marks: {

@@ -1,22 +1,18 @@
 import React from 'react';
 import {Route , Redirect , useHistory} from 'react-router-dom'
-
 import PageTitle from "../../components/PageTitle/PageTitle";
 import {Paper, TextField, Typography, Box, Button, OutlinedInput, FormHelperText,
         InputLabel, InputAdornment, FormControl, IconButton, Radio, FormControlLabel, Snackbar} from '@material-ui/core';
 import {Error, Visibility, VisibilityOff} from '@material-ui/icons';
-
 import { RadioGroup, RadioButton} from 'react-radio-buttons';
-import DatePicker from 'react-date-picker';
+import DatePicker from 'react-date-picker/dist/entry.nostyle';
 import Select from 'react-select';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Alert from '@material-ui/lab/Alert';
-
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
-
- import ErrorBoundary from "../../pages/error/ErrorBoundary";
+import ErrorBoundary from "../../pages/error/ErrorBoundary";
 
 import {baseURL} from '../constants'
 import axios from 'axios';
@@ -56,7 +52,7 @@ class UpdateUser extends React.PureComponent {
         super(props);
         this.state = {
             selectedOption: "",
-            dataX :this.props.location.data,
+            dataX :this.props.location.data[0],
             selectedOption_role: "",
             phone:"",
             value:"",
@@ -90,43 +86,58 @@ class UpdateUser extends React.PureComponent {
 
     async componentDidMount(){
 
+      console.log(this.props.location)
+
     try {
 
         if(this.state.dataX.userRoleID != null && this.state.dataX.userID.username!= null){
             fromPage="users"
 
-        let bdate,ph;
-             if(this.state.dataX.userID.phone == null) {
+        let ph;
+            if(this.state.dataX.userID.phone == null) {
                 ph = ""
             }
             else {
                 ph = this.state.dataX.userID.phone
             }
+          var res = this.state.dataX.userID.username.split(" ");
+           
             if(this.state.dataX.userID.birthdate == null) {
-                bdate = ""
+              this.setState({
+                userID: this.state.dataX.userID.userID,
+                loginID: this.state.dataX.userID.loginID,
+                username: this.state.dataX.userID.username,
+                firstname:res[0],
+                lastname:res[1],
+                selectedOption_role:this.state.dataX.RoleID.RoleName,
+                phone:ph,
+                selectedOption: this.state.dataX.userID.gender.codeName,
+                date:"",
+                dateString:"",
+                emailID:this.state.dataX.userID.email,
+                approval:this.state.dataX.userID.is_active.codeName,
+                status:this.state.dataX.userID.is_active.codeName,
+                userRoleID:this.state.dataX.userRoleID
+            })
             }
             else {
-                bdate = this.state.dataX.userID.birthdate
-            }
-
-        var res = this.state.dataX.userID.username.split(" ");
-
-        this.setState({
-            userID: this.state.dataX.userID.userID,
-            loginID: this.state.dataX.userID.loginID,
-            username: this.state.dataX.userID.username,
-            firstname:res[0],
-            lastname:res[1],
-            selectedOption_role:this.state.dataX.RoleID.RoleName,
-            phone:ph,
-            selectedOption: this.state.dataX.userID.gender.codeName,
-            date:bdate,
-            dateString:bdate,
-            emailID:this.state.dataX.userID.email,
-            approval:this.state.dataX.userID.is_active.codeName,
-            status:this.state.dataX.userID.is_active.codeName,
-            userRoleID:this.state.dataX.userRoleID
-        })
+              this.setState({
+                userID: this.state.dataX.userID.userID,
+                loginID: this.state.dataX.userID.loginID,
+                username: this.state.dataX.userID.username,
+                firstname:res[0],
+                lastname:res[1],
+                selectedOption_role:this.state.dataX.RoleID.RoleName,
+                phone:ph,
+                selectedOption: this.state.dataX.userID.gender.codeName,
+                date:new Date(this.state.dataX.userID.birthdate),
+                dateString:this.state.dataX.userID.birthdate,
+                emailID:this.state.dataX.userID.email,
+                approval:this.state.dataX.userID.is_active.codeName,
+                status:this.state.dataX.userID.is_active.codeName,
+                userRoleID:this.state.dataX.userRoleID
+            })
+          }
 
         }
         else
@@ -134,24 +145,16 @@ class UpdateUser extends React.PureComponent {
             fromPage="contactInfo"
 
             let ph;
-            let bdate;
 
-            if(this.state.dataX.birthdate == null) {
-                bdate = ""
-            }
-            else {
-                bdate = this.state.dataX.birthdate
-            }
             if(this.state.dataX.phone == null) {
                 ph = ""
             }
             else {
                 ph = this.state.dataX.phone
             }
-
-               var res = this.state.dataX.username.split(" ");
-
-            this.setState({
+            var res = this.state.dataX.username.split(" ");
+            if(this.state.dataX.birthdate == null) {
+              this.setState({
                 userID: this.state.dataX.userID,
                 loginID: this.state.dataX.loginID,
                 username: this.state.dataX.username,
@@ -159,14 +162,33 @@ class UpdateUser extends React.PureComponent {
                 lastname:res[1],
                 selectedOption_role:this.state.dataX.role,
                 phone:ph,
-                selectedOption: this.state.dataX.gender.codeName,
-                date:bdate,
-                dateString:bdate,
+                selectedOption: this.state.dataX.gender,
+                date:"",
+                dateString:"",
                 emailID:this.state.dataX.email,
                 approval:this.state.dataX.is_active,
                 status:this.state.dataX.is_active,
                 userRoleID:this.state.dataX.userRoleID
-            })
+              })
+            }
+            else {
+              this.setState({
+                userID: this.state.dataX.userID,
+                loginID: this.state.dataX.loginID,
+                username: this.state.dataX.username,
+                firstname:res[0],
+                lastname:res[1],
+                selectedOption_role:this.state.dataX.role,
+                phone:ph,
+                selectedOption: this.state.dataX.gender,
+                date:new Date(this.state.dataX.birthdate),
+                dateString:this.state.dataX.userID.birthdate,
+                emailID:this.state.dataX.email,
+                approval:this.state.dataX.is_active,
+                status:this.state.dataX.is_active,
+                userRoleID:this.state.dataX.userRoleID
+              })
+            }
         }
 
         let gresult = await axios.get(
@@ -203,9 +225,9 @@ class UpdateUser extends React.PureComponent {
         }
 
     }catch(error){
-        this.props.history.push('/app/dashboard')
+      this.props.history.push('/app/dashboard')
     }
-    }
+  }
 
 
     async fetchData()
@@ -259,7 +281,25 @@ class UpdateUser extends React.PureComponent {
                 phone = '+'+phone
             }
          }
+         console.log({
+            "userID" :{
 
+                "username":this.state.username,
+                "email":this.state.emailID,
+                "phone":phone,
+                "birthdate" : finalDate,
+                "gender": {
+                    "codeName":this.state.selectedOption
+                },
+                "modified_by": this.state.userName,
+                "is_active" : {
+                    "codeName":this.state.finalStatus
+                }
+            },
+            "RoleID":{
+                "RoleName":finalRole
+            }
+        })
         try{
         let gresult = await axios.post(
         baseURL+'api/usr/updateUser/'+this.state.userRoleID+"/", {
@@ -434,8 +474,9 @@ class UpdateUser extends React.PureComponent {
     const customStyles={
       control:base=> ({
         ...base,
-        height:'20px',
-        marginTop:'10px'
+        height:'56px',
+        marginTop:'10px',
+        fontSize:'16px'
       }),
       option : (provided) => ({
         ...provided,
@@ -458,21 +499,21 @@ class UpdateUser extends React.PureComponent {
         <b>User Updated Successfully!</b>
         </Alert>
       </Snackbar>
-        <Paper elevation={3} style={{width:'1000px',margin:'100px', paddingLeft:"3%"}}>
+        <Paper elevation={3} style={{width:'1000px',marginLeft:'10%',marginTop:'2%', paddingLeft:"3%"}}>
         <div>
         <Box display="flex" flexDirection="row" p={1} m={1} >
         <Box p={1} m={1} style={{marginTop:"40px"}}>
         <Typography variant="h5" color='textSecondary'  >
-          FirstName
+          First Name
           </Typography>
         </Box>
         <Box p={1} style={{marginTop:"30px"}}>
         <TextField
            id="outlined-textarea"
-           label={this.state.error_firstname?"Enter firstname":''}
+           label={this.state.error_firstname?"Enter First Name":''}
            helperText={this.state.error_firstname ? 'Required* ' : ''}
            error={this.state.error_firstname}
-           onChange={ e => this.handlefirstnameChange(e.target.value) }
+           onChange={ e => this.handleFirstnameChange(e.target.value) }
             value={this.state.firstname}
            style={{marginLeft:'130px',width:'300px',display:'flex'}}
            placeholder="Enter First Name"
@@ -489,20 +530,19 @@ class UpdateUser extends React.PureComponent {
 
 
         <Box display="flex" flexDirection="row" p={1} m={1} >
-        <Box p={1} m={1} style={{marginTop:"40px"}}>
+        <Box p={1} m={1} >
         <Typography variant="h5" color='textSecondary'  >
-          LastName
-         </Typography>
+          Last Name
+          </Typography>
         </Box>
-        <Box p={1} style={{marginTop:"30px"}}>
+        <Box p={1}>
         <TextField
            id="outlined-textarea"
-           onChange={ e => this.handlelastnameChange(e.target.value) }
-            value={this.state.lastname}
+           onChange={ e => this.handleLastnameChange(e.target.value) }
+           value={this.state.lastname}
            style={{marginLeft:'130px',width:'300px',display:'flex'}}
            placeholder="Enter Last Name"
-           variant="outlined"
-          />
+           variant="outlined" />
         </Box>
         </Box>
 
@@ -515,8 +555,8 @@ class UpdateUser extends React.PureComponent {
         </Box>
 
 
-        <Box p={1} style={{marginLeft:'160px',width:'300px',display:'flex'}}>
-        <div style={{width: '360px'}}>
+        <Box p={1} style={{marginLeft:'166px',width:'320px',display:'flex'}}>
+        <div style={{width: '320px'}}>
 
          <Select
               id='gender'
@@ -549,8 +589,8 @@ class UpdateUser extends React.PureComponent {
         </Box>
         <Box p={1} >
         <PhoneInput
-          containerStyle={{marginTop:'10px',marginLeft:'170px',height:'40px'}}
-          inputStyle={{height:'40px'}}
+          containerStyle={{marginTop:'10px',marginLeft:'170px',height:'56px'}}
+          inputStyle={{height:'56px',fontSize:'16px'}}
           country={'in'}
           value={this.state.phone}
           onChange={phone=>this.setState({phone:phone})}
@@ -587,11 +627,12 @@ class UpdateUser extends React.PureComponent {
 
         </Box>
 
-        <Box p={1} style={{marginLeft:'110px',width:'300px',display:'flex'}}>
+        <Box p={1} style={{marginLeft:'116px',width:'300px',display:'flex'}}>
         <DatePicker
+          style={{height:'56px',fontSize:'16px'}}
           onChange={this.onChange}
           value={this.state.date}
-          format="yyyy-MM-dd"
+          format="dd-MM-yyyy"
           className={classes.datePicker}
         />
         </Box>
@@ -611,7 +652,7 @@ class UpdateUser extends React.PureComponent {
            label={this.state.error_loginID?"Enter LoginID":''}
            helperText={this.state.error_loginID ? 'Required* ' : ''}
            error={this.state.error_loginID}
-          style={{marginLeft:'150px',width:'300px',display:'flex'}}
+          style={{marginLeft:'156px',width:'300px',display:'flex'}}
           placeholder="Login ID"
           variant="outlined"
           InputProps={{
@@ -633,8 +674,8 @@ class UpdateUser extends React.PureComponent {
         </Box>
 
 
-        <Box p={1} style={{marginLeft:'190px',width:'300px',display:'flex'}}>
-        <div style={{width: '360px'}}>
+        <Box p={1} style={{marginLeft:'190px',width:'320px',display:'flex'}}>
+        <div style={{width: '320px'}}>
          <Select
           id='role'
 

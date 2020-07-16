@@ -1160,9 +1160,9 @@ async fetchAllStudentsSchoolWise(){
         );
 
       this.state.groups.length=0;
-      for(var i=0;i<getGroups.data.length;i++)
+      for(var i=0;i<getGroups.data.data.length;i++)
       {
-        this.setState(prev=>({groups:[...prev.groups,{"value":getGroups.data[i].codeID,"label":getGroups.data[i].codeName}]}))
+        this.setState(prev=>({groups:[...prev.groups,{"value":getGroups.data.data[i].codeID,"label":getGroups.data.data[i].codeName}]}))
 //          groups.push({"value":getGroups.data[i].codeID,"label":getGroups.data[i].codeName})
       }
       }

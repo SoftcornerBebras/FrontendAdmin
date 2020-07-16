@@ -1,7 +1,8 @@
 import React from 'react';
 import axios from 'axios'
 import {Redirect} from 'react-router-dom'
-import { Typography , Box , TextField} from '@material-ui/core';
+import { Typography , Box , TextField, Button} from '@material-ui/core';
+import ArrowBack from "@material-ui/icons/ArrowBack";
 import {baseURL} from '../constants'
 export default class Preview extends React.PureComponent {
 
@@ -9,48 +10,78 @@ export default class Preview extends React.PureComponent {
 	{
 		super(props);
 		this.state = {
-			dataX : this.props.data,
-			url:'',
-			questype:"",
-			ObjectID :"",
 			urlo1 : "",
 			urlo2 : "",
 			urlo3 : "",
 			urlo4 : "",
-			qimglist:[],
-			caption:"",
 			background:"",
-			exp:"",
-			countryN:"",
 			opt1:"",
 			opt2:"",
 			opt3:"",
 			opt4:"",
-			task:"",
-			ques:""
+			backButton:false,
+			fromPage:'',
+			ageGroup:'',
+			language:'',
+			compID:'',
+			compName:'',
+			allData:'',
+			selectedAgeGroup:''
 		};
 	}
 
 	async componentDidMount () {
-		this.setState({
-				questype:this.state.dataX.questionType,
-				ObjectID:this.state.dataX.questionID,
-				caption:this.state.dataX.caption,
-				background:this.state.dataX.background,
-				exp:this.state.dataX.explanation,
-				countryN:this.state.dataX.countryName,
-				opt1:this.state.dataX.option1,
-				opt2:this.state.dataX.option2,
-				opt3:this.state.dataX.option3,
-				opt4:this.state.dataX.option4,
-				ansText:this.state.dataX.ansText
-			})
+		
+		var dataX
+
 		try{
+
+			if(this.props.fromPage == "QuestionDetails"){
+				dataX = this.props.data
+				this.setState({
+					background:dataX.background,
+					opt1:dataX.option1,
+					opt2:dataX.option2,
+					opt3:dataX.option3,
+					opt4:dataX.option4,
+					ansText:dataX.ansText
+				})
+			}
+			else {
+				this.setState({backButton:true,selectedAgeGroup:this.props.location.selectedAgeGroup})
+				if(this.props.location.fromPage === "QuesTransPrev") {
+					dataX = this.props.location.previewData
+					this.setState({allData:this.props.location.allData,background:dataX.background,
+						fromPage:"QuesTransPrev",
+						opt1:dataX.opt1,
+						opt2:dataX.opt2,
+						opt3:dataX.opt3,
+						opt4:dataX.opt4,
+						ansText:dataX.ansText
+					})
+
+				}
+				else {
+					dataX = this.props.location.data.previewData
+					this.setState({ageGroup:this.props.location.data.ageGroup,
+						language:this.props.location.data.language,
+						compID:this.props.location.compID,
+						compName:this.props.location.compName,
+						background:dataX.background,
+						selectedAgeGroup:this.props.location.selectedAgeGroup,
+						opt1:dataX.opt1,
+						opt2:dataX.opt2,
+						opt3:dataX.opt3,
+						opt4:dataX.opt4,
+						ansText:dataX.ansText
+					})					
+				}
+			} 
          
-            if(this.state.dataX.questionType=='Mcqs_With_Images')
+            if(dataX.questionType=='Mcqs_With_Images')
             {
             	 let gres = await axios.get(
-               baseURL+'api/ques/getImages/'+this.state.dataX.questionID+'/', {
+               baseURL+'api/ques/getImages/'+dataX.questionID+'/', {
                 headers: {Authorization: 'Token '+localStorage.getItem('id_token')}
                   }
                );
@@ -69,7 +100,7 @@ export default class Preview extends React.PureComponent {
                  }
 
                 }
-                 let x = new DOMParser().parseFromString(this.state.dataX.background,"text/html");
+                 let x = new DOMParser().parseFromString(dataX.background,"text/html");
                  let y = x.documentElement.querySelectorAll("div")
                  let total = y[0].innerHTML.replace(/\n/g,"<br/>")
                document.getElementById("addHere").insertAdjacentHTML('beforeend', total);
@@ -77,6 +108,26 @@ export default class Preview extends React.PureComponent {
       }catch(error){ return <Redirect to='/app/dashboard' />}
 
 	};
+
+	handleBack = () => {
+		if(this.state.fromPage== "QuesTransPrev"){
+			this.props.history.push({
+		      pathname :"/app/question/details",
+		      data : this.state.allData })
+		}
+		else {
+		  this.props.history.push({
+		      pathname : "/app/competitions/addQues",
+		      ageGroup: this.state.ageGroup,
+	          language: this.state.language,
+	          fromPage: "previewQues",
+	          compName: this.state.compName,
+	          compID: this.state.compID,
+	          initPage: this.state.fromPage,
+	          selectedAgeGroup:this.state.selectedAgeGroup
+		   })
+		}
+	}
 
 	render() {
 		
@@ -91,12 +142,10 @@ export default class Preview extends React.PureComponent {
 		}
 		return (
 			<>
-			{this.state.dataX.background.includes("div") ? <div id="addHere" style={{marginLeft:'1%'}}>{}</div>
-            : <p style={{marginLeft:'1%'}}>{this.state.task}
-                <br/>
-                <h4>Question:</h4>
-                {this.state.ques}
-            </p> }
+			{this.state.backButton ? <Button color="primary" variant="contained" style={{marginBottom:'15px'}}
+        		onClick={this.handleBack }><ArrowBack/> Back </Button> : null}
+			<div style={{backgroundColor:'#fff', padding:'2%'}}>
+			<div id="addHere" style={{marginLeft:'1%'}}>{}</div>
             {this.state.ansText==null ? (
             <>
             <Typography variant='h5' style={{marginTop:'40px'}}>Options : </Typography>
@@ -132,6 +181,7 @@ export default class Preview extends React.PureComponent {
             placeholder="Enter Answer Here" />
             </>
             )}
+			</div>
 			</>
 		);
 	}

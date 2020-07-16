@@ -68,29 +68,43 @@ export default function Header(props) {
   // local
   var [profileMenu, setProfileMenu] = useState(null);
   var [openAlert,setOpenAlert] = useState(false);
+  var [openHelp,setOpenHelp] = useState(false);
 
   const handleClose =(event,reason) => {
-  if (reason === 'clickaway') {
-    return;
-  }
+    if (reason === 'clickaway') {
+      return;
+    }
     setOpenAlert(false);
+    setOpenHelp(false);
   }
 
   const onLinkClick = () => {
     setProfileMenu(false);
   };
 
+  checkTimeout(userDispatch,props.history,setOpenAlert);
 
-   checkTimeout(userDispatch,props.history,setOpenAlert);
+  if(localStorage.getItem('helpDialog') == "1"){
+    setOpenHelp(true);
+    localStorage.setItem('helpDialog',0)
+  }
 
   return (
   <>
-    <Snackbar open={openAlert} autoHideDuration={5000} anchorOrigin={{ vertical:'top', horizontal:'center'} }
+    <Snackbar open={openAlert} autoHideDuration={6000} anchorOrigin={{ vertical:'top', horizontal:'center'} }
        onClose={()=>handleClose()}>
       <Alert onClose={()=>handleClose()} variant="filled" severity="info">
       <b>You will be logged out soon for security reasons. Please login again.</b>
       </Alert>
     </Snackbar>
+
+    <Snackbar open={openHelp} autoHideDuration={6000} anchorOrigin={{ vertical:'top', horizontal:'center'} }
+       onClose={()=>handleClose()}>
+      <Alert onClose={()=>handleClose()} variant="filled" severity="info">
+      <b>If you're a first time user, check out the FAQs section first.</b>
+      </Alert>
+    </Snackbar>
+
     <AppBar position="fixed" className={classes.appBar}>
       <Toolbar className={classes.toolbar}>
         <IconButton

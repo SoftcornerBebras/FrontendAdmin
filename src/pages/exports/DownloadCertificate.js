@@ -387,7 +387,7 @@ proceed=()=>{
   <Box p={1} m={1}  style={{marginLeft:'10%',marginTop:'0%'}}>
     <Typography variant='h6' >Select Competition:</Typography>
     </Box>
-    <Box p={1} m={1} style={{width:'40%',marginLeft:'4%',marginTop:'-1%',zIndex:"250"}}>
+    <Box p={1} m={1} style={{width:'40%',marginLeft:'1%',marginTop:'-1%',zIndex:"250"}}>
 
     <Select
 

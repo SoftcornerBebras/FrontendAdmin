@@ -15,9 +15,6 @@ import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert'
 import axios from 'axios'
 import {baseURL} from '../constants'
-import {selectedAgeGroup} from './CreateCompetition'
-import {selectedAgeGroupUpdate, selectedAgeGroupEdit} from './UpdateCompetition'
-
 
 export var compInfo = [], quesComp=[], challengeInfo=[];
 
@@ -64,7 +61,7 @@ const tableColumns = [
   }
 ];
 
-var correctMarks=[], bonus="", classes="", deletedQuesList=[],prevQuesList=[];;
+var correctMarks=[], bonus="", classes="", deletedQuesList=[],prevQuesList=[],selectedAgeGroup;
 class Challenge extends React.PureComponent {
 
   constructor(props) {
@@ -82,11 +79,12 @@ class Challenge extends React.PureComponent {
   }
 
   async componentDidMount() {
-     try{
-       let gResultClass = ""
-       if(this.props.location.fromPage == "createComp") {
 
-         gResultClass = await axios.get(baseURL+'api/cmp/getClassAgeWise/'+selectedAgeGroup.AgeGroupID+"/",{
+     try{
+
+        selectedAgeGroup=this.props.location.selectedAgeGroup
+
+       let gResultClass = await axios.get(baseURL+'api/cmp/getClassAgeWise/'+selectedAgeGroup.AgeGroupID+"/",{
             headers:{
                 'Content-Type' : 'application/json',
                     Authorization: 'Token '+localStorage.getItem('id_token')
@@ -94,40 +92,11 @@ class Challenge extends React.PureComponent {
         }).catch(error => {
            this.setState({openError:true})
         });
-           classes = gResultClass.data[0].ClassID.classNo
-           for(let i=1;i< gResultClass.data.length;i++){
-             classes+=","+gResultClass.data[i].ClassID.classNo
-           }
-        }
-        if(this.props.location.fromPage == "addNewGroup") {
-               gResultClass = await axios.get(baseURL+'api/cmp/getClassAgeWise/'+selectedAgeGroupUpdate.AgeGroupID+"/",{
-               headers:{
-                'Content-Type' : 'application/json',
-                    Authorization: 'Token '+localStorage.getItem('id_token')
-                }
-             }).catch(error => {
-            this.setState({openError:true})
-           });
-           classes = gResultClass.data[0].ClassID.classNo
-           for(let i=1;i< gResultClass.data.length;i++){
-             classes+=","+gResultClass.data[i].ClassID.classNo
-           }
-        }
-
-        if(this.props.location.fromPage == "editDetails") {
-           gResultClass = await axios.get(baseURL+'api/cmp/getClassAgeWise/'+selectedAgeGroupEdit.AgeGroupID+"/",{
-               headers:{
-                'Content-Type' : 'application/json',
-                    Authorization: 'Token '+localStorage.getItem('id_token')
-                }
-             }).catch(error => {
-            this.setState({openError:true})
-           });
-           classes = gResultClass.data[0].ClassID.classNo
-           for(let i=1;i< gResultClass.data.length;i++){
-             classes+=","+gResultClass.data[i].ClassID.classNo
-           }
-         }
+       classes = gResultClass.data[0].ClassID.classNo
+       for(let i=1;i< gResultClass.data.length;i++){
+         classes+=","+gResultClass.data[i].ClassID.classNo
+       }
+      
         if(this.props.location.fromPage == "createComp" || this.props.location.fromPage == "addNewGroup"
           || this.props.location.fromPage == "editDetails" ) {
 
@@ -235,7 +204,7 @@ class Challenge extends React.PureComponent {
 
   async getPrevQues(ageGrpName, language, levelA, levelB, levelC) {
     let ques = quesComp[0].ques;
-    let gcmpQues = await axios.get(baseURL+'api/cmp/getCmpQues/'+selectedAgeGroupEdit.AgeGroupID+"&"+this.state.compID+"/",{
+    let gcmpQues = await axios.get(baseURL+'api/cmp/getCmpQues/'+selectedAgeGroup.AgeGroupID+"&"+this.state.compID+"/",{
            headers:{
             'Content-Type' : 'application/json',
                 Authorization: 'Token '+localStorage.getItem('id_token')
@@ -377,7 +346,7 @@ class Challenge extends React.PureComponent {
     if(this.state.fromPage=="addNewGroup") {
 
       axios.post(baseURL +'api/cmp/insertCmpQues/',  {
-        "AgeGroupID":selectedAgeGroupUpdate.AgeGroupID,
+        "AgeGroupID":selectedAgeGroup.AgeGroupID,
         "competitionName":this.state.compName,
         "startdate":compInfo[1].detail,
         "cmptype":compInfo[0].detail,
@@ -409,8 +378,8 @@ class Challenge extends React.PureComponent {
          },
          "CompetitionID":this.state.compID,
          "agedata":{
-            "ageid":selectedAgeGroupEdit.AgeGroupID,
-            "agename":selectedAgeGroupEdit.AgeGroupName
+            "ageid":selectedAgeGroup.AgeGroupID,
+            "agename":selectedAgeGroup.AgeGroupName
          },
          "DeletedData":deletedQuesList,
          "CmpQuesData":quesList
@@ -528,7 +497,8 @@ class Challenge extends React.PureComponent {
                                 fromPage: this.state.fromPage,
                                 compName: this.state.compName,
                                 compID: this.state.compID,
-                                compInfo:compInfo
+                                compInfo:compInfo,
+                                selectedAgeGroup:selectedAgeGroup
                               });
                             }}
                           >
