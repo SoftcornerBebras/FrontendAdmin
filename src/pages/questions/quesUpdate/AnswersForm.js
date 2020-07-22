@@ -6,18 +6,23 @@ import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
+import Button from "@material-ui/core/Button";
 import { answer, options } from "./Review";
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import FormHelperText from "@material-ui/core/FormHelperText";
-import { errorArr } from "./QuesUpdate";
+import { errorArr, quesType } from "./QuesUpdate";
 
 export function setDataAnswers() {
   if(document.getElementById('ansText') == null){
     options[0].desc = document.getElementById('option1').value;
+    options[0].price = img1;
     options[1].desc = document.getElementById('option2').value;
+    options[1].price = img2;
     options[2].desc = document.getElementById('option3').value;
+    options[2].price = img3;
     options[3].desc = document.getElementById('option4').value;
+    options[3].price = img4;
     answer[1].desc="";
   }
   else {
@@ -41,6 +46,10 @@ const styles = theme => ({
 let correctValue = answer[0].desc;
 let correctAns = "";
 let ansOrOpt="";
+let img1="";
+let img2="";
+let img3="";
+let img4="";
 
 export function requiredAnswersForm() {
   var anythingEmpty = false;
@@ -92,9 +101,17 @@ class AnswersForm extends React.PureComponent {
       file2:options[1].imgURL,
       file3:options[2].imgURL,
       file4:options[3].imgURL,
+      imgValue:false,
   }
 
   componentDidMount(){
+    
+    if(quesType === "MCQS_WITH_IMAGES")
+    {
+      this.setState({imgValue:true,AnsText:true,AnsTextValue:"Options"})
+    } else {
+      this.setState({imgValue:false})
+    }
     if(answer[1].desc != null || answer[1].desc != "") {
       this.setState({AnsText:false,AnsTextValue:"Answer Text"})
       ansOrOpt="Ans"
@@ -182,6 +199,38 @@ handleChangeAnsText = value => {
       document.getElementById('err').style.display = "none";
     }
   };
+  handleChangeOption1 = event => {
+    if(event.target.files[0].name.length<=45){
+        this.setState({file1: URL.createObjectURL(event.target.files[0])});
+        document.getElementById("optionImage1").style.display = "flex";
+        options[0].imgURL = URL.createObjectURL(event.target.files[0]);
+        img1 =(event.target.files[0]);
+    }else {this.setState({openError:true})}
+  };
+ handleChangeOption2 = event => {
+    if(event.target.files[0].name.length<=45){
+        this.setState({file2: URL.createObjectURL(event.target.files[0])});
+        document.getElementById("optionImage2").style.display = "flex";
+        options[1].imgURL = URL.createObjectURL(event.target.files[0]);
+        img2 = (event.target.files[0]);
+    }else {this.setState({openError:true})}
+  };
+  handleChangeOption3 = event => {
+    if(event.target.files[0].name.length<=45){
+        this.setState({file3:URL.createObjectURL(event.target.files[0])});
+        document.getElementById("optionImage3").style.display = "flex";
+        options[2].imgURL = URL.createObjectURL(event.target.files[0]);
+        img3 = (event.target.files[0]);
+    }else {this.setState({openError:true})}
+  };
+ handleChangeOption4 = event => {
+    if(event.target.files[0].name.length<=45){
+        this.setState({file4:URL.createObjectURL(event.target.files[0])});
+        document.getElementById("optionImage4").style.display = "flex";
+        options[3].imgURL = URL.createObjectURL(event.target.files[0]);
+        img4 = (event.target.files[0]);
+     }else {this.setState({openError:true})}
+  };
 
 render(){
     const { classes } = this.props;
@@ -235,6 +284,27 @@ render(){
           >
             Required*
           </FormHelperText>
+          <p />
+          { this.state.imgValue && this.state.AnsText ?
+          <>
+          <input
+            accept="image/*"
+            className={classes.input}
+            id="contained-button-file1"
+            type="file"
+            onChange={this.handleChangeOption1}
+          />
+          <label htmlFor="contained-button-file1">
+            <Button
+              variant="contained"
+              color="primary"
+              component="span"
+              float="left"
+            >
+              Choose image
+            </Button>
+          </label></>
+          :null}
         </Grid>
         <Grid item xs={12} sm={6}>
           <img
@@ -262,6 +332,27 @@ render(){
           >
             Required*
           </FormHelperText>
+          <p />
+          { this.state.imgValue  && this.state.AnsText ?
+          <>
+          <input
+            accept="image/*"
+            className={classes.input}
+            id="contained-button-file2"
+            type="file"
+            onChange={this.handleChangeOption2}
+          />
+          <label htmlFor="contained-button-file2">
+            <Button
+              variant="contained"
+              color="primary"
+              component="span"
+              float="left"
+            >
+              Choose image
+            </Button>
+          </label></>
+          :null}
         </Grid>
         <Grid item xs={12} sm={6}>
           <img
@@ -289,6 +380,27 @@ render(){
           >
             Required*
           </FormHelperText>
+          <p/>
+          { this.state.imgValue && this.state.AnsText ?
+          <>
+          <input
+            accept="image/*"
+            className={classes.input}
+            id="contained-button-file3"
+            type="file"
+            onChange={this.handleChangeOption3}
+          />
+          <label htmlFor="contained-button-file3">
+            <Button
+              variant="contained"
+              color="primary"
+              component="span"
+              float="left"
+            >
+              Choose image
+            </Button>
+          </label></>
+          :null}
         </Grid>
         <Grid item xs={12} sm={6}>
           <img
@@ -316,6 +428,27 @@ render(){
           >
             Required*
           </FormHelperText>
+          <p />
+          { this.state.imgValue && this.state.AnsText ?
+          <>
+          <input
+            accept="image/*"
+            className={classes.input}
+            id="contained-button-file4"
+            type="file"
+            onChange={this.handleChangeOption4}
+          />
+          <label htmlFor="contained-button-file4">
+            <Button
+              variant="contained"
+              color="primary"
+              component="span"
+              float="left"
+            >
+              Choose image
+            </Button>
+          </label></>
+          :null}
         </Grid>
         <Grid item xs={12} sm={6}>
           <img

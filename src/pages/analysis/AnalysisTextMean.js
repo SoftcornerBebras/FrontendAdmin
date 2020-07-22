@@ -40,7 +40,7 @@ class AnalysisText extends PureComponent {
             }
             this.setState(prev=>({stateMarks:[...prev.stateMarks,{
               state:data[i].state,
-              meanMarks:data[i].MeanMarks
+              meanMarks:Math.round((data[i].MeanMarks + Number.EPSILON) * 100) / 100
             }]}))
           }
         }

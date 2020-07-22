@@ -74,6 +74,7 @@ class Questions extends React.PureComponent{
         nextLink2:'',
         prevLink2:'',
         redirect:false,
+        norecords:false,
       }
     };
 
@@ -100,12 +101,8 @@ class Questions extends React.PureComponent{
             }
           ).catch(error=>{this.setState({open_error:true})});
 
-          console.log(gresAll)
-
           let gResQues = gresAll.data.Questions.results
           let gResAns = gresAll.data.Options
-          console.log(gResQues)
-          console.log(gResAns)
           for(var i = 0; i<gResQues.length;i++)
           {
               let {questionTranslationID, optionTranslationID, ansText} = gResQues[i];
@@ -176,8 +173,7 @@ class Questions extends React.PureComponent{
               // this.setState({limit1:this.state.limit1+10,limit2:this.state.limit2+10})
 
       }catch(error){
-        console.log(error)
-        // this.props.history.push('/app/dashboard')
+        this.props.history.push('/app/dashboard')
       }
   }
 
@@ -188,7 +184,7 @@ handleClick = (event) => {
   };
 
   handleClose = () => {
-    this.setState({anchorEl:null, openBulk:false});
+    this.setState({anchorEl:null, openBulk:false, isProcessing:false,file:""});
   };
 
     async handlePageChange() {
@@ -203,7 +199,6 @@ handleClick = (event) => {
               headers: {Authorization: 'Token '+localStorage.getItem('id_token')}
             }
           ).catch(error=>{this.setState({open_error:true})});
-          console.log(gresAll)
 
           let gResQues = gresAll.data.Questions.results
           let gResAns = gresAll.data.Options
@@ -275,11 +270,9 @@ handleClick = (event) => {
             }
           }
               this.setState({nextLinkQ:gresAll.data.Questions.links.next,pageSize:gresAll.data.Questions.page_size,prevLinkQ:gresAll.data.Questions.links.previous,countRows:gresAll.data.Questions.count})
-              // this.setState({limit1:this.state.limit1+10,limit2:this.state.limit2+10})
 
       }}catch(error){
-        console.log(error)
-        // this.props.history.push('/app/dashboard')
+        this.props.history.push('/app/dashboard')
       }
   }
 
@@ -324,7 +317,7 @@ handleClick = (event) => {
   }
 
   handleAlertClose = () =>{
-    this.setState({open_error:false,open_success:false});
+    this.setState({open_error:false,open_success:false,norecords:false});
   }
 
   handleChangeData = data => {
@@ -350,6 +343,14 @@ handleClick = (event) => {
     let gresSkills
     let gresAll = (gResult.data.Questions)
     let gresOpt = (gResult.data.Options)
+
+    if(gresAll.length==0){
+         this.setState({norecords:true})
+         document.getElementById('QuestionSearch').style.display="none"
+      }
+      else{
+       document.getElementById('QuestionSearch').style.display="block"
+      }
 
      for(var i = 0; i<gresAll.length;i++)
           {
@@ -461,7 +462,11 @@ handleClick = (event) => {
         <b>Error Occured!</b>
         </Alert>
       </Snackbar>
-
+       <Snackbar open={this.state.norecords} autoHideDuration={3000} onClose={this.handleAlertClose} anchorOrigin={{ vertical:'top', horizontal:'center'} }>
+        <Alert onClose={this.handleAlertClose} variant="filled" severity="warning">
+          No Records found!
+        </Alert>
+      </Snackbar>
       <Snackbar open={this.state.open_success} autoHideDuration={2000} anchorOrigin={{ vertical:'top', horizontal:'center'} }
          onClose={this.handleAlertClose}>
         <Alert onClose={this.handleAlertClose} variant="filled" severity="success">
@@ -490,7 +495,7 @@ handleClick = (event) => {
       </Menu>
       <Grid container spacing={4}>
       {this.state.searchValue === "" ?
-      <Grid item xs={12} style={{zIndex:"0"}}>
+      <Grid item xs={12} id="QuestionList" style={{zIndex:"0"}}>
         <MUIDataTable
             title="Questions  List"
             data={this.state.getValue.map(item => {
@@ -503,7 +508,7 @@ handleClick = (event) => {
                   item.countryName.toUpperCase(),
                   item.csSkills,
                   item.background,
-                  item.questionTranslationID,
+                  item.quesTransID,
                   item.questionID,
                   item.explanation,
                   item.option1,
@@ -535,7 +540,7 @@ handleClick = (event) => {
               />
 
         </Grid> :
-            <Grid item xs={12} style={{zIndex:"0"}}>
+            <Grid item xs={12} id="QuestionSearch" style={{zIndex:"0",display:"none"}}>
         <MUIDataTable
             title="Questions  List"
             data={this.state.getValue2.map(item => {
@@ -548,7 +553,7 @@ handleClick = (event) => {
                   item.countryName.toUpperCase(),
                   item.csSkills,
                   item.background,
-                  item.questionTranslationID,
+                  item.quesTransID,
                   item.questionID,
                   item.explanation,
                   item.option1,

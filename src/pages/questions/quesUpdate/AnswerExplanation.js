@@ -29,10 +29,10 @@ export default class AnswerExplanation extends React.PureComponent {
         super(...arguments);
         this.items = ['Bold', 'Italic', 'Underline', 'StrikeThrough',
             'FontName', 'FontSize', 'FontColor', 'BackgroundColor',
-            'LowerCase', 'UpperCase', '|',
+            'LowerCase', 'UpperCase', '|','CreateLink', 'Image', 'CreateTable', '|',
             'Formats', 'Alignments', 'OrderedList', 'UnorderedList',
             'Outdent', 'Indent', 'SuperScript', 'SubScript', '|',
-            'CreateTable','ClearFormat', 'Print','|', 'Undo', 'Redo'
+            'ClearFormat', 'Print','|', 'Undo', 'Redo'
         ];
         this.toolbarSettings = {
             items: this.items
@@ -104,7 +104,7 @@ export default class AnswerExplanation extends React.PureComponent {
         <div className='control-pane' >
             <div className='control-section' >
               <div className='rte-control-section'>
-                <RichTextEditorComponent ref={(richtexteditor) => { this.rteObj = richtexteditor; }} showCharCount={true} actionBegin={this.handleFullScreen.bind(this)} actionComplete={this.actionCompleteHandler.bind(this)} maxLength={10000} toolbarSettings={this.toolbarSettings} quickToolbarSettings={this.quickToolbarSettings}>
+                <RichTextEditorComponent ref={(richtexteditor) => { this.rteObj = richtexteditor; }} showCharCount={true} actionBegin={this.handleFullScreen.bind(this)} actionComplete={this.actionCompleteHandler.bind(this)} toolbarSettings={this.toolbarSettings} quickToolbarSettings={this.quickToolbarSettings}>
                   <div id="answerContent">
                   </div>
                   <Inject services={[Toolbar, Image, Link, HtmlEditor, Count, QuickToolbar, Table]}/>

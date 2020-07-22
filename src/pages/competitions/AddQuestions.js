@@ -63,7 +63,7 @@ const columns = [
   {name: "Option 4",options: {filter: false,display:false,sort: false}}
 ];
 
-let finalData=[],selectedAgeGroup;
+let finalData=[],selectedRows=[],selectedAgeGroup="",ageGrpsPrev,compInfo=[],marks=[];
 export default class AddQuestions extends React.PureComponent {
 
   constructor(props) {
@@ -71,6 +71,7 @@ export default class AddQuestions extends React.PureComponent {
     this.state = {
       data:[],
       ageGroup:"",
+      noDataAlert:false,
       language:"",
       fromPage:"",
       compName:"",
@@ -80,9 +81,23 @@ export default class AddQuestions extends React.PureComponent {
   }
 
   async componentDidMount() {
+
+    selectedRows.length=0
+
     try{
 
         selectedAgeGroup = this.props.location.selectedAgeGroup
+        ageGrpsPrev = this.props.location.ageGrpsPrev
+
+        marks = this.props.location.marks
+
+        compInfo.length = 0
+        compInfo.push({ name: "Type :", detail: this.props.location.data[0].detail })
+        compInfo.push({ name: "Start date :", detail: this.props.location.data[1].detail })
+        compInfo.push({ name: "End date  :", detail: this.props.location.data[2].detail })
+        compInfo.push({ name: "Time Limit (hh:mm)  : ", detail: this.props.location.data[3].detail })
+        compInfo.push({ name: "Bonus Marks  : ", detail: this.props.location.data[4].detail })
+        compInfo.push({ name: "Additional info  : ", detail: this.props.location.data[5].detail })
 
         this.setState({ageGroup:this.props.location.ageGroup,
           language:this.props.location.language,
@@ -128,16 +143,13 @@ export default class AddQuestions extends React.PureComponent {
           });
           this.setState({selectedAgeGroup:selectedAgeGroup,fromPage:this.props.location.initPage})
         }
-        console.log(gAddQues)
         let ques = gAddQues.data.QuesAge
         let quesTrans = gAddQues.data.Questions
         let opt = gAddQues.data.Options
-        console.log(opt)
         let quesIDs =[], questions=[],options=[]
         for(let i=0; i< ques.length; i++) {
           quesIDs.push({quesID:ques[i].questionID, quesLevel : ques[i].questionLevelCodeID.codeName})
         }
-       console.log(quesIDs)
         for(let i=0; i< quesIDs.length; i++) {
 
           let ansFlag = 0, corrOption = "" , ansText = null
@@ -150,7 +162,6 @@ export default class AddQuestions extends React.PureComponent {
               else if (elem.ansText != null) {
                   a= elem.ansText
               }
-              console.log(elem.questionTranslationID.questionID.questionID)
               if(quesIDs[i].quesID == elem.questionTranslationID.questionID.questionID) {
                   questions.push({
                       quesType:elem.questionTranslationID.questionID.questionTypeCodeID.codeName,
@@ -172,7 +183,6 @@ export default class AddQuestions extends React.PureComponent {
                   break
               }
           }
-         console.log(questions)
           let cnt=0, flag = 0, optionArray=[];
           if(ansFlag == 0) {
               optionArray.length=0
@@ -194,7 +204,6 @@ export default class AddQuestions extends React.PureComponent {
               options.push({ansText:ansText})
           }
       }
-       console.log(options)
       for(let i=0; i< questions.length ; i++) {
 
           if(!options[i].hasOwnProperty("ansText")) {
@@ -241,26 +250,37 @@ export default class AddQuestions extends React.PureComponent {
   }
 
   handleClose = () => {
-    this.setState({openError:false})
+    this.setState({openError:false,noDataAlert:false})
   }
 
   handleBack = () => {
+
+  let path=''
+  if(this.state.fromPage == "createComp"){
+    path="/app/competitions/create/3/"
+  }
+  if(this.state.fromPage == "editDetails"){
+    path="/app/competitions/edit/3/"
+  }
+  if(this.state.fromPage == "addNewGroup"){
+    path="/app/competitions/update/3/"
+  }
+
   this.props.history.push({
-    pathname :"/app/competitions/create/3/",
-    data : {
-      ageGroup : this.state.ageGroup,
-      language : this.state.language,
-      ques: [],
-      initPage:this.state.fromPage,
-    },
+    pathname :path,
+    language : this.state.language,
+    ques: [],
+    initPage:this.state.fromPage,
+    data:compInfo,
     compName: this.state.compName,
+    marks:marks,
     selectedAgeGroup:selectedAgeGroup,
+    ageGrpsPrev:ageGrpsPrev,
     compID: this.state.compID,
     fromPage: "quesPage"})
   }
 
   rowClick = (rowData) => {
-  console.log(rowData)
     var data = [{
       questionType:rowData[2],
       background:rowData[5],
@@ -272,20 +292,99 @@ export default class AddQuestions extends React.PureComponent {
     }]
     this.props.history.push({
       pathname :"/app/question/preview",
-      data : {
-        ageGroup : this.state.ageGroup,
-        language : this.state.language,
-        previewData:data[0]
-      },
+      language : this.state.language,
+      previewData:data[0],
+      data:compInfo,
+      marks:marks,
       compName: this.state.compName,
       selectedAgeGroup:selectedAgeGroup,
       compID: this.state.compID,
       fromPage: this.state.fromPage,
+      ageGrpsPrev:ageGrpsPrev
     })
   }
 
+  onSelectRows = (rows) => {
+
+    try{
+      if(rows.length > 1 ){
+        selectedRows.length=0
+        for(let i=0; i<rows.length;i++){
+          selectedRows.push(rows[i].dataIndex)
+        }
+      }else{
+        let deleteData = false;
+        for(let i=0; i<selectedRows.length;i++){
+          if(selectedRows[i]==rows[0].dataIndex){
+            deleteData = true
+            selectedRows.splice(i,1)
+            break
+          }
+        }
+        if(deleteData == false){
+          selectedRows.push(rows[0].dataIndex)
+        }
+      }
+    }catch(error){selectedRows.length=0}
+  }
+
+  addToComp = () => {
+
+    localStorage.setItem("quesAdded","true")
+
+    if(selectedRows.length == 0) {
+      return
+    }
+
+    finalData.length=0;
+    for(let i = 0 ; i < selectedRows.length ; i++ ) {
+      finalData.push(this.state.data[selectedRows[i]])
+    }
+
+    this.state.fromPage === "createComp" ?
+    this.props.history.push({
+            pathname :"/app/competitions/create/3/",
+            language : this.state.language,
+            ques: finalData,
+            initPage:this.state.fromPage,
+            data:compInfo,
+            compName: this.state.compName,
+            selectedAgeGroup:selectedAgeGroup,
+            compID: this.state.compID,
+            fromPage: "quesPage",
+            ageGrpsPrev:ageGrpsPrev
+       }): (
+    this.state.fromPage === "addNewGroup" ?
+    this.props.history.push({
+            pathname :"/app/competitions/update/3/",
+            language : this.state.language,
+            ques: finalData,
+            initPage:this.state.fromPage,
+            data:compInfo,
+            compName: this.state.compName,
+            compID: this.state.compID,
+            selectedAgeGroup:selectedAgeGroup,
+            fromPage: "quesPage",
+            ageGrpsPrev:ageGrpsPrev
+       })
+    :
+    this.props.history.push({
+            pathname :"/app/competitions/edit/3/",
+            language : this.state.language,
+            ques: finalData,
+            initPage:this.state.fromPage,
+            data:compInfo,
+            compName: this.state.compName,
+            compID: this.state.compID,
+            marks:marks,
+            selectedAgeGroup:selectedAgeGroup,
+            fromPage: "quesPage",
+            ageGrpsPrev:ageGrpsPrev
+       })
+    )
+  }
+
   render() {
-console.log(this.state.data)
     return (
       <div className="App">
       <Snackbar open={this.state.openError} autoHideDuration={4000} anchorOrigin={{ vertical:'top', horizontal:'center'} }
@@ -294,8 +393,17 @@ console.log(this.state.data)
         <b>Error occured!</b>
         </Alert>
       </Snackbar>
+      <Snackbar open={this.state.noDataAlert} autoHideDuration={4000} anchorOrigin={{ vertical:'top', horizontal:'center'} }
+         onClose={this.handleClose}>
+        <Alert onClose={this.handleClose} variant="filled" severity="error">
+        <b>No Question Selected!</b>
+        </Alert>
+      </Snackbar>
+
       <Button color="primary" variant="contained" style={{marginBottom:'15px'}}
         onClick={this.handleBack }><ArrowBack/> Back </Button>
+        <Button color="primary" variant="contained" style={{marginTop:'-62px',marginBottom:'15px', marginLeft:'80%'}}
+        onClick={this.addToComp }>Add To Competition </Button>
         <MUIDataTable
           title={"Select questions"}
           data={this.state.data.map(item => {return [
@@ -317,71 +425,14 @@ console.log(this.state.data)
             print: false,
             download: false,
             viewColumns: false,
+            onRowsSelect: selectedRows => this.onSelectRows(selectedRows),
             onRowClick: item => this.rowClick(item),
             textLabels: {
                 body: {
                     noMatch: <CircularProgress variant='indeterminate' style={{color:'primary'}}/>,
                 },
             },
-            customToolbarSelect: selectedRows => (
-              <Tooltip title="Add to Competition">
-                <IconButton
-                  onClick={() => {
-                    finalData.length=0;
-                    for(let i = 0 ; i < selectedRows.data.length ; i++ ) {
-                      finalData.push(this.state.data[selectedRows.data[i].index])
-                    }
-                  }}
-                >
-                { this.state.fromPage === "createComp" ?
-                <Link to={{
-                        pathname :"/app/competitions/create/3/",
-                        data : {
-                          ageGroup : this.state.ageGroup,
-                          language : this.state.language,
-                          ques: finalData,
-                          initPage:this.state.fromPage,
-                        },
-                        compName: this.state.compName,
-                        compID: this.state.compID,
-                        fromPage: "quesPage"
-                   }}>
-                  <AddIcon />
-                </Link> : (
-                this.state.fromPage === "addNewGroup" ?
-                <Link to={{
-                        pathname :"/app/competitions/update/3/",
-                        data : {
-                          ageGroup : this.state.ageGroup,
-                          language : this.state.language,
-                          ques: finalData,
-                          initPage:this.state.fromPage
-                        },
-                        compName: this.state.compName,
-                        compID: this.state.compID,
-                        fromPage: "quesPage"
-                   }}>
-                  <AddIcon />
-                </Link>
-                :
-                <Link to={{
-                        pathname :"/app/competitions/edit/3/",
-                        data : {
-                          ageGroup : this.state.ageGroup,
-                          language : this.state.language,
-                          ques: finalData,
-                          initPage:this.state.fromPage
-                        },
-                        compName: this.state.compName,
-                        compID: this.state.compID,
-                        fromPage: "quesPage"
-                   }}>
-                  <AddIcon />
-                </Link>
-                )}
-                </IconButton>
-              </Tooltip>
-            )
+            customToolbarSelect: selectedRows => null
           }}
         />
       </div>

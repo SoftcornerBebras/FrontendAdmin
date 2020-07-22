@@ -33,7 +33,6 @@ import PeopleIcon from '@material-ui/icons/People';
 import ErrorIcon from '@material-ui/icons/Error';
 import RoomIcon from '@material-ui/icons/Room'; 
 import './styles.css';
-var jwt = require("jsonwebtoken");
 
 export var cmpYear=[{year: ""}]
 
@@ -502,7 +501,6 @@ handleCloseS10=(event,reason)=>{
     <a href="#/app/school/ContactInfo" className="contact"><PhoneIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Contact Info</a>
   <a href="#/app/school/RegisteredBy" className="registeredBy" ><PersonIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Registered By</a>
   <a href="#/app/school/StudentDetails" className="studentsEnrolled" ><PeopleIcon style={{marginLeft:"-40px",marginRight:"20px"}}/>Student Details</a>
-  <a href= {metabaseURL + "public/dashboard/be229927-122f-443f-8ea8-685c5255e5ca"} className="analysis" ><BarChartIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Analysis</a>
   <a href="#/app/school/download" className="download" ><GetAppIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Download</a>
   </div>
       <Snackbar open={this.state.openS1} autoHideDuration={3000} onClose={this.handleCloseS1} anchorOrigin={{ vertical:'top', horizontal:'center'} }>

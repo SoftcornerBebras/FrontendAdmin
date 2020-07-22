@@ -45,6 +45,11 @@ class Competition extends React.PureComponent {
 
   async componentDidMount() {
 
+    localStorage.removeItem("created")
+    localStorage.removeItem("getMarks")
+    localStorage.removeItem("quesAdded")
+    localStorage.removeItem("addedNewGrp")
+
     try{
 
    let gyear = await axios.get(baseURL+'api/cmp/getYears/',{
@@ -54,7 +59,6 @@ class Competition extends React.PureComponent {
          }
      })
      let yearData = gyear.data.data
-
     for(let i = 0 ; i < yearData.length ; i ++) {
       this.setState(prevState => ({years:[...prevState.years,yearData[yearData.length-1-i].substring(0,4)]}))
     }
@@ -89,11 +93,11 @@ async getData(year) {
          }
      }).catch(error => {
          this.setState({openError:true})
-     });
-     let cmpData = gcmp.data
-     this.setState({compData:cmpData})
+     })
+     this.setState({compData:gcmp.data})
     }catch(error){}
 };
+
   render () {
 
     return (
@@ -127,8 +131,9 @@ async getData(year) {
                   <TableRow>
                     <TableCell />
                     <TableCell>Challenge&nbsp;Name</TableCell>
-                    <TableCell align="right">Start&nbsp;date</TableCell>
-                    <TableCell align="right">End&nbsp;date</TableCell>
+                    <TableCell>Challenge&nbsp;Type</TableCell>
+                    <TableCell align="center">Start&nbsp;date</TableCell>
+                    <TableCell align="center">End&nbsp;date</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -143,6 +148,9 @@ async getData(year) {
                     </TableCell>
                     <TableCell component="th" scope="row">
                       {row.competitionName}
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      {row.competitionType.codeName}
                     </TableCell>
                     <TableCell align="right">{row.startDate.replace(/T|Z/g," ")}</TableCell>
                     <TableCell align="right">{row.endDate.replace(/T|Z/g," ")}</TableCell>

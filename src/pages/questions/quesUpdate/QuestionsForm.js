@@ -19,8 +19,8 @@ export function setDataQues() {
       posStart = posStart - 12 //reached start of required div
       posEnd = posEnd - 13 //reached end of required div
       quesString[0].question = x.substring(posStart,posEnd)
-      let start = quesString[0].substring(0,quesString[0].indexOf("contenteditable")-1)
-      let end = quesString[0].substring(quesString[0].indexOf("tabindex")-2,)
+      let start = quesString[0].question.substring(0,quesString[0].question.indexOf("contenteditable")-1)
+      let end = quesString[0].question.substring(quesString[0].question.indexOf("tabindex")-2,)
       quesString[0].question = start + end
 }
 
@@ -30,10 +30,10 @@ export default class QuestionsForm extends React.PureComponent {
         super(...arguments);
         this.items = ['Bold', 'Italic', 'Underline', 'StrikeThrough',
             'FontName', 'FontSize', 'FontColor', 'BackgroundColor',
-            'LowerCase', 'UpperCase', '|',
+            'LowerCase', 'UpperCase', '|','CreateLink', 'Image', 'CreateTable', '|',
             'Formats', 'Alignments', 'OrderedList', 'UnorderedList',
             'Outdent', 'Indent', 'SuperScript', 'SubScript', '|',
-            'CreateTable','ClearFormat', 'Print','|', 'Undo', 'Redo'
+            'ClearFormat', 'Print','|', 'Undo', 'Redo'
         ];
         this.toolbarSettings = {
             items: this.items
@@ -105,7 +105,7 @@ export default class QuestionsForm extends React.PureComponent {
         <div className='control-pane' >
             <div className='control-section' >
               <div className='rte-control-section'>
-                <RichTextEditorComponent ref={(richtexteditor) => { this.rteObj = richtexteditor; }} showCharCount={true} actionBegin={this.handleFullScreen.bind(this)} actionComplete={this.actionCompleteHandler.bind(this)} maxLength={10000} toolbarSettings={this.toolbarSettings} quickToolbarSettings={this.quickToolbarSettings}>
+                <RichTextEditorComponent ref={(richtexteditor) => { this.rteObj = richtexteditor; }} showCharCount={true} actionBegin={this.handleFullScreen.bind(this)} actionComplete={this.actionCompleteHandler.bind(this)} toolbarSettings={this.toolbarSettings} quickToolbarSettings={this.quickToolbarSettings}>
                   <div id="questionContent">
                   </div>
                   <Inject services={[Toolbar, Image, Link, HtmlEditor, Count, QuickToolbar, Table]}/>

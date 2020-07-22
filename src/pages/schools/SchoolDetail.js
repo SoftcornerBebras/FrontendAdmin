@@ -28,7 +28,6 @@ import Button from '@material-ui/core/Button';
 import Select from 'react-select';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import 'react-phone-input-2/lib/style.css';
-var jwt = require("jsonwebtoken");
 const styles = theme => ({
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
@@ -39,15 +38,6 @@ const styles = theme => ({
 
 var labeld='',valued='';
 export const arr=[{schoolName: "",schoolType:"",UDISECode:"",Phone:"",AddressLine1:"",AddressLine2:"",City:"",District:"",State:"",Pincode:"",Country:"",schoolID:"",latitude:"",longitude:"",registeredBy:"",registeredOn:""}];
-
-//for schools dashboard
-var payload = {
-  resource: { dashboard: 34 },
-  params: {},
-  exp: Math.round(Date.now() / 1000) + (10 * 60) // 10 minute expiration
-};
-var token = jwt.sign(payload, metabaseSecretKey);
-var srcSchools = metabaseURL + "/embed/dashboard/" + token + "#bordered=true&titled=true";
 
 let schooln="";
 let dist="";
@@ -98,6 +88,7 @@ class SchoolDetail extends Component {
     error_city:false,
     error_pincode:false,
     phone:arr[0].Phone,
+    oldstate:arr[0].State,
   }
   handleSchoolNameChange =(newValue)=> {
 
@@ -149,9 +140,7 @@ class SchoolDetail extends Component {
     this.setState({
       error_pincode:false,
     });
-
   }
-
 
   handleClick=()=>{
 this.setState({open:true});
@@ -215,7 +204,8 @@ this.setState({open:true});
     options_districts.length=0;
     var id=0;
     var state='';
-    if(options_state.length!=0){
+    
+    if(options_state.length!=0 ){
     if(this.state.selectedOptionState.toString().length==arr[0].State.length  )
     {
     state=this.state.selectedOptionState;
@@ -224,8 +214,10 @@ this.setState({open:true});
       state=this.state.selectedOptionState['value'];
 
     }
-    arr[0].State=state;
-    for(let i=0;i<this.state.stateList.length;i++)
+    if(state!=null){
+      arr[0].State=state;
+    
+      for(let i=0;i<this.state.stateList.length;i++)
     {
       if((this.state.stateList[i].name.toString().toLowerCase()==state.toString().toLowerCase() ))
       {
@@ -240,6 +232,7 @@ this.setState({open:true});
     options_districts.push({"value": x , "label": x })
     }
    }
+  }
   }
  }
 };
@@ -540,6 +533,7 @@ async submitData()
       control:base=> ({
         ...base,
         height:'56px',
+        backgroundColor: readOnly? 'white':'white'
       })
     }
 
@@ -577,7 +571,6 @@ async submitData()
     <a href="#/app/school/ContactInfo" className="contact"><PhoneIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Contact Info</a>
   <a href="#/app/school/RegisteredBy" className="registeredBy" ><PersonIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Registered By</a>
   <a href="#/app/school/StudentDetails" className="studentsEnrolled" ><PeopleIcon style={{marginLeft:"-40px",marginRight:"20px"}}/>Student Details</a>
-  <a href= {srcSchools} className="analysis" ><BarChartIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Analysis</a>
   <a href="#/app/school/download" className="download" ><GetAppIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Download</a>
   </div>
     <Card style={{width:"1000px",marginLeft:"5%"}}>

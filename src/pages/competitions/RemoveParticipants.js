@@ -13,7 +13,7 @@ import {baseURL} from '../constants'
 var schoolval = 'Select School..'
 var cmpval='Select Competition..';
 var agegrpval='Select Competition Age Group..';
-const headerList=["Student Name","Gender","Class","School Name","UDISE Code","City","State",{
+const headerList=["Student Name","Login ID","Gender","Class","School Name","City","State",{
 name:'ID',
 options: {
     filter:false,
@@ -116,10 +116,10 @@ class RemoveParticipants extends Component {
       {
           this.setState(prev=>({studentsList:[...prev.studentsList,{
           "username":getStudents.data[i].userID.username,
+          "loginID":getStudents.data[i].userID.loginID,
           "gender":getStudents.data[i].userID.gender.codeName,
           "class":getStudents.data[i].schoolClassID.classNumber,
           "schoolName":getStudents.data[i].schoolClassID.schoolID.schoolName,
-        "udise":getStudents.data[i].schoolClassID.schoolID.UDISEcode,
           "city":getStudents.data[i].schoolClassID.schoolID.addressID.city,
           "state":getStudents.data[i].schoolClassID.schoolID.addressID.stateID.name,
            "id":getStudents.data[i].studentEnrollmentID}]}))
@@ -253,13 +253,12 @@ class RemoveParticipants extends Component {
             data={this.state.studentsList.map(item => {
               return [
                   item.username,
+                  item.loginID,
                   item.gender,
 
                   item.class,
 
                   item.schoolName,
-
-                  item.udise,
 
                   item.city,
                   item.state,

@@ -1,10 +1,10 @@
 import React from 'react'
 import ErrorBoundary from '../error/ErrorBoundary'
-import {Typography, Grid,ListItemIcon, ListItemText, List,ListItem, Paper} from '@material-ui/core'
+import {Typography, Grid,ListItemIcon, ListItemText, List,ListItem, Paper, Button} from '@material-ui/core'
 import {withStyles} from '@material-ui/core/styles'
 import PropTypes from 'prop-types';
+import ArrowBack from '@material-ui/icons/ArrowBack'
 
-import {prevAgeGroups} from './CompetitionMainPage'
 
 const StyledListItem = withStyles({
   root: {
@@ -22,6 +22,7 @@ const styles =theme => ({
   }
 });
 
+var compInfo = [{ name: "", start: "", end: "", info: "", type:"", time:""}], prevAgeGroups;
 class CompInfo extends React.PureComponent {
 	constructor(props) {
 		super(props);
@@ -37,13 +38,23 @@ class CompInfo extends React.PureComponent {
 
         try {
 
+        	prevAgeGroups = this.props.location.prevAgeGroups
+
+        	compInfo[0].name = this.props.location.compName
+	        compInfo[0].info = this.props.location.data[4].detail
+	        compInfo[0].type = this.props.location.data[0].detail
+	        compInfo[0].time = this.props.location.data[3].detail
+	        compInfo[0].start = this.props.location.data[1].detail
+	        compInfo[0].end = this.props.location.data[2].detail
+
             for(let i = 0 ; i< prevAgeGroups.length; i++) {
                 this.setState(prev=>({ageList:[...prev.ageList,prevAgeGroups[i].AgeGroupName]}))
             }
             this.setState({compID:this.props.location.compID,compName:this.props.location.compName})
           }
         catch(error) {
-            this.props.history.push('/app/dashboard')
+        	console.log(error)
+            // this.props.history.push('/app/dashboard')
         }
 	}
 
@@ -59,13 +70,34 @@ class CompInfo extends React.PureComponent {
 	   }
 
 	   this.props.history.push({
-	   	pathname:"/app/competitions/test",
-	   	ageGroupID:ageID,
-	   	compID:this.state.compID,
-	   	compName: this.state.compName,
-	   	ageGroupName:ageGroup
-	   })
+		   	pathname:"/app/competitions/test",
+		   	ageGroupID:ageID,
+		   	compID:this.state.compID,
+		   	compName: this.state.compName,
+		   	ageGroupName:ageGroup,
+		   	data:compInfo,
+	        prevAgeGroups:prevAgeGroups
+		})
   };
+
+
+  	handleBack = () => {
+  		var data=[{
+	      competitionID: this.state.compID,
+	      competitionInfo: compInfo[0].info,
+	      competitionName: compInfo[0].name,
+	      competitionType:{
+	        codeName: compInfo[0].type},
+	      endDate: compInfo[0].end,
+	      startDate: compInfo[0].start,
+	      testDuration: compInfo[0].time+":00",
+	    }]
+
+	    this.props.history.push({
+	      pathname:'/app/competitions/info',
+	      data:data[0]
+	    })
+  	}
 
 	render() {
 
@@ -80,6 +112,8 @@ class CompInfo extends React.PureComponent {
 
 		return (
 			<ErrorBoundary>
+			<Button color="primary" variant="contained" style={{marginBottom:'15px'}}
+        onClick={this.handleBack }><ArrowBack/> Back </Button>
 				<Paper p={3} m={3}  align="center" className={classes.paper}>
 				<div style={headerStyle} >
 					<Typography variant="h6" align="center"> {this.state.compName}	</Typography>

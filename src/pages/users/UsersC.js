@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid , IconButton , CircularProgress, Box, TextField, InputAdornment} from "@material-ui/core";
+import { Grid , IconButton , CircularProgress, Box, TextField, InputAdornment, Snackbar} from "@material-ui/core";
 import { Close as CloseIcon, Search } from "@material-ui/icons";
 import AddUser from "../../pages/users/AddUser"
 import { withStyles } from '@material-ui/core/styles';
@@ -14,6 +14,7 @@ import {baseURL} from "../constants.js";
 import ErrorBoundary from'../error/ErrorBoundary'
 import Select from 'react-select';
 import PropTypes from 'prop-types';
+import Alert from '@material-ui/lab/Alert';
 
 const userStatus = { active : "unapproved", approved : "approved" , inactive : "inactive"};
 
@@ -62,8 +63,17 @@ class UsersPage extends React.PureComponent {
         prevLink:'',
         getValue:[],
         getValue2:[],
+        norecords:false,
       }
     };
+
+ handleClose=(event,reason)=>{
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    this.setState({norecords:false});
+  }
 
     async componentDidMount () {
         try{
@@ -73,6 +83,13 @@ class UsersPage extends React.PureComponent {
                  headers: {Authorization: 'Token '+localStorage.getItem('id_token')}
             }
             );
+            if(gresult.data.results.length==0){
+             this.setState({norecords:true})
+             document.getElementById('UserList').style.display="none"
+          }
+          else{
+              document.getElementById('UserList').style.display="block"
+          }
             this.setState({getValue : gresult.data.results})
             this.setState({nextLink:gresult.data.links.next,pageSize:gresult.data.page_size,prevLink:gresult.data.links.previous,countRows:gresult.data.count})
         }catch(error){ this.props.history.push('/app/dashboard') }
@@ -85,6 +102,13 @@ class UsersPage extends React.PureComponent {
       let gresult = await axios.post(baseURL + 'api/usr/getUserSearch/',{"feed":data},
       {headers: { Authorization:"Token "+localStorage.getItem('id_token')}}
       ).catch(error => {this.setState({open_error:true})})
+      if(gresult.data.length==0){
+         this.setState({norecords:true})
+         document.getElementById('UserSearch').style.display="none"
+      }
+      else{
+       document.getElementById('UserSearch').style.display="block"
+      }
       this.setState({getValue2 : gresult.data, page:0})
       this.setState({page:0,pageSize:gresult.page_size,countRows2:gresult.count})
     }
@@ -145,6 +169,11 @@ class UsersPage extends React.PureComponent {
 
   return (
     <ErrorBoundary>
+       <Snackbar open={this.state.norecords} autoHideDuration={3000} onClose={this.handleClose} anchorOrigin={{ vertical:'top', horizontal:'center'} }>
+        <Alert onClose={this.handleClose} variant="filled" severity="warning">
+          No Records found!
+        </Alert>
+      </Snackbar>
       <PageTitle title="Users" />
         <Grid item >
           <TextField
@@ -177,7 +206,7 @@ class UsersPage extends React.PureComponent {
       ADD</Button>
       <Grid container spacing={4}>
       {this.state.searchValue === "" ?
-      <Grid item xs={12} style={{zIndex:"0"}}>
+      <Grid id="UserList" item xs={12} style={{zIndex:"0"}}>
          <MUIDataTable
             title="User List"
             data={this.state.getValue.map(item =>{
@@ -186,7 +215,7 @@ class UsersPage extends React.PureComponent {
                   item.userID.loginID,
                   item.userID.phone,
                   item.RoleID.RoleName,
-                  item.userID.created_on,
+                  item.userID.created_on.replace(/T|Z/g," "),
                   item.userID.created_by,
                   item.userID.userID,
                   item.userRoleID,
@@ -220,8 +249,8 @@ class UsersPage extends React.PureComponent {
                 },
              }}
            />
-        </Grid> :
-            <Grid item xs={12} style={{zIndex:"0"}}>
+        </Grid>:
+            <Grid id="UserSearch" item xs={12} style={{zIndex:"0",display:"none"}}>
          <MUIDataTable
             title="User List"
             data={this.state.getValue2.map(item =>{
@@ -230,7 +259,7 @@ class UsersPage extends React.PureComponent {
                   item.userID.loginID,
                   item.userID.phone,
                   item.RoleID.RoleName,
-                  item.userID.created_on,
+                  item.userID.created_on.replace(/T|Z/g," "),
                   item.userID.created_by,
                   item.userID.userID,
                   item.userRoleID,

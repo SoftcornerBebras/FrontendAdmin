@@ -90,24 +90,6 @@ export function requiredAnswersForm() {
         anythingEmpty = true;
     }
   }
-  if(quesInfo[5].detail=="Mcqs_With_Images") {
-    if(img1=="") {
-        document.getElementById('errImg1').style.display='block';
-        anythingEmpty = true
-    }
-    if(img2=="") {
-        document.getElementById('errImg2').style.display='block';
-        anythingEmpty = true
-    }
-    if(img3=="") {
-        document.getElementById('errImg3').style.display='block';
-        anythingEmpty = true
-    }
-    if(img4=="") {
-        document.getElementById('errImg4').style.display='block';
-        anythingEmpty = true
-    }
-  }
   if (anythingEmpty == true) {
     errorArr[2].desc = "error";
   }else {
@@ -176,7 +158,6 @@ class AnswersForm extends React.PureComponent {
     if(event.target.files[0].name.length<=45){
         this.setState({file1: URL.createObjectURL(event.target.files[0])});
         document.getElementById("optionImage1").style.display = "flex";
-        document.getElementById('errImg1').style.display="none"
         imgSrc1 = URL.createObjectURL(event.target.files[0]);
         img1 =(event.target.files[0]);
     }else {this.setState({openError:true})}
@@ -185,7 +166,6 @@ class AnswersForm extends React.PureComponent {
     if(event.target.files[0].name.length<=45){
         this.setState({file2: URL.createObjectURL(event.target.files[0])});
         document.getElementById("optionImage2").style.display = "flex";
-        document.getElementById('errImg2').style.display="none"
         imgSrc2 = URL.createObjectURL(event.target.files[0]);
         img2 = (event.target.files[0]);
     }else {this.setState({openError:true})}
@@ -194,7 +174,6 @@ class AnswersForm extends React.PureComponent {
     if(event.target.files[0].name.length<=45){
         this.setState({file3:URL.createObjectURL(event.target.files[0])});
         document.getElementById("optionImage3").style.display = "flex";
-        document.getElementById('errImg3').style.display="none"
         imgSrc3 = URL.createObjectURL(event.target.files[0]);
         img3 = (event.target.files[0]);
     }else {this.setState({openError:true})}
@@ -204,7 +183,6 @@ class AnswersForm extends React.PureComponent {
         this.setState({file4:URL.createObjectURL(event.target.files[0])});
         document.getElementById("optionImage4").style.display = "flex";
         imgSrc4 = URL.createObjectURL(event.target.files[0]);
-        document.getElementById('errImg4').style.display="none"
         img4 = (event.target.files[0]);
      }else {this.setState({openError:true})}
   };
@@ -373,13 +351,7 @@ render(){
             >
               Choose image
             </Button>
-          </label>
-          <FormHelperText
-            id="errImg1"
-            style={{ color: "red", marginLeft: "13px", display: "none" }}
-          >
-            Required*
-          </FormHelperText></>
+          </label></>
           :null}
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -428,13 +400,7 @@ render(){
             >
               Choose image
             </Button>
-          </label>
-          <FormHelperText
-            id="errImg2"
-            style={{ color: "red", marginLeft: "13px", display: "none" }}
-          >
-            Required*
-          </FormHelperText></>
+          </label></>
           :null}
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -483,13 +449,7 @@ render(){
             >
               Choose image
             </Button>
-          </label>
-          <FormHelperText
-            id="errImg3"
-            style={{ color: "red", marginLeft: "13px", display: "none" }}
-          >
-            Required*
-          </FormHelperText></>
+          </label></>
           :null}
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -538,13 +498,7 @@ render(){
             >
               Choose image
             </Button>
-          </label>
-          <FormHelperText
-            id="errImg4"
-            style={{ color: "red", marginLeft: "13px", display: "none" }}
-          >
-            Required*
-          </FormHelperText></>
+          </label></>
           :null}
         </Grid>
         <Grid item xs={12} sm={6}>

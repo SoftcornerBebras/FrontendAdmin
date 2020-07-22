@@ -39,6 +39,7 @@ class Translations extends React.PureComponent {
 
     try{
         let quesID = this.props.allData.questionID
+
         this.setState({allData:this.props.allData,ansText:this.props.allData.ansText,
           background:this.props.allData.background,quesID:this.props.allData.questionID,
           history:this.props.history})
@@ -109,7 +110,8 @@ class Translations extends React.PureComponent {
         if(!options[i].hasOwnProperty("ansText")) {
 
             this.setState(prevState => ({quesDetail:[...prevState.quesDetail,{
-                questype:questions[i].questionType,
+              questionID:quesID,
+                questionType:questions[i].questype,
                 caption:questions[i].caption,
                 language:questions[i].language,
                 identifier:questions[i].identifier,
@@ -125,7 +127,8 @@ class Translations extends React.PureComponent {
         else {
 
             this.setState(prevState => ({quesDetail:[...prevState.quesDetail,{
-                questype:questions[i].questionType,
+              questionID:quesID,
+                questionType:questions[i].questype,
                 caption:questions[i].caption,
                 language:questions[i].language,
                 identifier:questions[i].identifier,
@@ -140,7 +143,6 @@ class Translations extends React.PureComponent {
         }
       }
     }catch(error){this.state.history.push('/app/dasboard')
-      console.log(error)
     }
     }
 

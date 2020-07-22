@@ -1,5 +1,4 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
@@ -91,8 +90,9 @@ function getStepContent(step) {
 export let domains=[],skills=[],
       quesLevels=[],
       ageGroups= [],
-      ageGroupsID=[],csSkills=[],selectedAgeID="";
+      ageGroupsID=[],csSkills=[],selectedAgeID="",quesType="";
 
+var quesImgList=[],ansImgList=[]
 class QuesUpdate extends React.PureComponent {
 
   constructor(props) {
@@ -122,6 +122,10 @@ class QuesUpdate extends React.PureComponent {
   async componentDidMount () {
 
     try {
+
+      console.log(this.props.location)
+
+      quesType=this.props.location.data.questionType
 
     this.clearData()
 
@@ -227,18 +231,23 @@ class QuesUpdate extends React.PureComponent {
           }
        );
 
-          if(gres.data.oimg1!="empty")
-         {
+        if(gres.data.oimg1!="empty")
+        {
          if(gres.data.oimg1.length>0 && gres.data.oimg2.length>0 && gres.data.oimg3.length>0 && gres.data.oimg4.length>0)
-         {
+          {
              this.setState({
-             urlo1 : baseURL + gres.data.oimg1[0].uploadedFile,
-             urlo2 : baseURL + gres.data.oimg2[0].uploadedFile,
+              urlo1 : baseURL + gres.data.oimg1[0].uploadedFile,
+              urlo2 : baseURL + gres.data.oimg2[0].uploadedFile,
               urlo3 : baseURL + gres.data.oimg3[0].uploadedFile,
-            urlo4 : baseURL + gres.data.oimg4[0].uploadedFile,
-            opt1:"",opt2:"",opt3:"",opt4:""
+              urlo4 : baseURL + gres.data.oimg4[0].uploadedFile,
+              opt1:"",opt2:"",opt3:"",opt4:""
              });
-         }
+
+             options[0].oldName = gres.data.oimg1[0].uploadedFile
+             options[1].oldName = gres.data.oimg2[0].uploadedFile
+             options[2].oldName = gres.data.oimg3[0].uploadedFile
+             options[3].oldName = gres.data.oimg4[0].uploadedFile
+          }
       }
 
     options[0].imgURL = this.state.urlo1
@@ -330,6 +339,160 @@ class QuesUpdate extends React.PureComponent {
 
   insertQues = () => {
   this.setState({isProcessing:true})
+
+      let content = quesString[0].question
+      let imgs=content.match(/src/g)
+      let total="",totalAns=""
+      let replaceImg=[], sub1=[], sub2=[];
+      let imgName=[], imgNameConcat="",uploadedURL="",imgType="";
+      let imgNameAns=[], imgNameConcatAns="",uploadedURLAns="",imgTypeAns="";
+      let imagesToUpload=[],imagesToUploadAns=[]
+      let today = new Date();
+      let date = today.getFullYear() + '-' + (today.getMonth()+1)+'-'+today.getDate();
+      let time = today.getHours()+"-"+today.getMinutes()+"-"+today.getSeconds();
+      let finalDate = date + '_' + time;
+
+      if(imgs== null) {
+        total=content
+      }
+      else {
+        let countOfImgs = imgs.length
+        for(let i=0;i<countOfImgs;i++){
+          if(i==0){
+            sub1[0] = content.substring(0,content.search("src")+3);
+            sub1[0] = sub1[0].substring(0,sub1[0].search("img")+3) + " style=\"max-height:100%;max-width:100%\"" + sub1[0].substring(sub1[0].search("img")+3,)
+            
+            let x = content.substring(content.search("src")+5,content.substring("src").indexOf(" ",content.indexOf("src"))-1)
+
+            if(!x.includes(baseURL)){
+              var name= content.substring(content.search("alt")+5, content.substring("alt").indexOf(" ",content.indexOf("alt"))-1)
+              var imgn = name.split(".");
+              imgName[i] = imgn[0]+'_'+finalDate+'.'+imgn[1];
+              imagesToUpload[i] = content.substring(content.search("src")+5,content.substring("src").indexOf(" ",content.indexOf("src"))-1) // to keep quotes
+              imgNameConcat = imgName[i];
+              // quesImgList.push(imgName[i])
+              imgType = "imageQuestion";
+              uploadedURL = imgName[i];
+              replaceImg[0] = "=\""+baseURL+"media/images/"+imgName[i]+"\" "
+              sub2[0] = content.substring(content.substring("src").indexOf(" ",content.indexOf("src")),)
+              total = sub1[0]+replaceImg[0]
+              console.log(total)
+            } else {
+              imgName[i] = x.substring(x.indexOf('images/')+7,)
+              imgNameConcat = imgName[i];
+              imgType = "imageQuestion";
+              uploadedURL = ""
+              // quesImgList.push(x.substring(x.indexOf('images/')+7,))
+              sub2[0] = content.substring(content.substring("src").indexOf(" ",content.indexOf("src")),)
+              total = sub1[0]+x
+              console.log(total)
+            }
+            
+          }
+          else {
+            sub2[i] = sub2[i-1].substring(sub2[i-1].substring("src").indexOf(" ",sub2[i-1].indexOf("src")))
+            sub1[i] =  sub2[i-1].substring(0,sub2[i-1].search("src")+5)
+            sub1[i] = sub1[i].substring(0,sub1[i].search("img")+3) + " style=\"max-height:100%;max-width:100%\"" + sub1[i].substring(sub1[i].search("img")+3,)
+            
+            let x = sub2[i-1].substring(sub2[i-1].search("src")+5,sub2[i-1].substring("src").indexOf(" ",sub2[i-1].indexOf("src"))-1)
+
+            if(!x.includes(baseURL)){
+              imagesToUpload[i] =  sub2[i-1].substring(sub2[i-1].search("src")+5,sub2[i-1].substring("src").indexOf(" ",sub2[i-1].indexOf("src"))-1)
+              var name= sub2[i].substring(sub2[i].search("alt")+5, sub2[i].substring("alt").indexOf(" ",sub2[i].indexOf("alt"))-1)
+              var imgn = name.split(".");
+              imgName[i] = imgn[0]+'_'+finalDate+'.'+imgn[1];
+              // quesImgList.push(imgName[i])
+              imgNameConcat = imgNameConcat +","+imgName[i];
+              imgType += ",imageQuestion";
+              uploadedURL += ",media/images/"+ imgName[i];
+              replaceImg[i] = baseURL+"media/images/"+imgName[i]+"\" "
+              total += sub1[i] + replaceImg[i]
+              console.log(total)
+            }else {
+              imgName[i] = x.substring(x.indexOf('images/')+7,)
+              imgNameConcat = imgNameConcat +","+imgName[i];
+              imgType += ",imageQuestion";
+              uploadedURL += ""
+              // quesImgList.push(x.substring(x.indexOf('images/')+7,))
+              total = sub1[0]+x
+              console.log(total)
+            }
+          }
+        }
+        total = total+sub2[countOfImgs-1]
+        console.log(quesImgList)
+      }
+
+      content = quesString[1].question
+      imgs=quesString[1].question.match(/src/g)
+      if(imgs==null) {
+        totalAns=content
+      }
+      else {
+        let countOfImgs = imgs.length
+        for(let i=0;i<countOfImgs;i++){
+          if(i==0){
+            sub1[0] = content.substring(0,content.search("src")+3);
+            sub1[0] = sub1[i].substring(0,sub1[0].search("img")+3) + " style=\"max-height:100%;max-width:100%\"" + sub1[0].substring(sub1[0].search("img")+3,)
+            
+            let x = content.substring(content.search("src")+5,content.substring("src").indexOf(" ",content.indexOf("src"))-1)
+
+            if(!x.includes(baseURL)){
+              var name= content.substring(content.search("alt")+5, content.substring("alt").indexOf(" ",content.indexOf("alt"))-1)
+              var imgn = name.split(".");
+              imgNameAns[i] = imgn[0]+'_'+finalDate+'.'+imgn[1];
+              // ansImgList.push(imgNameAns[i])
+              imagesToUploadAns[i] = content.substring(content.search("src")+5,content.substring("src").indexOf(" ",content.indexOf("src"))-1) // to keep quotes
+              imgNameConcatAns = imgNameAns[i];
+              imgTypeAns = "imageAnsExplanation";
+              uploadedURLAns = imgNameAns[i];
+              replaceImg[0] = "=\""+baseURL+"media/images/"+imgNameAns[i]+"\" "
+              sub2[0] = content.substring(content.substring("src").indexOf(" ",content.indexOf("src")),)
+              totalAns = sub1[0]+replaceImg[0]
+            } else {
+              imgNameAns[i] = x.substring(x.indexOf('images/')+7,)
+              imgNameConcatAns = imgNameAns[i];
+              imgTypeAns = "imageAnsExplanation";
+              uploadedURLAns = ""
+              sub2[0] = content.substring(content.substring("src").indexOf(" ",content.indexOf("src")),)
+              total = sub1[0]+x
+              // ansImgList.push(x.substring(x.indexOf('images/')+7,))
+              console.log(total)
+            }
+          }
+          else {
+            sub2[i] = sub2[i-1].substring(sub2[i-1].substring("src").indexOf(" ",sub2[i-1].indexOf("src")))
+            sub1[i] =  sub2[i-1].substring(0,sub2[i-1].search("src")+5)
+            sub1[i] = sub1[i].substring(0,sub1[i].search("img")+3) + " style=\"max-height:100%;max-width:100%\"" + sub1[i].substring(sub1[i].search("img")+3,)
+            let x = sub2[i-1].substring(sub2[i-1].search("src")+5,sub2[i-1].substring("src").indexOf(" ",sub2[i-1].indexOf("src"))-1)
+
+            if(!x.includes(baseURL)){
+              imagesToUploadAns[i] =  sub2[i-1].substring(sub2[i-1].search("src")+5,sub2[i-1].substring("src").indexOf(" ",sub2[i-1].indexOf("src"))-1)
+              var name= sub2[i].substring(sub2[i].search("alt")+5, sub2[i].substring("alt").indexOf(" ",sub2[i].indexOf("alt"))-1)
+              var imgn = name.split(".");
+              imgNameAns[i] = imgn[0]+'_'+finalDate+'.'+imgn[1];
+              // ansImgList.push(imgNameAns[i])
+              imgNameConcatAns = imgNameConcatAns +","+imgNameAns[i];
+              uploadedURLAns += ",media/images/"+ imgNameAns[i];
+              imgTypeAns += ",imageAnsExplanation";
+              replaceImg[i] = baseURL+"media/images/"+imgNameAns[i]+"\" "
+              totalAns += sub1[i] + replaceImg[i]
+            }else {
+              total = sub1[0]+x
+              // ansImgList.push(x.substring(x.indexOf('images/')+7,))
+              imgNameAns[i] = x.substring(x.indexOf('images/')+7,)
+              imgNameConcatAns = imgNameAns[i];
+              imgTypeAns = "imageAnsExplanation";
+              uploadedURLAns = ""
+              console.log(total)
+            }
+          }
+        }
+        totalAns = totalAns+sub2[countOfImgs-1]
+        console.log(ansImgList)
+      }
+
+      var bodyFormData = new FormData();
       var correctOpt = ""
 
         if(answer[0].desc==""){
@@ -337,89 +500,177 @@ class QuesUpdate extends React.PureComponent {
         } else {
             correctOpt=options[answer[0].desc-1].desc
         }
-     var BodyForm = {
-  "questionTranslationID":{
-    "questionID":{
-      "countryID": {
-      "name" : this.state.dataX.countryName
-      },
-      "domainCodeID":{
-        "codeName" : quesInfo[3].detail
-      },
-      "questionTypeCodeID":{
-        "codeName" : this.state.dataX.questionType
+
+      this.returnBLOB(imagesToUpload,imgName,bodyFormData)
+      this.returnBLOB(imagesToUploadAns,imgNameAns,bodyFormData)
+
+      var body=""
+
+      let imgNameOpt=[],pos=[],k=0;
+      for(let i=0;i<options.length;i++){
+        if( options[i].price != ""){
+          var imgn = options[i].price.name.split(".");
+          imgNameOpt[i] = imgn[0]+'_'+finalDate+'.'+imgn[1];
+          pos[k]=i
+          k=k+1
+        }else{
+          imgNameOpt[i]=""
+        }
       }
-    },
-    "languageCodeID":{
-      "codeName" : this.state.dataX.language
-    },
-        "modified_by":localStorage.getItem('username'),
-        "Identifier": quesInfo[1].detail,
-    "translation":{
-      "translation":{
-        "caption" : quesInfo[0].detail,
-        "background" : quesString[0].question,
-        "explanation" : quesString[1].question
-      },
-      "quesAgeID":{
-        "quesData": toInsertAgeGroups,
-        "DeletedQuesData": deletedAgeGroupQues
-      },
-  "quescsskills": quesInfo[2].detail
-    }
-  },
-  "optionTranslationID":{
-    "languageCodeID":{
-      "codeName" : this.state.dataX.language
-    },
-    "translationO":{
-      "translationO":
-      {
-        "option1":{
-          "caption":{
-          "option":options[0].desc
+
+      console.log(imgNameOpt)
+
+        body = {
+      "questionTranslationID":{
+          "questionID":{
+            "countryID": {
+            "name" : this.state.dataX.countryName
+            },
+            "domainCodeID":{
+              "codeName" : quesInfo[3].detail
+            },
+            "questionTypeCodeID":{
+              "codeName" : this.state.dataX.questionType
+            }
+          },
+          "languageCodeID":{
+            "codeName" : this.state.dataX.language
+          },
+              "modified_by":localStorage.getItem('username'),
+              "Identifier": quesInfo[1].detail,
+          "translation":{
+            "translation":{
+              "caption" : quesInfo[0].detail,
+              "background" : quesString[0].question,
+              "explanation" : quesString[1].question
+            },
+            "quesAgeID":{
+              "quesData": toInsertAgeGroups,
+              "DeletedQuesData": deletedAgeGroupQues
+            },
+        "quescsskills": quesInfo[2].detail,
+        "imageID":{
+              "ImageName":imgNameConcat,
+              "ImageTypeCodeID":
+              {
+                "codeName":imgType
+              },
+              "uploadedFile":"media/images/"+uploadedURL
+          },
+           "imageAnsID":{
+              "ImageName":imgNameConcatAns,
+              "ImageTypeCodeID":
+              {
+                "codeName":imgTypeAns
+              },
+              "uploadedFile":"media/images/"+uploadedURLAns
+          }
+          }
+        },
+        "optionTranslationID":{
+          "languageCodeID":{
+            "codeName" : this.state.dataX.language
+          },
+          "translationO":{
+            "translationO":
+                {
+                  "option1":{
+                    "caption":{
+                       "option":options[0].desc,
+                    },
+                    "imageID":{
+                  "ImageName":imgNameOpt[0],
+                  "ImageTypeCodeID":
+                  {
+                    "codeName":"imageOption"
+                  },
+                  "uploadedFile":"media/images/"+imgNameOpt[0]
+                }
+                  },
+                  "option2":{
+                    "caption":{
+                       "option":options[1].desc,
+                    },
+                    "imageID":{
+                  "ImageName":imgNameOpt[1],
+                  "ImageTypeCodeID":
+                  {
+                    "codeName":"imageOption"
+                  },
+                  "uploadedFile":"media/images/"+imgNameOpt[1]
+                }
+
+                  },
+                  "option3":{
+                    "caption":{
+                    "option":options[2].desc,
+                    },
+                    "imageID":{
+                  "ImageName":imgNameOpt[2],
+                  "ImageTypeCodeID":
+                  {
+                    "codeName":"imageOption"
+                  },
+                  "uploadedFile":"media/images/"+imgNameOpt[2]
+                }
+
+                  },
+                  "option4":{
+                    "caption":{
+                    "option":options[3].desc,
+                    },
+                    "imageID":{
+                  "ImageName":imgNameOpt[3],
+                  "ImageTypeCodeID":
+                  {
+                    "codeName":"imageOption"
+                  },
+                  "uploadedFile":"media/images/"+imgNameOpt[3]
+                }
+                  },
+              "correctOption":correctOpt,
+      "ansText": answer[1].desc
+            }
+
           }
         }
-        ,
-        "option2":{
-          "caption":{
-          "option":options[1].desc
-          }
-        },
-        "option3":{
-          "caption":{
-            "option":options[2].desc
-          }
-        },
-        "option4":{
-          "caption":{
-           "option":options[3].desc
-          }
-        },
-        "correctOption":correctOpt,
-"ansText": answer[1].desc
       }
 
+      console.log(pos)
+
+      bodyFormData.append('data', JSON.stringify(body));
+      for(let i=0;i<pos.length;i++){
+        bodyFormData.append('image', options[pos[i]].price,imgNameOpt[pos[i]]);
+        console.log(options[pos[i]].price,imgNameOpt[pos[i]])
+      }
+
+//     setTimeout(()=>{
+// axios.post(baseURL+'api/cmp/updateQuestion/'+this.state.dataX.quesTransID+"/",bodyFormData,{
+//             headers: {
+//                  'Content-Type' : 'application/json',
+//                  Authorization: 'Token '+localStorage.getItem('id_token')
+//             }
+//         }).then(response =>{
+//           this.clearData();
+//           setTimeout(()=>{
+//             this.setState({uploadSuccess:true,isProcessing:false,open:false,activeStep:5});
+//           },2000);
+//           setTimeout(()=>{
+//             this.redirect();
+//           },2000);
+//         }).catch(error => {this.setState({openError:true,isProcessing:false,open:false,activeStep:4});});
+//       },10000)
     }
-  }
-}
 
-axios.post(baseURL+'api/cmp/updateQuestion/'+this.state.dataX.quesTransID+"/",BodyForm,{
-            headers: {
-                 'Content-Type' : 'application/json',
-                 Authorization: 'Token '+localStorage.getItem('id_token')
-            }
-        }).then(response =>{
-          this.clearData();
-          setTimeout(()=>{
-            this.setState({uploadSuccess:true,isProcessing:false,open:false,activeStep:5});
-          },2000);
-          setTimeout(()=>{
-            this.redirect();
-          },2000);
-        }).catch(error => {this.setState({openError:true,isProcessing:false,open:false,activeStep:4});});
-    };
+    async returnBLOB(imagesToUpload,imgName,bodyFormData){
 
+      for(let i=0;i<imagesToUpload.length;i++){
+        let img = await fetch(imagesToUpload[i]).then(r => r.blob());
+        const contentType = 'image/'+imgName[i].split('.')[1]
+        const file = new File([img],imgName[i],{type: contentType},{lastModified: Date.now()})
+        bodyFormData.append('image', file,imgName[i]);
+      }
+    }
 
     clearData = () => {
       options[0].desc="";options[0].price="";options[0].imgURL="";

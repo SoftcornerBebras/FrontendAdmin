@@ -4,6 +4,8 @@ import {Redirect} from 'react-router-dom'
 import { Typography , Box , TextField, Button} from '@material-ui/core';
 import ArrowBack from "@material-ui/icons/ArrowBack";
 import {baseURL} from '../constants'
+
+var ageGrpsPrev,compInfo=[],marks=[]
 export default class Preview extends React.PureComponent {
 
 	constructor(props)
@@ -62,9 +64,21 @@ export default class Preview extends React.PureComponent {
 
 				}
 				else {
-					dataX = this.props.location.data.previewData
-					this.setState({ageGroup:this.props.location.data.ageGroup,
-						language:this.props.location.data.language,
+
+		          compInfo.length = 0
+		          compInfo.push({ name: "Type :", detail: this.props.location.data[0].detail })
+		          compInfo.push({ name: "Start date :", detail: this.props.location.data[1].detail })
+		          compInfo.push({ name: "End date  :", detail: this.props.location.data[2].detail })
+		          compInfo.push({ name: "Time Limit (hh:mm)  : ", detail: this.props.location.data[3].detail })
+		          compInfo.push({ name: "Bonus Marks  : ", detail: this.props.location.data[4].detail })
+		          compInfo.push({ name: "Additional info  : ", detail: this.props.location.data[5].detail })
+					
+					dataX = this.props.location.previewData
+        			marks = this.props.location.marks
+					ageGrpsPrev = this.props.location.ageGrpsPrev
+					this.setState({
+						fromPage:this.props.location.fromPage,
+						language:this.props.location.language,
 						compID:this.props.location.compID,
 						compName:this.props.location.compName,
 						background:dataX.background,
@@ -77,8 +91,10 @@ export default class Preview extends React.PureComponent {
 					})					
 				}
 			} 
+
+			var type = dataX.questionType.toUpperCase()
          
-            if(dataX.questionType=='Mcqs_With_Images')
+            if(type=='MCQS_WITH_IMAGES')
             {
             	 let gres = await axios.get(
                baseURL+'api/ques/getImages/'+dataX.questionID+'/', {
@@ -116,13 +132,18 @@ export default class Preview extends React.PureComponent {
 		      data : this.state.allData })
 		}
 		else {
+
+			console.log(ageGrpsPrev)
+
 		  this.props.history.push({
 		      pathname : "/app/competitions/addQues",
-		      ageGroup: this.state.ageGroup,
 	          language: this.state.language,
 	          fromPage: "previewQues",
 	          compName: this.state.compName,
+		      ageGrpsPrev:ageGrpsPrev,
 	          compID: this.state.compID,
+	          data:compInfo,
+	          marks:marks,
 	          initPage: this.state.fromPage,
 	          selectedAgeGroup:this.state.selectedAgeGroup
 		   })
@@ -146,7 +167,7 @@ export default class Preview extends React.PureComponent {
         		onClick={this.handleBack }><ArrowBack/> Back </Button> : null}
 			<div style={{backgroundColor:'#fff', padding:'2%'}}>
 			<div id="addHere" style={{marginLeft:'1%'}}>{}</div>
-            {this.state.ansText==null ? (
+            {this.state.ansText==null || this.state.ansText=="" ? (
             <>
             <Typography variant='h5' style={{marginTop:'40px'}}>Options : </Typography>
 			<Box style={{display: 'flex' , flexDirection: 'column'}}>

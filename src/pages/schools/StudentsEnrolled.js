@@ -28,7 +28,6 @@ import BarChartIcon from '@material-ui/icons/BarChart';
 import PeopleIcon from '@material-ui/icons/People';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import './styles.css';
-var jwt = require("jsonwebtoken");
 
 var d = new Date();
 var students=[]
@@ -68,15 +67,6 @@ var gresult,gresultClasses,gresultSchool;
 let gresUserRoleID;
 var gresult,gresultClasses,gresultSchool;
 var getStudents;
-
-//for schools dashboard
-var payload = {
-  resource: { dashboard: 34 },
-  params: {},
-  exp: Math.round(Date.now() / 1000) + (10 * 60) // 10 minute expiration
-};
-var token = jwt.sign(payload, metabaseSecretKey);
-var srcSchools = metabaseURL + "/embed/dashboard/" + token + "#bordered=true&titled=true";
 
 class StudentsEnrolled extends React.PureComponent{
   state={
@@ -482,7 +472,6 @@ render(){
         <a href="#/app/school/ContactInfo" className="contact"><PhoneIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Contact Info</a>
         <a href="#/app/school/RegisteredBy" className="registeredBy" ><PersonIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Registered By</a>
         <a href="#/app/school/StudentDetails" className="studentsEnrolled" ><PeopleIcon style={{marginLeft:"-40px",marginRight:"20px"}}/>Student Details</a>
-        <a href= {srcSchools} className="analysis" ><BarChartIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Analysis</a>
         <a href="#/app/school/download" className="download" ><GetAppIcon style={{marginLeft:"-40px",marginRight:"50px"}}/>Download</a>
       </div>
 

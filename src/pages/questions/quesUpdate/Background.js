@@ -29,15 +29,23 @@ export function setDataB() {
   ageGroupValueX = []
   quesLevelValueX = []
 
+  console.log(toInsertAgeGroups,deletedAgeGroupQues)
+
 }
 
 function ageGroupQuesLevels() {
   toInsertAgeGroups.length = 0
+  toInsertAgeGroups = []
+
     let aG = quesInfo[4].detail.split(",")
     let qL = quesInfo[5].detail.split(",")
 
+    console.log(aG,qL)
+
     for(let i=0;i<aG.length;i++){
+      if(ageGroupIDValueX[i] !="" && ageGroupValueX[i]!="" && quesLevelValueX[i]!=""){
         toInsertAgeGroups.push({"ageID":ageGroupIDValueX[i],"ageGroup":aG[i],"quesLevel":qL[i]})
+      }
     }
 }
 
@@ -266,8 +274,10 @@ class Background extends React.PureComponent {
 
   deleteRow = (id) => {
 
-    deletedAgeGroupQues.push({"ageID":ageGroupIDValueX[id],"ageGroup":ageGroupValueX[id],
-      "quesLevel":quesLevelValueX[id]})
+    if(ageGroupIDValueX[id] !="" && ageGroupValueX[id]!="" && quesLevelValueX[id]!=""){
+      deletedAgeGroupQues.push({"ageID":ageGroupIDValueX[id],"ageGroup":ageGroupValueX[id],
+        "quesLevel":quesLevelValueX[id]})
+    }
 
     ageGroupValueX[id] = "";
     ageGroupIDValueX[id] = "";

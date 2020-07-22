@@ -13,10 +13,11 @@ import Alert from '@material-ui/lab/Alert';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import ErrorBoundary from "../../pages/error/ErrorBoundary";
-
+import Fab from '@material-ui/core/Fab';
 import {baseURL} from '../constants'
 import axios from 'axios';
-
+import EditIcon from '@material-ui/icons/Edit';
+// import './stylesusers.css';
 const userStatus = { unapproved : "unapproved", approved : "approved" , inactive : "inactive"};
 
 const styles = theme => ({
@@ -52,7 +53,7 @@ class UpdateUser extends React.PureComponent {
         super(props);
         this.state = {
             selectedOption: "",
-            dataX :this.props.location.data[0],
+            dataX :"",
             selectedOption_role: "",
             phone:"",
             value:"",
@@ -81,6 +82,9 @@ class UpdateUser extends React.PureComponent {
            RoleList:[],
            approval : "",
            status:"",
+           readOnly:true,
+           isHidden:true,
+          clicked:false,
         };
     }
 
@@ -90,52 +94,55 @@ class UpdateUser extends React.PureComponent {
 
     try {
 
-        if(this.state.dataX.userRoleID != null && this.state.dataX.userID.username!= null){
+      var dataX = this.props.location.data[0]
+      this.setState({dataX:this.props.location.data[0]})
+
+        if(dataX.userRoleID != null && dataX.userID.username!= null){
             fromPage="users"
 
         let ph;
-            if(this.state.dataX.userID.phone == null) {
+            if(dataX.userID.phone == null) {
                 ph = ""
             }
             else {
-                ph = this.state.dataX.userID.phone
+                ph = dataX.userID.phone
             }
-          var res = this.state.dataX.userID.username.split(" ");
+          var res = dataX.userID.username.split(" ");
            
-            if(this.state.dataX.userID.birthdate == null) {
+            if(dataX.userID.birthdate == null) {
               this.setState({
-                userID: this.state.dataX.userID.userID,
-                loginID: this.state.dataX.userID.loginID,
-                username: this.state.dataX.userID.username,
+                userID: dataX.userID.userID,
+                loginID: dataX.userID.loginID,
+                username: dataX.userID.username,
                 firstname:res[0],
                 lastname:res[1],
-                selectedOption_role:this.state.dataX.RoleID.RoleName,
+                selectedOption_role:dataX.RoleID.RoleName,
                 phone:ph,
-                selectedOption: this.state.dataX.userID.gender.codeName,
+                selectedOption: dataX.userID.gender.codeName,
                 date:"",
                 dateString:"",
-                emailID:this.state.dataX.userID.email,
-                approval:this.state.dataX.userID.is_active.codeName,
-                status:this.state.dataX.userID.is_active.codeName,
-                userRoleID:this.state.dataX.userRoleID
+                emailID:dataX.userID.email,
+                approval:dataX.userID.is_active.codeName,
+                status:dataX.userID.is_active.codeName,
+                userRoleID:dataX.userRoleID
             })
             }
             else {
               this.setState({
-                userID: this.state.dataX.userID.userID,
-                loginID: this.state.dataX.userID.loginID,
-                username: this.state.dataX.userID.username,
+                userID: dataX.userID.userID,
+                loginID: dataX.userID.loginID,
+                username: dataX.userID.username,
                 firstname:res[0],
                 lastname:res[1],
-                selectedOption_role:this.state.dataX.RoleID.RoleName,
+                selectedOption_role:dataX.RoleID.RoleName,
                 phone:ph,
-                selectedOption: this.state.dataX.userID.gender.codeName,
-                date:new Date(this.state.dataX.userID.birthdate),
-                dateString:this.state.dataX.userID.birthdate,
-                emailID:this.state.dataX.userID.email,
-                approval:this.state.dataX.userID.is_active.codeName,
-                status:this.state.dataX.userID.is_active.codeName,
-                userRoleID:this.state.dataX.userRoleID
+                selectedOption: dataX.userID.gender.codeName,
+                date:new Date(dataX.userID.birthdate),
+                dateString:dataX.userID.birthdate,
+                emailID:dataX.userID.email,
+                approval:dataX.userID.is_active.codeName,
+                status:dataX.userID.is_active.codeName,
+                userRoleID:dataX.userRoleID
             })
           }
 
@@ -146,47 +153,47 @@ class UpdateUser extends React.PureComponent {
 
             let ph;
 
-            if(this.state.dataX.phone == null) {
+            if(dataX.phone == null) {
                 ph = ""
             }
             else {
-                ph = this.state.dataX.phone
+                ph = dataX.phone
             }
-            var res = this.state.dataX.username.split(" ");
-            if(this.state.dataX.birthdate == null) {
+            var res = dataX.username.split(" ");
+            if(dataX.birthdate == null) {
               this.setState({
-                userID: this.state.dataX.userID,
-                loginID: this.state.dataX.loginID,
-                username: this.state.dataX.username,
+                userID: dataX.userID,
+                loginID: dataX.loginID,
+                username: dataX.username,
                 firstname:res[0],
                 lastname:res[1],
-                selectedOption_role:this.state.dataX.role,
+                selectedOption_role:dataX.role,
                 phone:ph,
-                selectedOption: this.state.dataX.gender,
+                selectedOption: dataX.gender,
                 date:"",
                 dateString:"",
-                emailID:this.state.dataX.email,
-                approval:this.state.dataX.is_active,
-                status:this.state.dataX.is_active,
-                userRoleID:this.state.dataX.userRoleID
+                emailID:dataX.email,
+                approval:dataX.is_active,
+                status:dataX.is_active,
+                userRoleID:dataX.userRoleID
               })
             }
             else {
               this.setState({
-                userID: this.state.dataX.userID,
-                loginID: this.state.dataX.loginID,
-                username: this.state.dataX.username,
+                userID: dataX.userID,
+                loginID: dataX.loginID,
+                username: dataX.username,
                 firstname:res[0],
                 lastname:res[1],
-                selectedOption_role:this.state.dataX.role,
+                selectedOption_role:dataX.role,
                 phone:ph,
-                selectedOption: this.state.dataX.gender,
-                date:new Date(this.state.dataX.birthdate),
-                dateString:this.state.dataX.userID.birthdate,
-                emailID:this.state.dataX.email,
-                approval:this.state.dataX.is_active,
-                status:this.state.dataX.is_active,
-                userRoleID:this.state.dataX.userRoleID
+                selectedOption: dataX.gender,
+                date:new Date(dataX.birthdate),
+                dateString:dataX.userID.birthdate,
+                emailID:dataX.email,
+                approval:dataX.is_active,
+                status:dataX.is_active,
+                userRoleID:dataX.userRoleID
               })
             }
         }
@@ -225,7 +232,8 @@ class UpdateUser extends React.PureComponent {
         }
 
     }catch(error){
-      this.props.history.push('/app/dashboard')
+      console.log(error)
+      // this.props.history.push('/app/dashboard')
     }
   }
 
@@ -281,11 +289,17 @@ class UpdateUser extends React.PureComponent {
                 phone = '+'+phone
             }
          }
+
+         let email=null
+         if(this.state.emailID != "" && this.state.emailID != null){
+          email = this.state.emailID
+         }
+
          console.log({
             "userID" :{
 
                 "username":this.state.username,
-                "email":this.state.emailID,
+                "email":email,
                 "phone":phone,
                 "birthdate" : finalDate,
                 "gender": {
@@ -306,7 +320,7 @@ class UpdateUser extends React.PureComponent {
             "userID" :{
 
                 "username":this.state.username,
-                "email":this.state.emailID,
+                "email":email,
                 "phone":phone,
                 "birthdate" : finalDate,
                 "gender": {
@@ -328,7 +342,10 @@ class UpdateUser extends React.PureComponent {
         }
         );
         this.alertAndRedirect();
-        }catch(error){this.setState({openError:true})}
+        }catch(error){
+          console.log(error)
+          // this.setState({openError:true})
+        }
     }
 
     alertAndRedirect() {
@@ -343,12 +360,14 @@ class UpdateUser extends React.PureComponent {
 
     handleChangeGender = selectedOptionGender => {
         this.setState({selectedOptionGender});
-        this.setState({selectedOption:selectedOptionGender.value})
+         this.setState({selectedOption:selectedOptionGender.value})
+        
       };
 
     handleChangeRole = selectedOptionRole => {
         this.setState({selectedOptionRole});
         this.setState({selectedOption_role:selectedOptionRole.value})
+        
       };
 
   handleClose = () => {
@@ -426,13 +445,13 @@ class UpdateUser extends React.PureComponent {
     event.preventDefault();
   };
 
-  handlefirstnameChange = ( newValue) => {
+  handleFirstnameChange = ( newValue) => {
       this.setState({
         firstname:newValue,
         error_firstname:false,
   })};
 
-   handlelastnameChange = ( newValue) => {
+   handleLastnameChange = ( newValue) => {
       this.setState({
         lastname:newValue,
         error_lastname:false,
@@ -465,8 +484,120 @@ class UpdateUser extends React.PureComponent {
       this.handleLoginIDChange(newValue)
     }
   };
+  onCancel=()=>{
+   
+    if(this.state.dataX.userRoleID != null && this.state.dataX.userID.username!= null){
+      fromPage="users"
 
+  let ph;
+      if(this.state.dataX.userID.phone == null) {
+          ph = ""
+      }
+      else {
+          ph = this.state.dataX.userID.phone
+      }
+    var res = this.state.dataX.userID.username.split(" ");
+     
+      if(this.state.dataX.userID.birthdate == null) {
+        this.setState({
+          userID: this.state.dataX.userID.userID,
+          loginID: this.state.dataX.userID.loginID,
+          username: this.state.dataX.userID.username,
+          firstname:res[0],
+          lastname:res[1],
+          selectedOption_role:this.state.dataX.RoleID.RoleName,
+          selectedOptionRole:this.state.dataX.RoleID.RoleName,
+          phone:ph,
+          selectedOption: this.state.dataX.userID.gender.codeName,
+          selectedOptionGender: this.state.dataX.userID.gender.codeName,        
+          date:"",
+          dateString:"",
+          emailID:this.state.dataX.userID.email,
+          approval:this.state.dataX.userID.is_active.codeName,
+          status:this.state.dataX.userID.is_active.codeName,
+          userRoleID:this.state.dataX.userRoleID
+      })
+      }
+      else {
+        this.setState({
+          userID: this.state.dataX.userID.userID,
+          loginID: this.state.dataX.userID.loginID,
+          username: this.state.dataX.userID.username,
+          firstname:res[0],
+          lastname:res[1],
+          selectedOption_role:this.state.dataX.RoleID.RoleName,
+          selectedOptionRole:this.state.dataX.RoleID.RoleName,
+          selectedOptionGender: this.state.dataX.userID.gender.codeName,        
+          phone:ph,
+          selectedOption: this.state.dataX.userID.gender.codeName,
+          date:new Date(this.state.dataX.userID.birthdate),
+          dateString:this.state.dataX.userID.birthdate,
+          emailID:this.state.dataX.userID.email,
+          approval:this.state.dataX.userID.is_active.codeName,
+          status:this.state.dataX.userID.is_active.codeName,
+          userRoleID:this.state.dataX.userRoleID
+      })
+    }
+
+  }
+  else
+  {
+      fromPage="contactInfo"
+
+      let ph;
+
+      if(this.state.dataX.phone == null) {
+          ph = ""
+      }
+      else {
+          ph = this.state.dataX.phone
+      }
+      var res = this.state.dataX.username.split(" ");
+      if(this.state.dataX.birthdate == null) {
+        this.setState({
+          userID: this.state.dataX.userID,
+          loginID: this.state.dataX.loginID,
+          username: this.state.dataX.username,
+          firstname:res[0],
+          lastname:res[1],
+          selectedOption_role:this.state.dataX.role,
+          selectedOptionRole:this.state.dataX.role,
+          selectedOptionGender: this.state.dataX.userID.gender,     
+          phone:ph,
+          selectedOption: this.state.dataX.gender,
+          date:"",
+          dateString:"",
+          emailID:this.state.dataX.email,
+          approval:this.state.dataX.is_active,
+          status:this.state.dataX.is_active,
+          userRoleID:this.state.dataX.userRoleID
+        })
+      }
+      else {
+        this.setState({
+          userID: this.state.dataX.userID,
+          loginID: this.state.dataX.loginID,
+          username: this.state.dataX.username,
+          firstname:res[0],
+          lastname:res[1],
+          selectedOption_role:this.state.dataX.role,
+          selectedOptionRole:this.state.dataX.role,
+          selectedOptionGender: this.state.dataX.userID.gender,     
+          phone:ph,
+          selectedOption: this.state.dataX.gender,
+          date:new Date(this.state.dataX.birthdate),
+          dateString:this.state.dataX.userID.birthdate,
+          emailID:this.state.dataX.email,
+          approval:this.state.dataX.is_active,
+          status:this.state.dataX.is_active,
+          userRoleID:this.state.dataX.userRoleID
+        })
+      }
+  }
+    this.setState({readOnly:true,clicked:false,isHidden:true});
+  }
   render(){
+    const {readOnly} = this.state;
     const { selectedOption,selectedOption_role } = this.state;
     const {value, error, successValidation} = this.state;
     const underlineStyle = successValidation ? { borderColor: 'green' } : null;
@@ -476,7 +607,8 @@ class UpdateUser extends React.PureComponent {
         ...base,
         height:'56px',
         marginTop:'10px',
-        fontSize:'16px'
+        fontSize:'16px',
+        backgroundColor: readOnly? 'white':'white'
       }),
       option : (provided) => ({
         ...provided,
@@ -487,6 +619,11 @@ class UpdateUser extends React.PureComponent {
     return (
       <ErrorBoundary>
         <PageTitle title="Update User Details"/>
+        <Fab variant="extended" style={{ marginLeft:'90%',marginTop:'-8%' }} color="primary"
+        onClick={e => {this.setState({readOnly: !readOnly,isHidden:false,clicked:true})}} disabled={this.state.clicked}>
+        <EditIcon/>EDIT
+      </Fab>
+
         <Snackbar open={this.state.openError} autoHideDuration={4000} anchorOrigin={{ vertical:'top', horizontal:'center'} }
          onClose={this.handleClose}>
         <Alert onClose={this.handleClose} variant="filled" severity="error">
@@ -510,6 +647,7 @@ class UpdateUser extends React.PureComponent {
         <Box p={1} style={{marginTop:"30px"}}>
         <TextField
            id="outlined-textarea"
+           disabled={readOnly}
            label={this.state.error_firstname?"Enter First Name":''}
            helperText={this.state.error_firstname ? 'Required* ' : ''}
            error={this.state.error_firstname}
@@ -538,6 +676,7 @@ class UpdateUser extends React.PureComponent {
         <Box p={1}>
         <TextField
            id="outlined-textarea"
+           disabled={readOnly}
            onChange={ e => this.handleLastnameChange(e.target.value) }
            value={this.state.lastname}
            style={{marginLeft:'130px',width:'300px',display:'flex'}}
@@ -555,12 +694,11 @@ class UpdateUser extends React.PureComponent {
         </Box>
 
 
-        <Box p={1} style={{marginLeft:'166px',width:'320px',display:'flex'}}>
+        <Box p={1} style={{marginLeft:'170px',width:'320px',display:'flex'}}>
         <div style={{width: '320px'}}>
 
          <Select
               id='gender'
-
               value={this.state.selectedOptionGender}
               onChange={this.handleChangeGender}
               label="Gender"
@@ -572,9 +710,10 @@ class UpdateUser extends React.PureComponent {
                 ...theme,
                 colors: {
                     ...theme.colors,
-                    neutral50: '#1A1A1A',  // Placeholder color
+                    neutral50: readOnly?'#808080':'#1A1A1A',
                 },
-                  })}
+            })}
+            isDisabled={Boolean(readOnly)}
           />
       {this.state.error_gender?<FormHelperText style={{color:"red",marginLeft:"13px"}}> Required*</FormHelperText>:''}
       </div>
@@ -589,9 +728,10 @@ class UpdateUser extends React.PureComponent {
         </Box>
         <Box p={1} >
         <PhoneInput
-          containerStyle={{marginTop:'10px',marginLeft:'170px',height:'56px'}}
+          containerStyle={{marginTop:'10px',marginLeft:'180px',height:'56px'}}
           inputStyle={{height:'56px',fontSize:'16px'}}
           country={'in'}
+          disabled={readOnly}
           value={this.state.phone}
           onChange={phone=>this.setState({phone:phone})}
         />
@@ -608,7 +748,8 @@ class UpdateUser extends React.PureComponent {
         <Box p={1} >
         <TextField
           id="outlined-textarea"
-          style={{marginLeft:'180px',width:'300px',display:'flex'}}
+          disabled={readOnly}
+          style={{marginLeft:'190px',width:'300px',display:'flex'}}
           placeholder="Enter Email ID"
           variant="outlined"
           value={this.state.emailID}
@@ -627,12 +768,14 @@ class UpdateUser extends React.PureComponent {
 
         </Box>
 
-        <Box p={1} style={{marginLeft:'116px',width:'300px',display:'flex'}}>
+        <Box p={1} style={{marginLeft:'114px',height:'73px',width:'315px',display:'flex'}}>
         <DatePicker
-          style={{height:'56px',fontSize:'16px'}}
+        
+          style={{height:'90px',fontSize:'16px',backgroundColor:'#ffffff'}}
           onChange={this.onChange}
           value={this.state.date}
           format="dd-MM-yyyy"
+          disabled={readOnly}
           className={classes.datePicker}
         />
         </Box>
@@ -652,7 +795,7 @@ class UpdateUser extends React.PureComponent {
            label={this.state.error_loginID?"Enter LoginID":''}
            helperText={this.state.error_loginID ? 'Required* ' : ''}
            error={this.state.error_loginID}
-          style={{marginLeft:'156px',width:'300px',display:'flex'}}
+          style={{marginLeft:'163px',width:'300px',display:'flex'}}
           placeholder="Login ID"
           variant="outlined"
           InputProps={{
@@ -674,7 +817,7 @@ class UpdateUser extends React.PureComponent {
         </Box>
 
 
-        <Box p={1} style={{marginLeft:'190px',width:'320px',display:'flex'}}>
+        <Box p={1} style={{marginLeft:'202px',width:'320px',display:'flex'}}>
         <div style={{width: '320px'}}>
          <Select
           id='role'
@@ -690,9 +833,10 @@ class UpdateUser extends React.PureComponent {
             ...theme,
             colors: {
                 ...theme.colors,
-                neutral50: '#1A1A1A',
+                neutral50: readOnly?'#808080':'#1A1A1A',
             },
-              })}
+        })}
+              isDisabled={Boolean(readOnly)}
           />
       {this.state.error_role?<FormHelperText style={{color:"red",marginLeft:"13px"}}> Required*</FormHelperText>:''}
 
@@ -711,8 +855,8 @@ class UpdateUser extends React.PureComponent {
         <Box p={1} m={1}>
         <FormControl component="fieldset"  className={classes.formControl,classes.margin} >
         <RadioGroup  value={this.state.status}>
-          <FormControlLabel style={{marginTop:"-10px",marginLeft:"155px"}} value={userStatus.unapproved} control={<Radio color="primary" onChange={e => this.handleStatusChange(e.target.value)}/>} label="Active" />
-          <FormControlLabel style={{marginTop:"-10px"}} value={userStatus.inactive} control={<Radio color="primary" onChange={e => this.handleStatusChange(e.target.value)}/>} label="Inactive" />
+          <FormControlLabel  style={{marginTop:"-10px",marginLeft:"155px"}} value={userStatus.approved} control={<Radio color="primary" disabled={readOnly} onChange={e => this.handleStatusChange(e.target.value)}/>} label="Active" />
+          <FormControlLabel  style={{marginTop:"-10px"}} value={userStatus.inactive} control={<Radio color="primary" disabled={readOnly}onChange={e => this.handleStatusChange(e.target.value)}/>} label="Inactive" />
         </RadioGroup>
       </FormControl>
 
@@ -732,8 +876,8 @@ class UpdateUser extends React.PureComponent {
         <Box p={1} m={1}>
         <FormControl component="fieldset"  className={classes.formControl,classes.margin} >
         <RadioGroup  value={this.state.approval}>
-          <FormControlLabel style={{marginTop:"-10px",marginLeft:"128px"}} value={userStatus.approved} control={<Radio color="primary" onChange={e => this.handleApprovalChange(e.target.value)}/>} label="Approved" />
-          <FormControlLabel style={{marginTop:"-10px"}} value={userStatus.unapproved} control={<Radio color="primary" onChange={e => this.handleApprovalChange(e.target.value)}/>} label="Unapproved" />
+          <FormControlLabel  style={{marginTop:"-10px",marginLeft:"128px"}} value={userStatus.approved} control={<Radio disabled={readOnly} color="primary" onChange={e => this.handleApprovalChange(e.target.value)}/>} label="Approved" />
+          <FormControlLabel  style={{marginTop:"-10px"}} value={userStatus.unapproved} control={<Radio color="primary" disabled={readOnly} onChange={e => this.handleApprovalChange(e.target.value)}/>} label="Unapproved" />
         </RadioGroup>
       </FormControl>
 
@@ -745,12 +889,18 @@ class UpdateUser extends React.PureComponent {
         <Box display="flex" flexDirection="row" p={1} m={1}>
         <Box p={1} m={1}>
 
-        <Button onClick={this.onSubmit} variant="contained" color="primary" style={{marginLeft:'290px',width:'300px',display:'flex'}}>
+        {!this.state.isHidden?<Button onClick={this.onSubmit} variant="contained" color="primary" style={{marginLeft:'200px',width:'200px',display:'flex'}}>
         Update Details
-      </Button>
+      </Button>:''}
       {this.state.onClick && fromPage=='users' ? <Redirect to="/app/users" /> :null}
       {this.state.onClick && fromPage=='contactInfo' ? <Redirect to="/app/schools" /> :null}
      </Box>
+     <Box p={1} m={1}>
+        {!this.state.isHidden? <Button onClick={this.onCancel} variant="contained" color="textSecondary"  style={{width:"200px",display:'flex'}}>
+        Cancel
+      </Button>:''}
+     </Box>
+    
      </Box>
 
         </div>

@@ -36,7 +36,6 @@ const styles =theme => ({
     marginLeft: theme.spacing(2),
     marginRight: theme.spacing(2),
     [theme.breakpoints.up(600 + theme.spacing(2) * 2)]: {
-      //width: 600,
       marginLeft: "160px",
       marginRight: "auto"
     }
@@ -269,9 +268,9 @@ handleClose = () => {
     this.setState({isProcessing:true});
   if(quesInfo[5].detail.toUpperCase()=='MCQS')
     {
-       var body="";
-       let content = quesString[0].question
-        let imgs=content.match(/src/g)
+      var body="";
+      let content = quesString[0].question
+      let imgs=content.match(/src/g)
       let total="",totalAns=""
       let replaceImg=[], sub1=[], sub2=[];
       let imgName=[], imgNameConcat="",uploadedURL="",imgType="";
@@ -493,7 +492,7 @@ handleClose = () => {
     {
         let content = quesString[0].question
         let imgs=content.match(/src/g)
-        let replaceImg=[], sub1=[], sub2=[] , total, height=[] , pos,totalAns="";
+        let replaceImg=[], sub1=[], sub2=[] , total, height=[] ,totalAns="";
         let imgName=[], imgNameConcat="",uploadedURL="",imgType="";
         let imgNameAns=[], imgNameConcatAns="",uploadedURLAns="",imgTypeAns="";
         let imagesToUpload=[],imagesToUploadAns=[]
@@ -573,18 +572,26 @@ handleClose = () => {
         }
         totalAns = totalAns+sub2[countOfImgs-1]
       }
-        var imgn1 = options[0].price.name.split( ".");
-        var imgn2 = options[1].price.name.split( ".");
-        var imgn3 = options[2].price.name.split( ".");
-        var imgn4 = options[3].price.name.split( ".");
-        let finalDate1 = date + '_' + time
-        let finalDate2 = date + '_' + time
-        let finalDate3 = date + '_' + time
-        let finalDate4 = date + '_' + time
-        let imgName1 = imgn1[0]+'_'+finalDate1+'.'+imgn1[1];
-        let imgName2 = imgn2[0]+'_'+finalDate2+'.'+imgn2[1];
-        let imgName3 = imgn3[0]+'_'+finalDate3+'.'+imgn3[1];
-        let imgName4 = imgn4[0]+'_'+finalDate4+'.'+imgn4[1];
+
+      let imgNameOpt=[],pos=[]
+      for(let i=0;i<options.length;i++){
+        if( options[i].price != ""){
+          var imgn = options[i].price.name.split(".");
+          imgNameOpt[i] = imgn[0]+'_'+finalDate+'.'+imgn[1];
+          pos[i]=i
+        }else{
+          imgNameOpt[i]=""
+        }
+      }
+
+        // var imgn1 = options[0].price.name.split( ".");
+        // var imgn2 = options[1].price.name.split( ".");
+        // var imgn3 = options[2].price.name.split( ".");
+        // var imgn4 = options[3].price.name.split( ".");
+        // let imgName1 = imgn1[0]+'_'+finalDate+'.'+imgn1[1];
+        // let imgName2 = imgn2[0]+'_'+finalDate+'.'+imgn2[1];
+        // let imgName3 = imgn3[0]+'_'+finalDate+'.'+imgn3[1];
+        // let imgName4 = imgn4[0]+'_'+finalDate+'.'+imgn4[1];
         var bodyFormData = new FormData();
 
         this.returnBLOB(imagesToUpload,imgName,bodyFormData)
@@ -654,12 +661,12 @@ handleClose = () => {
                        "option":options[0].desc,
                     },
                     "imageID":{
-                  "ImageName":imgName1,
+                  "ImageName":imgNameOpt[0],
                   "ImageTypeCodeID":
                   {
                     "codeName":"imageOption"
                   },
-                  "uploadedFile":"media/images/"+imgName1
+                  "uploadedFile":"media/images/"+imgNameOpt[0]
                 }
                   },
                   "option2":{
@@ -667,12 +674,12 @@ handleClose = () => {
                        "option":options[1].desc,
                     },
                     "imageID":{
-                  "ImageName":imgName2,
+                  "ImageName":imgNameOpt[1],
                   "ImageTypeCodeID":
                   {
                     "codeName":"imageOption"
                   },
-                  "uploadedFile":"media/images/"+imgName2
+                  "uploadedFile":"media/images/"+imgNameOpt[1]
                 }
 
                   },
@@ -681,12 +688,12 @@ handleClose = () => {
                     "option":options[2].desc,
                     },
                     "imageID":{
-                  "ImageName":imgName3,
+                  "ImageName":imgNameOpt[2],
                   "ImageTypeCodeID":
                   {
                     "codeName":"imageOption"
                   },
-                  "uploadedFile":"media/images/"+imgName3
+                  "uploadedFile":"media/images/"+imgNameOpt[2]
                 }
 
                   },
@@ -695,12 +702,12 @@ handleClose = () => {
                     "option":options[3].desc,
                     },
                     "imageID":{
-                  "ImageName":imgName4,
+                  "ImageName":imgNameOpt[3],
                   "ImageTypeCodeID":
                   {
                     "codeName":"imageOption"
                   },
-                  "uploadedFile":"media/images/"+imgName4
+                  "uploadedFile":"media/images/"+imgNameOpt[3]
                 }
                   },
                   "correctOption":options[answer[0].desc-1].desc,
@@ -710,10 +717,13 @@ handleClose = () => {
                       }
         };
         bodyFormData.append('data', JSON.stringify(body));
-        bodyFormData.append('image', options[0].price,imgName1);
-        bodyFormData.append('image', options[1].price,imgName2);
-        bodyFormData.append('image', options[2].price,imgName3);
-        bodyFormData.append('image', options[3].price,imgName4);
+        for(let i=0;i<pos.length;i++){
+          bodyFormData.append('image', options[pos[i]].price,imgNameOpt[pos[i]]);
+        }
+        // bodyFormData.append('image', options[0].price,imgName1);
+        // bodyFormData.append('image', options[1].price,imgName2);
+        // bodyFormData.append('image', options[2].price,imgName3);
+        // bodyFormData.append('image', options[3].price,imgName4);
        try{
        setTimeout(()=>{
         axios({

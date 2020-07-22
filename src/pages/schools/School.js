@@ -107,6 +107,7 @@ state={
   nextLink:'',
   prevLink:'',
   openError:false,
+  norecords:false,
    getValue2:[],
    countRows2:0
 }
@@ -194,6 +195,14 @@ state={
       {headers: { Authorization:"Token "+localStorage.getItem('id_token')}}
       ).catch(error => {this.setState({open_error:true})})
 
+      if(gresult.data.length==0){
+         this.setState({norecords:true})
+         document.getElementById('SchoolSearch').style.display="none"
+      }
+      else{
+       document.getElementById('SchoolSearch').style.display="block"
+      }
+
         for(var i = 0 ; i < gresult.data.length ; i++)
         {
           this.setState(prev=>({getValue2:[...prev.getValue2,{
@@ -220,12 +229,11 @@ state={
         this.setState({pageSize:gresult.data.page_size})
 
     }catch(error){
-    console.log(error)
-//    this.props.history.push('/app/dashboard')
+      this.props.history.push('/app/dashboard')
     }
   }
 
-  handleAlertClose=()=>{this.setState({openError:false})}
+  handleAlertClose=()=>{this.setState({openError:false,norecords:false})}
 
   handleChangeData = data => {
     this.getSearchedData(data)
@@ -247,6 +255,11 @@ render(){
 
   return (
     <>
+     <Snackbar open={this.state.norecords} autoHideDuration={3000} onClose={this.handleAlertClose} anchorOrigin={{ vertical:'top', horizontal:'center'} }>
+        <Alert onClose={this.handleAlertClose} variant="filled" severity="warning">
+          No Records found!
+        </Alert>
+      </Snackbar>
     <Snackbar open={this.state.openError} autoHideDuration={2000} anchorOrigin={{ vertical:'top', horizontal:'center'} }
         onClose={this.handleAlertClose}>
         <Alert onClose={this.handleAlertClose} variant="filled" severity="error">
@@ -254,7 +267,7 @@ render(){
         </Alert>
     </Snackbar>
       <PageTitle title="School List"/>
-      <Grid item >
+      <Grid item id="SchoolList" >
           <TextField
             placeholder='Search'
             onKeyPress={e => this.enterPressAlert(e)}
@@ -331,7 +344,7 @@ render(){
               }}
 
           />
-        </Grid> : <Grid item xs={12}>
+        </Grid> : <Grid item xs={12} id="SchoolSearch" style={{zIndex:"0",display:"none"}}>
          <MUIDataTable
             title="School List"
 

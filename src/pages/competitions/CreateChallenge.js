@@ -9,14 +9,16 @@ import Tab from "@material-ui/core/Tab";
 import Tooltip from "@material-ui/core/Tooltip";
 import MUIDataTable from "mui-datatables";
 import Button from "@material-ui/core/Button";
+import ArrowBack from "@material-ui/icons/ArrowBack";
+import CircularProgress from '@material-ui/core/CircularProgress'
+import Backdrop from '@material-ui/core/Backdrop';
+import { withStyles } from '@material-ui/core/styles';
 import AddIcon from "@material-ui/icons/Add";
 import IconButton from "@material-ui/core/IconButton";
 import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert'
 import axios from 'axios'
 import {baseURL} from '../constants'
-
-export var compInfo = [], quesComp=[], challengeInfo=[];
 
 const tableColumns = [
   {
@@ -60,8 +62,15 @@ const tableColumns = [
     }
   }
 ];
+const styles = theme => ({
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+  }
+});
 
 var correctMarks=[], bonus="", classes="", deletedQuesList=[],prevQuesList=[],selectedAgeGroup;
+var ageGrpsPrev, compInfo = [], quesComp=[], challengeInfo=[];
 class Challenge extends React.PureComponent {
 
   constructor(props) {
@@ -75,14 +84,26 @@ class Challenge extends React.PureComponent {
       compData:[],
       compID:"",
       openError:false,
+      openprogress:false,
     }
   }
 
   async componentDidMount() {
 
+    this.setState({openprogress:true})
+
+    console.log("from page ",this.props.location.fromPage)
+
+    console.log(quesComp)
+
      try{
 
-        selectedAgeGroup=this.props.location.selectedAgeGroup
+        this.setState({compID:this.props.location.compID})
+
+        selectedAgeGroup = this.props.location.selectedAgeGroup
+        ageGrpsPrev = this.props.location.ageGrpsPrev
+
+        console.log(ageGrpsPrev)
 
        let gResultClass = await axios.get(baseURL+'api/cmp/getClassAgeWise/'+selectedAgeGroup.AgeGroupID+"/",{
             headers:{
@@ -96,17 +117,29 @@ class Challenge extends React.PureComponent {
        for(let i=1;i< gResultClass.data.length;i++){
          classes+=","+gResultClass.data[i].ClassID.classNo
        }
-      
-        if(this.props.location.fromPage == "createComp" || this.props.location.fromPage == "addNewGroup"
-          || this.props.location.fromPage == "editDetails" ) {
+
+       console.log(quesComp)
+
+        // if(this.props.location.fromPage == "createComp" || this.props.location.fromPage == "addNewGroup"
+        //   || this.props.location.fromPage == "editDetails" ) {
 
           quesComp.length = 0;
           challengeInfo.length = 0;
-          deletedQuesList.length = 0;
-          compInfo = this.props.location.data
+          compInfo.length = 0
+
+          compInfo.push({ name: "Type :", detail: this.props.location.data[0].detail })
+          compInfo.push({ name: "Start date :", detail: this.props.location.data[1].detail })
+          compInfo.push({ name: "End date  :", detail: this.props.location.data[2].detail })
+          compInfo.push({ name: "Time Limit (hh:mm)  : ", detail: this.props.location.data[3].detail })
+          compInfo.push({ name: "Bonus Marks  : ", detail: this.props.location.data[4].detail })
+          compInfo.push({ name: "Additional info  : ", detail: this.props.location.data[5].detail })
+
+
+          console.log(compInfo,this.props.location.data)
+
           bonus = this.props.location.data[4].detail
-          correctMarks = this.props.location.marks.correctMarks
-          let ageLang = this.props.location.ageGroup.split("-")
+          correctMarks = this.props.location.marks
+          let ageLang = selectedAgeGroup.AgeGroupName.split("-")
           quesComp.push({ name: ageLang[0], lang: ageLang[1], ques:[]})
           challengeInfo.push({ name: ageLang[0], lang: ageLang[1], info : []})
           let levelA = 0 , levelB = 0, levelC = 0;
@@ -118,21 +151,29 @@ class Challenge extends React.PureComponent {
           })
           this.setChallengeData(ageLang[0], ageLang[1], levelA, levelB, levelC)
 
-          if(this.props.location.fromPage == "editDetails"){
+          console.log(localStorage.getItem("quesAdded"))
+          if(this.props.location.fromPage == "editDetails" || localStorage.getItem("quesAdded")==="true"){
             this.getPrevQues(ageLang[0], ageLang[1], levelA, levelB, levelC).then(response => {
               levelA = response[0]
               levelB = response[1]
               levelC = response[2]
-              this.setChallengeData(ageLang[0], ageLang[1], levelA, levelB, levelC)
+              // this.setChallengeData(ageLang[0], ageLang[1], levelA, levelB, levelC)
+              this.calculateLevels(this.state.quesData)
             });
           }
-        }
+        // }
+
+        console.log(quesComp)
 
         if(this.props.location.fromPage == "quesPage") {
 
-          this.setState({name: this.props.location.data.ageGroup,
-            language: this.props.location.data.language,
-            fromPage: this.props.location.data.initPage,
+          console.log("in ques Page " , this.props.location.initPage)
+
+          let ageName = selectedAgeGroup.AgeGroupName.split("-")
+
+          this.setState({name: ageName[0],
+            language: this.props.location.language,
+            fromPage: this.props.location.initPage,
             compName: this.props.location.compName,
             compID: this.props.location.compID
           })
@@ -149,7 +190,7 @@ class Challenge extends React.PureComponent {
               levelC = parseInt(levelC) + 1;
             }
           }
-          let questions = this.props.location.data.ques
+          let questions = this.props.location.ques
           let ques = quesComp[0].ques
 
           for(let j = 0 ; j < questions.length ; j++) {
@@ -165,15 +206,26 @@ class Challenge extends React.PureComponent {
             }
           }
           quesComp[0].ques = ques
-          this.setState({quesData: quesComp[0].ques })
 
-          this.setChallengeData(this.props.location.data.ageGroup,this.props.location.data.language,
+          for(let i=0;i<ques.length;i++){
+            this.setState(prev=>({quesData: [...prev.quesData,ques[i]] }))
+          }
+
+          this.setChallengeData(ageName[0],this.props.location.data.language,
             levelA,levelB,levelC)
+
+          this.onSubmit()
         }
+
+        console.log(quesComp)
+
         if(this.props.location.data===undefined)this.props.history.push('/app/dashboard')
-      }
-      catch(error){
-        this.props.history.push('/app/dashboard')
+
+          this.setState({openprogress:false})
+
+      }catch(error){
+        console.log(error)
+        // this.props.history.push('/app/dashboard')
       }
   }
 
@@ -216,10 +268,13 @@ class Challenge extends React.PureComponent {
     let quesID = apiData.cmpQuesList
     let quesList = apiData.QuesTrans
 
+    console.log(quesID.length,quesList.length)
+
     let quesIDs =[]
     for(let i=0; i< quesID.length; i++) {
       quesIDs.push({id:quesID[i].questionID, level : quesID[i].questionLevelCodeID.codeName})
     }
+    console.log(quesIDs.length)
 
     for(let i =0; i< quesList.length ; i++) {
       for(let j=0; j<quesIDs.length;j++) {
@@ -266,25 +321,55 @@ class Challenge extends React.PureComponent {
     return [levelA,levelB,levelC]
   }
 
+  sortIdInAsc = (rows) => {
+
+    for(let i=0;i<rows.data.length;i++){
+      for(let j=0;j<rows.data.length - i -1;j++){
+        if (rows.data[j].dataIndex > rows.data[j+1].dataIndex) 
+        { 
+          console.log("in if")
+           let temp = rows.data[j]
+           rows.data[j]=rows.data[j+1]
+           rows.data[j+1]=temp
+        } 
+      }
+    }
+    return rows
+  }
+
   deleteQues = (rowsDeleted) => {
 
+
+    let ques=[...this.state.quesData]
+
+    console.log(ques,this.state.quesData)
+    console.log(rowsDeleted)
+
+    rowsDeleted = this.sortIdInAsc(rowsDeleted)
+
+
   let levelA = 0 , levelB = 0, levelC = 0;
-    for(let j = 0 ; j < quesComp[0].ques.length ; j++) {
-      if(quesComp[0].ques[j].quesLevel == 'A') {
+    for(let j = 0 ; j <ques.length ; j++) {
+      if(ques[j].quesLevel == 'A') {
         levelA = parseInt(levelA) + 1;
       }
-      if(quesComp[0].ques[j].quesLevel == 'B') {
+      if(ques[j].quesLevel == 'B') {
         levelB = parseInt(levelB) + 1;
       }
-      if(quesComp[0].ques[j].quesLevel == 'C') {
+      if(ques[j].quesLevel == 'C') {
         levelC = parseInt(levelC) + 1;
       }
     }
 
-    for(let j = rowsDeleted.data.length -1 ; j >=0 ; j-- ) {
-      let lvl = quesComp[0].ques[rowsDeleted.data[j].index].quesLevel
+    deletedQuesList.length=0
 
-      deletedQuesList.push({"questionID":quesComp[0].ques[rowsDeleted.data[j].index].questionID,
+    for(let j = rowsDeleted.data.length -1 ; j >=0 ; j-- ) {
+
+      console.log(ques[rowsDeleted.data[j].dataIndex])
+
+      let lvl =ques[rowsDeleted.data[j].dataIndex].quesLevel
+
+      deletedQuesList.push({"questionID":ques[rowsDeleted.data[j].dataIndex].questionID,
         "questionLevelCodeID":lvl})
 
       if(lvl == 'A') {
@@ -296,13 +381,33 @@ class Challenge extends React.PureComponent {
       if(lvl == 'C') {
         levelC = parseInt(levelC) - 1;
       }
-      quesComp[0].ques.splice(rowsDeleted.data[j].index,1)
+
+      ques.splice(rowsDeleted.data[j].dataIndex,1)
     }
     this.setChallengeData(this.state.name,this.state.language,levelA,levelB,levelC)
 
+    this.setState({quesData:ques})
+
+     axios.post(baseURL+'api/cmp/deleteCmpQues/',{
+      "CompetitionID":this.state.compID,
+      "agedata":{
+         "ageid":selectedAgeGroup.AgeGroupID,
+         "agename":selectedAgeGroup.AgeGroupName
+      },
+      "DeletedData":deletedQuesList
+     },{
+       headers: {
+           'Content-Type' : 'application/json',
+           Authorization: 'Token '+localStorage.getItem('id_token')
+         }
+       }).catch(err=>{
+         console.log("error during delete ques")
+     });
   }
 
   onSubmit = () => {
+
+    localStorage.setItem("quesAdded","true")
 
     let quesList=[]
     if(this.state.fromPage=="editDetails") {
@@ -325,83 +430,105 @@ class Challenge extends React.PureComponent {
         "questionLevelCodeID":quesComp[0].ques[i].quesLevel})
     }
 
-    if(this.state.fromPage=="createComp") {
-      axios.post(baseURL+'api/cmp/insertCmpQues/', {
-        "AgeGroupID":selectedAgeGroup.AgeGroupID,
-        "competitionName":this.state.compName,
-        "startdate":compInfo[1].detail,
-        "cmptype":compInfo[0].detail,
-        "quesList":quesList
-      },{
-      headers: {
-          'Content-Type' : 'application/json',
-          Authorization: 'Token '+localStorage.getItem('id_token')
-        }
-      }).then( response => {
-        this.props.history.push('/app/competition');
-      }).catch(error => {
-        this.setState({openError:true})
-      })
-    }
-    if(this.state.fromPage=="addNewGroup") {
+    console.log(quesList)
 
-      axios.post(baseURL +'api/cmp/insertCmpQues/',  {
-        "AgeGroupID":selectedAgeGroup.AgeGroupID,
-        "competitionName":this.state.compName,
-        "startdate":compInfo[1].detail,
-        "cmptype":compInfo[0].detail,
-        "quesList":quesList
-      },{
-      headers: {
-            'Content-Type' : 'application/json',
-            Authorization: 'Token '+localStorage.getItem('id_token')
-          }
-      }).then( response => {
-        this.props.history.push('/app/competition');
-      }).catch(error => {
-        this.setState({openError:true})
-      })
-
-    }
-    if(this.state.fromPage=="editDetails"){
-
-      axios.post(baseURL +'api/cmp/updateCmp/',  {
-         "CompetitionData":{
-              "competitionName":this.state.compName,
-              "competitionInfo":compInfo[5].detail,
-              "startDate":compInfo[1].detail,
-              "endDate":compInfo[2].detail,
-              "testDuration":compInfo[3].detail,
-              "competitionType":{
-                  "codeName":compInfo[0].detail
-              }
-         },
-         "CompetitionID":this.state.compID,
-         "agedata":{
-            "ageid":selectedAgeGroup.AgeGroupID,
-            "agename":selectedAgeGroup.AgeGroupName
-         },
-         "DeletedData":deletedQuesList,
-         "CmpQuesData":quesList
-      },{
-      headers: {
-            'Content-Type' : 'application/json',
-            Authorization: 'Token '+localStorage.getItem('id_token')
-          }
-      }).then( response => {
-        this.props.history.push('/app/competition');
-      }).catch(error => {
-        this.setState({openError:true})
-      })
-
-    }
+     axios.post(baseURL+'api/cmp/addCmpQues/',{
+        "CompetitionID":this.state.compID,
+        "agedata":{
+           "ageid":selectedAgeGroup.AgeGroupID,
+           "agename":selectedAgeGroup.AgeGroupName
+        },
+        "CmpQuesData":quesList
+     },{
+       headers: {
+           'Content-Type' : 'application/json',
+           Authorization: 'Token '+localStorage.getItem('id_token')
+         }
+       }).catch(err=> {
+         console.log("error during delete ques")
+     });
   }
 
     handleClose = () => {
         this.setState({openError:false})
     }
 
+    handleBack =() => {
+
+      var data=[{
+        ageGroup:selectedAgeGroup.AgeGroupName,
+        type:compInfo[0].detail,
+        time:compInfo[3].detail,
+        start:compInfo[1].detail,
+        end:compInfo[2].detail,
+        bonus:compInfo[4].detail,
+        info:compInfo[5].detail,
+        name:this.state.compName
+      }]
+
+      console.log(data)
+
+      if(this.state.fromPage === "createComp"){
+        this.props.history.push({
+          pathname:'/app/competitions/create/2/',
+          selectedAgeGroup:selectedAgeGroup,
+          ageGrpsPrev:ageGrpsPrev,
+          fromPage:this.state.fromPage,
+          compID:this.state.compID,
+          data:data
+        })
+      }
+      if(this.state.fromPage === "editDetails"){
+        this.props.history.push({
+          pathname:'/app/competitions/edit/2/',
+          selectedAgeGroup:selectedAgeGroup,
+          ageGrpsPrev:ageGrpsPrev,
+          fromPage:this.state.fromPage,
+          compID:this.state.compID,
+          data:data
+        })
+      }
+      if(this.state.fromPage === "addNewGroup"){
+        this.props.history.push({
+          pathname:'/app/competitions/update/2/',
+          selectedAgeGroup:selectedAgeGroup,
+          ageGrpsPrev:ageGrpsPrev,
+          fromPage:this.state.fromPage,
+          compID:this.state.compID,
+          data:data
+        })
+      }
+    }
+
+    onDone = () => {
+      this.props.history.push('/app/competition');
+      localStorage.removeItem("created")
+      localStorage.removeItem("getMarks")
+      localStorage.removeItem("quesAdded")
+      localStorage.removeItem("goBackToAdd")
+    }
+
+    calculateLevels =()=>{
+
+      let ques = this.state.quesData
+      let levelA = 0 , levelB = 0, levelC = 0;
+      for(let j = 0 ; j < ques.length ; j++) {
+        if(ques[j].quesLevel == 'A') {
+          levelA = parseInt(levelA) + 1;
+        }
+        if(ques[j].quesLevel == 'B') {
+          levelB = parseInt(levelB) + 1;
+        }
+        if(ques[j].quesLevel == 'C') {
+          levelC = parseInt(levelC) + 1;
+        }
+      }
+      this.setChallengeData(this.state.name,this.state.language,levelA,levelB,levelC)
+    }
+
   render () {
+
+    const {classes} = this.props;
 
     return (
       <>
@@ -411,6 +538,10 @@ class Challenge extends React.PureComponent {
         <b>Error occured!</b>
         </Alert>
       </Snackbar>
+
+      <Button color="primary" variant="contained" style={{marginBottom:'15px'}}
+        onClick={this.handleBack }><ArrowBack/> Back </Button>
+
         <Box
           display="flex"
           flexDirection="row"
@@ -418,14 +549,12 @@ class Challenge extends React.PureComponent {
           m={1}
           bgcolor="background.paper"
         >
-          {/* Left box */}
-          <Box
+        <Box
             display="flex"
             flexGrow={1}
             flexDirection="column"
             bgcolor="background.paper"
           >
-            {/* Inside box left top */}
             <Box p={1} flexGrow={1} m={1} bgcolor="#2196f3">
               <Typography
                 variant="h6"
@@ -485,6 +614,7 @@ class Challenge extends React.PureComponent {
                           deleteAria: "Delete Selected Rows"
                         }
                       },
+                      onRowsSelect: selectedRows => {console.log(selectedRows)},
                       onRowsDelete : rowsDeleted => this.deleteQues(rowsDeleted),
                       customToolbar: selectedRows => (
                         <Tooltip title="Add questions">
@@ -492,13 +622,14 @@ class Challenge extends React.PureComponent {
                             onClick={() => {
                               this.props.history.push({
                                 pathname: '/app/competitions/addQues',
-                                ageGroup: this.state.name,
                                 language: this.state.language,
                                 fromPage: this.state.fromPage,
                                 compName: this.state.compName,
                                 compID: this.state.compID,
-                                compInfo:compInfo,
-                                selectedAgeGroup:selectedAgeGroup
+                                data:compInfo,
+                                marks:correctMarks,
+                                selectedAgeGroup:selectedAgeGroup,
+                                ageGrpsPrev:ageGrpsPrev
                               });
                             }}
                           >
@@ -511,10 +642,14 @@ class Challenge extends React.PureComponent {
                 </TabPanel>
             </Box>
           <Button color="primary" variant="contained" style={{ marginBottom: '10px',marginLeft:'90%',
-            marginTop:"-2%", marginRight:"1%" }} onClick={this.onSubmit}
+            marginTop:"-2%", marginRight:"1%" }} onClick={this.onDone}
             >Done</Button>
-          </Box>
         </Box>
+        </Box>
+        <Backdrop className={classes.backdrop}  open={this.state.openprogress}  >
+          <CircularProgress  color="primary" />
+          <Typography component="h1" style={{color:"black"}}><b> Please Wait..</b></Typography>
+        </Backdrop>
       </>
     );
   }
@@ -524,7 +659,7 @@ Challenge.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default (Challenge);
+export default withStyles(styles)(Challenge);
 
 
 function TabPanel(props) {

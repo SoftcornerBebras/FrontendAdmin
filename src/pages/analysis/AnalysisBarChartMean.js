@@ -17,9 +17,12 @@ class AnalysisBarChart extends PureComponent {
   }
 
   async componentDidMount() {
+
+    try{
+
     let ageGrpID = this.props.ageID
     let compID = this.props.compID
-    try{
+
     if(this.state.ageGrpID != ageGrpID) {
       let gMean = await axios.get(baseURL+'api/cmp/getStateWiseMean/'+this.props.ageID+"&"+this.props.compID+"/",{
         headers:{

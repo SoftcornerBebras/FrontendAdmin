@@ -11,6 +11,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
+import ArrowBack from "@material-ui/icons/ArrowBack";
 import {baseURL} from '../constants'
 
 const styles = theme => ({
@@ -22,8 +23,8 @@ const styles = theme => ({
   }
 });
 
-var selectedAge="",selectedAgeGroup,compInfo=[],
-levels=[],
+var selectedAge="",selectedAgeGroup="",compInfo=[],
+levels=[],buttonText = "Add",
 error_correct=[false,false,false],error_incorrect=[false,false,false];
 
 class MarkingScheme extends React.PureComponent{
@@ -40,6 +41,7 @@ class MarkingScheme extends React.PureComponent{
         incorrectMarks:[],
         rerenderer:false,
         openError:false,
+        ageGrpsPrev:null,
       }
     };
 
@@ -47,27 +49,31 @@ class MarkingScheme extends React.PureComponent{
   async componentDidMount ()
   {
 
-    selectedAgeGroup = this.props.location.selectedAgeGroup
-     let gQuesLevel = await axios.get(baseURL+'api/com/getQuestionLevel/',{
-        headers:{
-            'Content-Type' : 'application/json',
-                Authorization: 'Token '+localStorage.getItem('id_token')
-        }
-    }).catch(error => {
-        this.setState({openError:true})
-    });
+    localStorage.setItem("addedNewGrp","true")
 
-     levels.length=0;
-     for(let i = 0; i<gQuesLevel.data.length ; i++) {
-        let x =gQuesLevel.data[i].codeName;
-        levels.push({"id":(i+1).toString() , "name":x });
-     }
+    try {
 
-     try {
+      selectedAgeGroup = this.props.location.selectedAgeGroup
+      this.setState({ageGrpsPrev:this.props.location.ageGrpsPrev,compID:this.props.location.compID})
+
+       let gQuesLevel = await axios.get(baseURL+'api/com/getQuestionLevel/',{
+          headers:{
+              'Content-Type' : 'application/json',
+                  Authorization: 'Token '+localStorage.getItem('id_token')
+          }
+      }).catch(error => {
+          this.setState({openError:true})
+      });
+
+       levels.length=0;
+       for(let i = 0; i<gQuesLevel.data.length ; i++) {
+          let x =gQuesLevel.data[i].codeName;
+          levels.push({"id":(i+1).toString() , "name":x });
+       }      
         compInfo.length = 0
         if(this.props.location.data != undefined) {
 
-          if(this.props.location.fromPage == "editDetails") {
+          if(localStorage.getItem("getMarks")==="true" || this.props.location.fromPage==="editDetails") {
         await axios.get(baseURL+'api/cmp/getMarksAgeCmpWise/'+selectedAgeGroup.AgeGroupID+"&"+this.props.location.compID+"/",{
             headers:{
                 'Content-Type' : 'application/json',
@@ -77,6 +83,7 @@ class MarkingScheme extends React.PureComponent{
                 let marks=[]
                 for(let i=0;i<response.data.length;i++){
                     marks.push(response.data[i])
+                    buttonText = "Update"
                 }
               for(let i=0;i<marks.length;i++){
                 for(let j=i;j<marks.length;j++){
@@ -89,14 +96,14 @@ class MarkingScheme extends React.PureComponent{
               }
             let correctMrks=[],incorrectMrks=[];
             for(let i = 0; i<marks.length ; i++) {
-            correctMrks.push(marks[i].correctMarks);
-            incorrectMrks.push(marks[i].incorrectMarks);
-            this.setState({correctMarks:correctMrks,incorrectMarks:incorrectMrks})
-         }
+              correctMrks.push(marks[i].correctMarks);
+              incorrectMrks.push(marks[i].incorrectMarks);
+              this.setState({correctMarks:correctMrks,incorrectMarks:incorrectMrks})
+            }
           });
 
         }
-          selectedAge = this.props.location.data[0].ageGroup
+
           compInfo.push({ name: "Type :", detail: this.props.location.data[0].type })
           compInfo.push({ name: "Start date :", detail: this.props.location.data[0].start })
           compInfo.push({ name: "End date  :", detail: this.props.location.data[0].end })
@@ -107,7 +114,6 @@ class MarkingScheme extends React.PureComponent{
             fromPage:this.props.location.fromPage,
             compID: this.props.location.compID
           })
-
         }
         if(this.props.location.data===undefined)this.props.history.push('/app/dashboard')
         }
@@ -139,6 +145,8 @@ class MarkingScheme extends React.PureComponent{
 
   onSubmit = () => {
 
+    localStorage.setItem("getMarks","true")
+
     let flag=0
     for(let i=0;i <levels.length; i++) {
        if((this.state.correctMarks[i]) == null || (this.state.incorrectMarks[i]) == "") {
@@ -157,6 +165,7 @@ class MarkingScheme extends React.PureComponent{
     }
 
     if(this.state.fromPage == "createComp") {
+
       for(var i = 0; i < levels.length; i++){
       axios.post(
         baseURL+'api/cmp/insertMarkScheme/', {
@@ -188,12 +197,9 @@ class MarkingScheme extends React.PureComponent{
         data: compInfo,
         compName:this.state.compName,
         compID: this.state.compID,
-        ageGroup: selectedAge,
         selectedAgeGroup:selectedAgeGroup,
-        marks: {
-          correctMarks:this.state.correctMarks,
-          incorrectMarks:this.state.incorrectMarks
-        },
+        ageGrpsPrev:this.state.ageGrpsPrev,
+        marks:this.state.correctMarks,
         fromPage: "createComp"
       });
       }).catch(error => {
@@ -232,12 +238,9 @@ class MarkingScheme extends React.PureComponent{
             data: compInfo,
             compName:this.state.compName,
             compID: this.state.compID,
-            ageGroup: selectedAge,
             selectedAgeGroup:selectedAgeGroup,
-            marks: {
-              correctMarks:this.state.correctMarks,
-              incorrectMarks:this.state.incorrectMarks
-            },
+            ageGrpsPrev:this.state.ageGrpsPrev,
+            marks:this.state.correctMarks,
             fromPage: "addNewGroup"
           });
           }).catch(error => {
@@ -269,29 +272,74 @@ class MarkingScheme extends React.PureComponent{
             compName:this.state.compName,
             selectedAgeGroup:selectedAgeGroup,
             compID: this.state.compID,
-            ageGroup: selectedAge,
-            marks: {
-              correctMarks:this.state.correctMarks,
-              incorrectMarks:this.state.incorrectMarks
-            },
+            ageGrpsPrev:this.state.ageGrpsPrev,
+            marks:this.state.correctMarks,
             fromPage: "editDetails"
            });
           }).catch(error => {
              this.setState({openError:true})
           });
       }
-    };
+    }
   }
 
   handleClose = () => {
     this.setState({openError:false})
   }
 
+  handleBack = () => {
+
+    var data=[];
+    data.push({ name: "Type :", detail: compInfo[0].detail})
+    data.push({ name: "Start date :",detail:compInfo[1].detail})
+    data.push({ name: "End date  :", detail:compInfo[2].detail})
+    data.push({ name: "Time Limit (hh:mm)  :", detail:compInfo[3].detail})
+    data.push({ name: "Additional info  : ", detail:compInfo[5].detail })
+
+    if(this.state.fromPage==="createComp"){
+
+      data.push({ name: "Bonus  : ", detail:compInfo[4].detail })
+      data.push({ name: "Age Group : ", detail:selectedAgeGroup.AgeGroupName })
+
+      this.props.history.push({
+        pathname:'/app/competitions/create/1/',
+        data:data,
+        compID:this.state.compID,
+        compName:this.state.compName
+      })
+    }
+    if(this.state.fromPage==="editDetails"){
+      this.props.history.push({
+        pathname:'/app/competitions/edit/1/',
+        data:data,
+        compID:this.state.compID,
+        fromPage:'editDetails',
+        prevAges:this.state.ageGrpsPrev,
+        compName:this.state.compName
+      })
+    }
+    if(this.state.fromPage==="addNewGroup"){
+      data.push({ name: "Bonus  : ", detail:compInfo[4].detail })
+      data.push({ name: "Age Group : ", detail:selectedAgeGroup.AgeGroupName })
+
+      this.props.history.push({
+        pathname:'/app/competitions/update/1/',
+        data:data,
+        fromPage:"addNewGroup",
+        prevAges:this.state.ageGrpsPrev,
+        compID:this.state.compID,
+        compName:this.state.compName
+      })
+    }
+  }
+
   render() {
   const { classes } = this.props;
 
   return (
-
+    <>
+      <Button color="primary" variant="contained" style={{marginBottom:'15px'}}
+        onClick={this.handleBack }><ArrowBack/> Back </Button>
     <Paper style={{padding:"10px"}}>
     <Snackbar open={this.state.openError} autoHideDuration={4000} anchorOrigin={{ vertical:'top', horizontal:'center'} }
          onClose={this.handleClose}>
@@ -327,7 +375,7 @@ class MarkingScheme extends React.PureComponent{
           ))}
         </Grid>
         <Divider style={{marginTop:"2%"}}/>
-        <Typography style={{marginTop:"1%", marginLeft:"36%"}} variant="h6"> Selected Age Group : {selectedAge} </Typography>
+        <Typography style={{marginTop:"1%", marginLeft:"36%"}} variant="h6"> Selected Age Group : {selectedAgeGroup.AgeGroupName} </Typography>
         <Box display="flex" flexDirection="row" p={1} m={1} >
           <Box p={1} m={1} style={{marginTop:"40px", marginLeft:"8%"}}>
           <Typography variant="h5" color='textSecondary' style={{marginLeft:"2%"}} >
@@ -394,10 +442,11 @@ class MarkingScheme extends React.PureComponent{
         </Box>
       )})}
       <Button onClick={this.onSubmit} variant="contained" color="primary" style={{marginLeft:'84%',width:'150px'}}>
-        Add Marks
+        {buttonText} Marks
       </Button>
     </div>
     </Paper>
+    </>
   );
   }
 }

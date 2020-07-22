@@ -18,6 +18,8 @@ import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import DescriptionIcon from '@material-ui/icons/Description';
 import PieChartIcon from '@material-ui/icons/PieChart';
 import {prevAgeGroups} from './CompetitionMainPage';
+import ArrowBack from '@material-ui/icons/ArrowBack'
+import Button from '@material-ui/core/Button'
 import AnalysisBarChart from '../analysis/AnalysisBarChartMean'
 import AnalysisText from '../analysis/AnalysisTextMean'
 import axios from 'axios'
@@ -82,7 +84,7 @@ const StyledListItem = withStyles({
   selected: {}
 })(ListItem);
 
-var challengeData=[];
+var challengeData=[],compInfo = [{ name: "", start: "", end: "", info: "", type:"", time:""}];
 class Challenge extends React.PureComponent {
 
   constructor(props) {
@@ -114,6 +116,13 @@ class Challenge extends React.PureComponent {
       let ageID = ""
       let cmpID = this.props.location.compID
 
+      compInfo[0].name = this.props.location.compName
+      compInfo[0].info = this.props.location.data[4].detail
+      compInfo[0].type = this.props.location.data[0].detail
+      compInfo[0].time = this.props.location.data[3].detail
+      compInfo[0].start = this.props.location.data[1].detail
+      compInfo[0].end = this.props.location.data[2].detail
+
       let count = 0
       for(let i = 0; i< ageList.length; i++) {
         count += ageList[i].lang.length
@@ -130,7 +139,9 @@ class Challenge extends React.PureComponent {
       this.setState({ageGroups: ageList, totalCount: count,
         compID:cmpID, ageGrpID:ageID })
     }
-    }catch(error){this.props.history.push('/app/dashboard')}
+    }catch(error){
+      this.props.history.push('/app/dashboard')
+    }
   }
 
   async getClasses(ageGroupName, language, compID, ageGroupID) {
@@ -162,7 +173,7 @@ class Challenge extends React.PureComponent {
   }
 
   handleListItemClick = (event, index, name, language) => {
-    this.setState({selectedIndex:index});
+    this.setState({selectedIndex:index,value:0});
 
     let id = ""
     for(let i=0; i < prevAgeGroups.length ; i++) {
@@ -205,10 +216,32 @@ class Challenge extends React.PureComponent {
     this.setState({alignmentR:newAlignment});
   };
 
+  handleBack =() =>{
+    var data=[{
+      competitionID: this.state.compID,
+      competitionInfo: compInfo[0].info,
+      competitionName: compInfo[0].name,
+      competitionType:{
+        codeName: compInfo[0].type},
+      endDate: compInfo[0].end,
+      startDate: compInfo[0].start,
+      testDuration: compInfo[0].time+":00",
+    }]
+
+    this.props.history.push({
+      pathname:'/app/competitions/info',
+      data:data[0]
+    })
+  }
+
   render () {
 
     return (
       <>
+
+      <Button color="primary" variant="contained" style={{marginBottom:'15px'}}
+        onClick={this.handleBack }><ArrowBack/> Back </Button>
+
       <Box
           display="flex"
           flexDirection="row"

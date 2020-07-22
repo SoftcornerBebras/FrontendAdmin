@@ -9,6 +9,7 @@ import Expand from '@material-ui/icons/MoreVert';
 import IconButton from '@material-ui/core/IconButton';
 import {Menu, MenuItem} from '@material-ui/core';
 import Snackbar from '@material-ui/core/Snackbar'
+import Paper from '@material-ui/core/Paper'
 import Alert from '@material-ui/lab/Alert'
 import axios from 'axios'
 import {baseURL} from '../constants'
@@ -39,7 +40,7 @@ class SelectAges extends React.PureComponent {
     quesComp.length=0;
     challengeInfo.length=0;
     ageGrps.length = 0;
-    let time = this.props.location.data.testDuration.slice(0, -3)
+    let time = this.props.location.data.testDuration.substring(0, this.props.location.data.testDuration.length-3)
     compInfo.push({ name: "Type :", detail: this.props.location.data.competitionType.codeName})
     compInfo.push({ name: "Start date :", detail: this.props.location.data.startDate.replace(/T|Z/g," ") })
     compInfo.push({ name: "End date  :", detail: this.props.location.data.endDate.replace(/T|Z/g," ") })
@@ -52,6 +53,7 @@ class SelectAges extends React.PureComponent {
      + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
     let endTime = new Date(compInfo[1].detail)
     let currTime = new Date(timer)
+
     if(currTime >= endTime && compInfo[0].detail=='Main Challenge') {
       this.setState({compStarted:true})
     }
@@ -91,7 +93,8 @@ class SelectAges extends React.PureComponent {
     this.setState({compID:this.props.location.data.competitionID,compName:this.props.location.data.competitionName})
     }
     catch(error) {
-        this.props.history.push('/app/dashboard')
+      console.log(error)
+        // this.props.history.push('/app/dashboard')
     }
   }
 
@@ -105,7 +108,9 @@ class SelectAges extends React.PureComponent {
         ageGroupName:ageGrps[i].name,
         language:ageGrps[i].lang[j],
         ageGroupList: ageGrps,
-        compID:this.state.compID
+        compID:this.state.compID,
+        data: compInfo,
+        compName: this.state.compName
       })
     }
 
@@ -124,7 +129,8 @@ class SelectAges extends React.PureComponent {
       data: compInfo,
       compName: this.state.compName,
       compID: this.state.compID,
-      ageGrps: this.state.ages
+      ageGrps: this.state.ages,
+      prevAgeGroups:prevAgeGroups
     });
   }
   addNewGroup =() => {
@@ -152,6 +158,7 @@ class SelectAges extends React.PureComponent {
   render() {
     return (
       <ErrorBoundary>
+      <Paper>
        <Snackbar open={this.state.openError} autoHideDuration={4000} anchorOrigin={{ vertical:'top', horizontal:'center'} }
          onClose={this.handleClose}>
         <Alert onClose={this.handleClose} variant="filled" severity="error">
@@ -207,8 +214,8 @@ class SelectAges extends React.PureComponent {
         <Grid container spacing={1} alignItems="stretch">
           {ageGrps.map(({ name, lang }, i) => (
             <Grid item xs={4}>
-              <Box flexGrow={1} m={1} height="30px" bgcolor="grey.100">
-                <Typography variant="h6" gutterBottom align="center">
+              <Box flexGrow={1} m={1} height="30px" bgcolor="#2196f3">
+                <Typography style={{ color: "white" }}variant="h6" gutterBottom align="center">
                   {name}
                 </Typography>
               </Box>
@@ -219,14 +226,15 @@ class SelectAges extends React.PureComponent {
                 m={1}
                 css={{ minWidth: "20%" }}
               >
-                <List component="nav" aria-label="main mailbox folders">
+                <List component="nav" aria-label="main mailbox folders" align="center">
                   {lang.map((lan, j) => (
                     <ListItem
+                      align="center"
                       key={j}
                       button
                       onClick={event => this.handleListItemClick(event,i,j)}
                     >
-                      <ListItemText primary={lan} />
+                      <ListItemText align="center" primary={lan} />
                     </ListItem>
                   ))}
                 </List>
@@ -235,6 +243,7 @@ class SelectAges extends React.PureComponent {
           ))}
         </Grid>
       </div>
+      </Paper>
       </ErrorBoundary>
     );
   }

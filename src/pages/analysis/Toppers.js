@@ -227,6 +227,7 @@ this.fetchTotal()
   }
 
 handleChange=(newVal)=>{
+  document.getElementById("table").style.display="none"
   if(selectedcmp=='' && (selectedAge==''||selectedAge=='Select Age Group..')){
 this.setState({openS3:true})
   }
@@ -615,9 +616,11 @@ for(var i=0;i<getStudents.data.length;i++)
 }
   if(this.state.studentsList.length!=0){
       this.setState({isProcessing:false})
+      document.getElementById("table").style.display="block"
   }
   else{
     this.setState({openS4:true,isProcessing:true,noStudents:true})
+    document.getElementById("table").style.display="none"
   }
 }
 
@@ -764,8 +767,7 @@ for(var i=0;i<getStudents.data.length;i++)
 
         </Box>
 
-{this.state.noStudents ? null : this.state.isProcessing ? ( this.state.selectedcmp != "" ? <CircularProgress style={{margin:'15% 46%'}}/> :null):
-<Grid container spacing={4} id="table" >
+<Grid container spacing={4} id="table" style={{display:"none"}} >
       <Grid item xs={12}>
 
         <MUIDataTable

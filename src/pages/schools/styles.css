@@ -45,17 +45,12 @@
   z-index:400;
 }
 
-.analysis {
+.download{
   top: 440px;
   background-color: #1e88e5;
   z-index:400;
 }
 
-.download {
-    top: 510px;
-    background-color: #2196f3;
-    z-index:400;
-  }
  .sidenavMenu {
   margin-left: 80%;
   width: 200px;

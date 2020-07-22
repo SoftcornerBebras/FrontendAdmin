@@ -35,6 +35,7 @@ import CreateCompMarks from "../../pages/competitions/CreateCompMarks";
 import UpdateCompetition from "../../pages/competitions/UpdateCompetition";
 import ChallengeResult from "../../pages/competitions/ChallengeResult";
 import AnalysisPage from "../../pages/analysis/AnalysisPage";
+import AnalysisRedirect from "../../pages/analysis/AnalysisRedirect";
 import AddAgeGroups from "../../pages/competitions/AddAgeGroups";
 import RemoveParticipants from "../../pages/competitions/RemoveParticipants";
 import School from "../../pages/schools/School";
@@ -114,6 +115,7 @@ function Layout(props) {
               <Route path="/app/export" component={ExportDocs}/>
               <Route path="/app/certificate" component={DownloadCertificate}/>
               <Route path="/app/analysisPage" component={AnalysisPage}/>
+              <Route path="/app/analysisRedirect" component={AnalysisRedirect}/>
                <Route path="/app/faqs" component={FAQs} />
               <Route path="/app/quesAttributes" component={QuesAttr} />
               <Route path="/app/school/directions" component={Directions} />

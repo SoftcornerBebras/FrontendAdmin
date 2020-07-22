@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Backdrop from '@material-ui/core/Backdrop';
-import { makeStyles } from '@material-ui/core/styles';
 import PageTitle from "../../components/PageTitle/PageTitle";
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
@@ -1042,6 +1041,11 @@ async fetchAllStudentsSchoolWise(){
     );
   }
   catch(error){this.setState({openError:true})}
+  if(gresultStudents!=null){
+    if(gresultStudents.data.length==0){
+      this.setState({openS5:true})
+    }
+  }
   this.fillDataSetList(gresultStudents)
    document.getElementById('List').style.display="block"
 }

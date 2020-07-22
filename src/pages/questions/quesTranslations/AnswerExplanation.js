@@ -102,7 +102,7 @@ export default class AnswerExplanation extends React.PureComponent {
         <div className='control-pane' >
             <div className='control-section' >
               <div className='rte-control-section'>
-                <RichTextEditorComponent ref={(richtexteditor) => { this.rteObj = richtexteditor; }} showCharCount={true} actionBegin={this.handleFullScreen.bind(this)} actionComplete={this.actionCompleteHandler.bind(this)} maxLength={10000} toolbarSettings={this.toolbarSettings} quickToolbarSettings={this.quickToolbarSettings}>
+                <RichTextEditorComponent ref={(richtexteditor) => { this.rteObj = richtexteditor; }} showCharCount={true} actionBegin={this.handleFullScreen.bind(this)} actionComplete={this.actionCompleteHandler.bind(this)} toolbarSettings={this.toolbarSettings} quickToolbarSettings={this.quickToolbarSettings}>
                   <div id="answerContent">
                   </div>
                   <Inject services={[Toolbar, Image, Link, HtmlEditor, Count, QuickToolbar, Table]}/>
