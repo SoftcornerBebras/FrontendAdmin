@@ -247,42 +247,6 @@ class CreateCompetition extends React.PureComponent {
     if (anyError == "") {
       if(compInfo[0].info ===""){compInfo[0].info="-"}
 
-      axios.post(baseURL+'api/cmp/updateCmp/',{
-        "CompetitionData":{
-          "competitionName":this.state.compName,
-          "competitionInfo":compInfo[0].info,
-          "startDate":compInfo[0].start,
-          "endDate":compInfo[0].end,
-          "testDuration":compInfo[0].time,
-          "competitionType":{
-            "codeName":compInfo[0].type
-          }
-        },
-        "CompetitionID":this.state.compID,
-        "bonus":compInfo[0].bonus,
-        "agedata":{
-          "ageid":selectedAgeGroup.AgeGroupID,
-          "agename":selectedAgeGroup.AgeGroupName
-        }
-      },{
-          headers: {
-              'Content-Type' : 'application/json',
-              Authorization: 'Token '+localStorage.getItem('id_token')
-          }
-        }
-      ).then(response =>{
-          if(compInfo[0].info ==="-")compInfo[0].info=""
-          localStorage.setItem("created","done")
-          this.props.history.push({
-            pathname: "/app/competitions/create/2/",
-            data: compInfo,
-            compID: response.data,
-            fromPage: "createComp",
-            selectedAgeGroup:selectedAgeGroup
-          });
-        })
-      }else{
-
         axios.post(baseURL+'api/cmp/insertCmp/', {
            "AgeGroupClassID":
           {
@@ -320,8 +284,7 @@ class CreateCompetition extends React.PureComponent {
               selectedAgeGroup:selectedAgeGroup
             });
         })
-      }
-    }catch(err){
+    }}catch(err){
       this.setState({openError:true})
     }
   };
