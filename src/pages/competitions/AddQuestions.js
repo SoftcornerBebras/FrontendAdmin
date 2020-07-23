@@ -8,19 +8,10 @@ import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert'
 import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import Backdrop from '@material-ui/core/Backdrop';
-import { withStyles } from '@material-ui/core/styles';
 import {Link} from 'react-router-dom';
 import axios from 'axios'
 import Typography from '@material-ui/core/Typography'
 import {baseURL} from '../constants'
-
-const styles = theme => ({
-  backdrop: {
-    zIndex: theme.zIndex.drawer + 1,
-    color: '#fff',
-  }
-});
 
 const columns = [
   {
@@ -69,7 +60,8 @@ const columns = [
   {name: "Option 1",options: {filter: false,display:false,sort: false}},
   {name: "Option 2",options: {filter: false,display:false,sort: false}},
   {name: "Option 3",options: {filter: false,display:false,sort: false}},
-  {name: "Option 4",options: {filter: false,display:false,sort: false}}
+  {name: "Option 4",options: {filter: false,display:false,sort: false}},
+  {name: "Answer Text",options: {filter: false,display:false,sort: false}}
 ];
 
 let finalData=[],selectedRows=[],selectedAgeGroup="",ageGrpsPrev,compInfo=[],marks=[];
@@ -309,7 +301,8 @@ class AddQuestions extends React.PureComponent {
       opt1:rowData[7],
       opt2:rowData[8],
       opt3:rowData[9],
-      opt4:rowData[10]
+      opt4:rowData[10],
+      ansText:rowData[11],
     }]
     this.props.history.push({
       pathname :"/app/question/preview",
@@ -407,8 +400,6 @@ class AddQuestions extends React.PureComponent {
 
   render() {
 
-    const {classes} = this.props
-
     return (
       <div className="App">
       <Snackbar open={this.state.openError} autoHideDuration={4000} anchorOrigin={{ vertical:'top', horizontal:'center'} }
@@ -432,7 +423,7 @@ class AddQuestions extends React.PureComponent {
 
       <Button color="primary" variant="contained" style={{marginBottom:'15px'}}
         onClick={this.handleBack }><ArrowBack/> Back </Button>
-        <Button color="primary" variant="contained" style={{marginTop:'-62px',marginBottom:'15px', marginLeft:'80%'}}
+        <Button color="primary" variant="contained" style={{marginBottom:'15px', marginLeft:'80%'}}
         onClick={this.addToComp }>Add Question </Button>
         <MUIDataTable
           title={"Select questions"}
@@ -448,6 +439,7 @@ class AddQuestions extends React.PureComponent {
             item.opt2,
             item.opt3,
             item.opt4,
+            item.ansText
           ]})}
           columns={columns}
           options={{
@@ -464,13 +456,9 @@ class AddQuestions extends React.PureComponent {
             },
             customToolbarSelect: selectedRows => null
           }} />
-        {/*<Backdrop className={classes.backdrop}  open={this.state.openprogress}  >
-          <CircularProgress  color="primary" />
-          <Typography component="h1" style={{color:"black"}}><b> Please Wait..</b></Typography>
-        </Backdrop>*/}
       </div>
     );
   }
 }
 
-export default withStyles(styles)(AddQuestions)
+export default (AddQuestions)

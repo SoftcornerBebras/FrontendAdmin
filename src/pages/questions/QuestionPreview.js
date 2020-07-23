@@ -72,7 +72,8 @@ export default class Preview extends React.PureComponent {
 		          compInfo.push({ name: "Time Limit (hh:mm)  : ", detail: this.props.location.data[3].detail })
 		          compInfo.push({ name: "Bonus Marks  : ", detail: this.props.location.data[4].detail })
 		          compInfo.push({ name: "Additional info  : ", detail: this.props.location.data[5].detail })
-					
+
+
 					dataX = this.props.location.previewData
         			marks = [...this.props.location.marks]
 					ageGrpsPrev = this.props.location.ageGrpsPrev
@@ -132,8 +133,6 @@ export default class Preview extends React.PureComponent {
 		      data : this.state.allData })
 		}
 		else {
-
-			console.log(ageGrpsPrev)
 
 		  this.props.history.push({
 		      pathname : "/app/competitions/addQues",

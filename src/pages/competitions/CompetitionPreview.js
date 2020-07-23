@@ -16,7 +16,7 @@ const StyledListItem = withStyles({
   selected: {}
 })(ListItem);
 
-var prevAgeGroups,compInfo = [{ name: "", start: "", end: "", info: "", type:"", time:""}];
+var prevAgeGroups,compInfo = [];
 class CompetitionPreview extends React.PureComponent {
 
 	constructor(props) {
@@ -41,11 +41,11 @@ class CompetitionPreview extends React.PureComponent {
 
             prevAgeGroups = this.props.location.prevAgeGroups
 
-            compInfo.push({ name: "Type :", detail: this.props.location.data[0].type })
-            compInfo.push({ name: "Start date :", detail: this.props.location.data[0].start })
-            compInfo.push({ name: "End date  :", detail: this.props.location.data[0].end })
-            compInfo.push({ name: "Time Limit (hh:mm)  : ", detail: this.props.location.data[0].time })
-            compInfo.push({ name: "Additional info  : ", detail: this.props.location.data[0].info })
+            compInfo.push({ name: "Type :", detail: this.props.location.data[0].detail })
+            compInfo.push({ name: "Start date :", detail: this.props.location.data[1].detail })
+            compInfo.push({ name: "End date  :", detail: this.props.location.data[2].detail })
+            compInfo.push({ name: "Time Limit (hh:mm)  : ", detail: this.props.location.data[3].detail })
+            compInfo.push({ name: "Additional info  : ", detail: this.props.location.data[4].detail })
 
             let ageID = this.props.location.ageGroupID
             let compID = this.props.location.compID
@@ -233,7 +233,7 @@ class CompetitionPreview extends React.PureComponent {
         data.push({ name: "Start date :",detail:compInfo[1].detail})
         data.push({ name: "End date  :", detail:compInfo[2].detail})
         data.push({ name: "Time Limit (hh:mm)  :", detail:compInfo[3].detail})
-        data.push({ name: "Additional info  : ", detail:compInfo[5].detail })
+        data.push({ name: "Additional info  : ", detail:compInfo[4].detail })
 
         this.props.history.push({
           pathname:'/app/competitions/preview',

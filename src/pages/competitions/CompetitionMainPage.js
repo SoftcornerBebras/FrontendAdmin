@@ -106,8 +106,7 @@ class SelectAges extends React.PureComponent {
     this.setState({compID:this.props.location.data.competitionID,compName:this.props.location.data.competitionName})
     }
     catch(error) {
-      console.log(error)
-        // this.props.history.push('/app/dashboard')
+        this.props.history.push('/app/dashboard')
     }
     this.setState({openprogress:false})
   }

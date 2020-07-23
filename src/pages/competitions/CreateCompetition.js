@@ -286,11 +286,11 @@ class CreateCompetition extends React.PureComponent {
           ).then(response =>{
             if(compInfo[0].info ==="-")compInfo[0].info=""
             this.props.history.push({
-              pathname: "/app/competitions/edit/2/",
+              pathname: "/app/competitions/create/2/",
               data: compInfo,
               selectedAgeGroup:selectedAgeGroup,
               compID: this.state.compID,
-              fromPage: "editDetails"
+              fromPage: "createComp"
             });
           })
         } else {
@@ -326,7 +326,7 @@ class CreateCompetition extends React.PureComponent {
             this.props.history.push({
               pathname: "/app/competitions/create/2/",
               data: compInfo,
-              compID: response.data,
+              compID: response.data.data,
               fromPage: "createComp",
               selectedAgeGroup:selectedAgeGroup
             });

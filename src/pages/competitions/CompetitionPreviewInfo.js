@@ -22,7 +22,7 @@ const styles =theme => ({
   }
 });
 
-var compInfo = [{ name: "", start: "", end: "", info: "", type:"", time:""}], prevAgeGroups;
+var compInfo = [], prevAgeGroups;
 class CompInfo extends React.PureComponent {
 	constructor(props) {
 		super(props);
@@ -38,14 +38,15 @@ class CompInfo extends React.PureComponent {
 
         try {
 
+        	compInfo.length=0
+
         	prevAgeGroups = this.props.location.prevAgeGroups
 
-        	compInfo[0].name = this.props.location.compName
-	        compInfo[0].info = this.props.location.data[4].detail
-	        compInfo[0].type = this.props.location.data[0].detail
-	        compInfo[0].time = this.props.location.data[3].detail
-	        compInfo[0].start = this.props.location.data[1].detail
-	        compInfo[0].end = this.props.location.data[2].detail
+        	compInfo.push({ name: "Type :", detail: this.props.location.data[0].detail })
+            compInfo.push({ name: "Start date :", detail: this.props.location.data[1].detail })
+            compInfo.push({ name: "End date  :", detail: this.props.location.data[2].detail })
+            compInfo.push({ name: "Time Limit (hh:mm)  : ", detail: this.props.location.data[3].detail })
+            compInfo.push({ name: "Additional info  : ", detail: this.props.location.data[4].detail })
 
             for(let i = 0 ; i< prevAgeGroups.length; i++) {
                 this.setState(prev=>({ageList:[...prev.ageList,prevAgeGroups[i].AgeGroupName]}))
@@ -53,8 +54,7 @@ class CompInfo extends React.PureComponent {
             this.setState({compID:this.props.location.compID,compName:this.props.location.compName})
           }
         catch(error) {
-        	console.log(error)
-            // this.props.history.push('/app/dashboard')
+            this.props.history.push('/app/dashboard')
         }
 	}
 
@@ -82,15 +82,16 @@ class CompInfo extends React.PureComponent {
 
 
   	handleBack = () => {
+
   		var data=[{
 	      competitionID: this.state.compID,
-	      competitionInfo: compInfo[0].info,
-	      competitionName: compInfo[0].name,
+	      competitionInfo: compInfo[4].detail,
+	      competitionName: this.state.compName,
 	      competitionType:{
-	        codeName: compInfo[0].type},
-	      endDate: compInfo[0].end,
-	      startDate: compInfo[0].start,
-	      testDuration: compInfo[0].time+":00",
+	        codeName: compInfo[0].detail},
+	      endDate: compInfo[2].detail,
+	      startDate: compInfo[1].detail,
+	      testDuration: compInfo[3].detail+":00",
 	    }]
 
 	    this.props.history.push({

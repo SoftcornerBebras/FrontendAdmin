@@ -229,6 +229,7 @@ class Challenge extends React.PureComponent {
   };
 
   async getPrevQues(ageGrpName, language, levelA, levelB, levelC) {
+
     let ques = quesComp[0].ques;
     let gcmpQues = await axios.get(baseURL+'api/cmp/getCmpQues/'+selectedAgeGroup.AgeGroupID+"&"+this.state.compID+"/",{
            headers:{

@@ -299,8 +299,7 @@ console.log(cmp)
 
             <Box display="flex" flexDirection="row" p={1} m={1} style={{marginTop:'-1%'}}>
             <Box  p={1} m={1} style={{marginLeft:"15.5%"}}>
-            {/* <a href= {srcLiveGraph} style={{textDecoration: 'none',color:"black"}}> */}           
-            <Tooltip title={this.state.liveTitle} arrow>
+            <Tooltip title="Analysis of Current Competitions" arrow >
             <Link to={{
              pathname: "/app/analysisRedirect",
               data :  this.state.cmp+"*"+'Live Analysis'
@@ -311,7 +310,6 @@ console.log(cmp)
       </Button>
       </Link>
       </Tooltip>
-      {/* </a> */}
             </Box>
             </Box>
       </ErrorBoundary>
