@@ -36,13 +36,16 @@ export default class FAQ extends React.PureComponent {
 			            <li>Loading of data may take time. Please wait for few seconds and then try again.</li>
 			            <li>The positioning of the tables is not maintained. You'll have to navigate to the particular
 			            record again from the start of the table. Sorry for the inconvenience.</li>
+			            <li>Expand the Sidebar and click on options to see sub-options.</li>
 			            <li>If any errors occur, you'll be redirected automatically to the main page.</li>
 
 					</ul>
 				</li>
-
+				
 				<li style={listSpacing}><span style={headingStyle}>Questions Module Instructions:</span>
 					<ul>
+						<li>Question Identifier Format - YYYY-CountryCode-QuestionNumber-Caption_LanguageCode</li>
+						<li>Currently search feature for Questions works only for the English language only.</li>
 						<li>Please select images carefully during inserting of a question. Images <b>cannot</b> be added or deleted later
 						during updating of a question or adding its translations.</li>
 						<li>For inserting translations of a question, please go to the details of the question and add

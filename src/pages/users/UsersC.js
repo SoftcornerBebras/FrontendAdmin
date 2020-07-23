@@ -215,7 +215,7 @@ class UsersPage extends React.PureComponent {
                   item.userID.loginID,
                   item.userID.phone,
                   item.RoleID.RoleName,
-                  item.userID.created_on.replace(/T|Z/g," "),
+                  item.userID.created_on.replace(/T|Z/g," ").substring(0,19),
                   item.userID.created_by,
                   item.userID.userID,
                   item.userRoleID,

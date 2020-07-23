@@ -194,14 +194,15 @@ class CheckOut extends React.PureComponent {
            <DialogActions>
             {this.state.isProcessing ? (
             <CircularProgress size={26} />
-            ) : (
+            ) : (<>
             <Button onClick={this.insertQues} color="primary">
               Yes
             </Button>
-            )}
             <Button onClick={this.handleClose} color="primary">
               No
             </Button>
+            </>
+            )}
           </DialogActions>
        </Dialog>
       </React.Fragment>

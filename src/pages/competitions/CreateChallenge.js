@@ -92,18 +92,12 @@ class Challenge extends React.PureComponent {
 
     this.setState({openprogress:true})
 
-    console.log("from page ",this.props.location.fromPage)
-
-    console.log(quesComp)
-
      try{
 
         this.setState({compID:this.props.location.compID})
 
         selectedAgeGroup = this.props.location.selectedAgeGroup
         ageGrpsPrev = this.props.location.ageGrpsPrev
-
-        console.log(ageGrpsPrev)
 
        let gResultClass = await axios.get(baseURL+'api/cmp/getClassAgeWise/'+selectedAgeGroup.AgeGroupID+"/",{
             headers:{
@@ -118,56 +112,42 @@ class Challenge extends React.PureComponent {
          classes+=","+gResultClass.data[i].ClassID.classNo
        }
 
-       console.log(quesComp)
+        quesComp.length = 0;
+        challengeInfo.length = 0;
+        compInfo.length = 0
 
-        // if(this.props.location.fromPage == "createComp" || this.props.location.fromPage == "addNewGroup"
-        //   || this.props.location.fromPage == "editDetails" ) {
+        compInfo.push({ name: "Type :", detail: this.props.location.data[0].detail })
+        compInfo.push({ name: "Start date :", detail: this.props.location.data[1].detail })
+        compInfo.push({ name: "End date  :", detail: this.props.location.data[2].detail })
+        compInfo.push({ name: "Time Limit (hh:mm)  : ", detail: this.props.location.data[3].detail })
+        compInfo.push({ name: "Bonus Marks  : ", detail: this.props.location.data[4].detail })
+        compInfo.push({ name: "Additional info  : ", detail: this.props.location.data[5].detail })
 
-          quesComp.length = 0;
-          challengeInfo.length = 0;
-          compInfo.length = 0
+        bonus = this.props.location.data[4].detail
+        correctMarks = this.props.location.marks
+        let ageLang = selectedAgeGroup.AgeGroupName.split("-")
+        quesComp.push({ name: ageLang[0], lang: ageLang[1], ques:[]})
+        challengeInfo.push({ name: ageLang[0], lang: ageLang[1], info : []})
+        let levelA = 0 , levelB = 0, levelC = 0;
+        this.setState({name: ageLang[0],
+          language: ageLang[1],
+          fromPage: this.props.location.fromPage,
+          compName: this.props.location.compName,
+          compID: this.props.location.compID
+        })
+        this.setChallengeData(ageLang[0], ageLang[1], levelA, levelB, levelC)
 
-          compInfo.push({ name: "Type :", detail: this.props.location.data[0].detail })
-          compInfo.push({ name: "Start date :", detail: this.props.location.data[1].detail })
-          compInfo.push({ name: "End date  :", detail: this.props.location.data[2].detail })
-          compInfo.push({ name: "Time Limit (hh:mm)  : ", detail: this.props.location.data[3].detail })
-          compInfo.push({ name: "Bonus Marks  : ", detail: this.props.location.data[4].detail })
-          compInfo.push({ name: "Additional info  : ", detail: this.props.location.data[5].detail })
-
-
-          console.log(compInfo,this.props.location.data)
-
-          bonus = this.props.location.data[4].detail
-          correctMarks = this.props.location.marks
-          let ageLang = selectedAgeGroup.AgeGroupName.split("-")
-          quesComp.push({ name: ageLang[0], lang: ageLang[1], ques:[]})
-          challengeInfo.push({ name: ageLang[0], lang: ageLang[1], info : []})
-          let levelA = 0 , levelB = 0, levelC = 0;
-          this.setState({name: ageLang[0],
-            language: ageLang[1],
-            fromPage: this.props.location.fromPage,
-            compName: this.props.location.compName,
-            compID: this.props.location.compID
-          })
-          this.setChallengeData(ageLang[0], ageLang[1], levelA, levelB, levelC)
-
-          console.log(localStorage.getItem("quesAdded"))
-          if(this.props.location.fromPage == "editDetails" || localStorage.getItem("quesAdded")==="true"){
-            this.getPrevQues(ageLang[0], ageLang[1], levelA, levelB, levelC).then(response => {
-              levelA = response[0]
-              levelB = response[1]
-              levelC = response[2]
-              // this.setChallengeData(ageLang[0], ageLang[1], levelA, levelB, levelC)
-              this.calculateLevels(this.state.quesData)
-            });
-          }
-        // }
-
-        console.log(quesComp)
+        if(this.props.location.fromPage == "editDetails" || localStorage.getItem("quesAdded")==="true"){
+          this.getPrevQues(ageLang[0], ageLang[1], levelA, levelB, levelC).then(response => {
+            levelA = response[0]
+            levelB = response[1]
+            levelC = response[2]
+            // this.setChallengeData(ageLang[0], ageLang[1], levelA, levelB, levelC)
+            this.calculateLevels(this.state.quesData)
+          });
+        }
 
         if(this.props.location.fromPage == "quesPage") {
-
-          console.log("in ques Page " , this.props.location.initPage)
 
           let ageName = selectedAgeGroup.AgeGroupName.split("-")
 
@@ -177,6 +157,7 @@ class Challenge extends React.PureComponent {
             compName: this.props.location.compName,
             compID: this.props.location.compID
           })
+          let questions = this.props.location.ques
 
           let levelA = 0 , levelB = 0, levelC = 0;
           for(let j = 0 ; j < quesComp[0].ques.length ; j++) {
@@ -190,7 +171,7 @@ class Challenge extends React.PureComponent {
               levelC = parseInt(levelC) + 1;
             }
           }
-          let questions = this.props.location.ques
+          
           let ques = quesComp[0].ques
 
           for(let j = 0 ; j < questions.length ; j++) {
@@ -205,27 +186,20 @@ class Challenge extends React.PureComponent {
               levelC = parseInt(levelC) + 1;
             }
           }
-          quesComp[0].ques = ques
-
-          for(let i=0;i<ques.length;i++){
-            this.setState(prev=>({quesData: [...prev.quesData,ques[i]] }))
-          }
 
           this.setChallengeData(ageName[0],this.props.location.data.language,
             levelA,levelB,levelC)
 
-          this.onSubmit()
+          this.onSubmit(questions)
         }
-
-        console.log(quesComp)
 
         if(this.props.location.data===undefined)this.props.history.push('/app/dashboard')
 
           this.setState({openprogress:false})
 
       }catch(error){
-        console.log(error)
-        // this.props.history.push('/app/dashboard')
+        this.setState({openprogress:false})
+        this.props.history.push('/app/dashboard')
       }
   }
 
@@ -268,13 +242,10 @@ class Challenge extends React.PureComponent {
     let quesID = apiData.cmpQuesList
     let quesList = apiData.QuesTrans
 
-    console.log(quesID.length,quesList.length)
-
     let quesIDs =[]
     for(let i=0; i< quesID.length; i++) {
       quesIDs.push({id:quesID[i].questionID, level : quesID[i].questionLevelCodeID.codeName})
     }
-    console.log(quesIDs.length)
 
     for(let i =0; i< quesList.length ; i++) {
       for(let j=0; j<quesIDs.length;j++) {
@@ -327,7 +298,6 @@ class Challenge extends React.PureComponent {
       for(let j=0;j<rows.data.length - i -1;j++){
         if (rows.data[j].dataIndex > rows.data[j+1].dataIndex) 
         { 
-          console.log("in if")
            let temp = rows.data[j]
            rows.data[j]=rows.data[j+1]
            rows.data[j+1]=temp
@@ -341,10 +311,6 @@ class Challenge extends React.PureComponent {
 
 
     let ques=[...this.state.quesData]
-
-    console.log(ques,this.state.quesData)
-    console.log(rowsDeleted)
-
     rowsDeleted = this.sortIdInAsc(rowsDeleted)
 
 
@@ -364,8 +330,6 @@ class Challenge extends React.PureComponent {
     deletedQuesList.length=0
 
     for(let j = rowsDeleted.data.length -1 ; j >=0 ; j-- ) {
-
-      console.log(ques[rowsDeleted.data[j].dataIndex])
 
       let lvl =ques[rowsDeleted.data[j].dataIndex].quesLevel
 
@@ -401,36 +365,18 @@ class Challenge extends React.PureComponent {
            Authorization: 'Token '+localStorage.getItem('id_token')
          }
        }).catch(err=>{
-         console.log("error during delete ques")
      });
   }
 
-  onSubmit = () => {
+  onSubmit = (questions) => {
 
     localStorage.setItem("quesAdded","true")
 
     let quesList=[]
-    if(this.state.fromPage=="editDetails") {
-
-       let i=0,flag=0;
-      while(i <quesComp[0].ques.length) {
-        flag=0;
-        for(let j=0;j<prevQuesList.length;j++){
-          if(quesComp[0].ques[i].questionTransID == prevQuesList[j].questionTransID ) {
-            quesComp[0].ques.splice(i,1)
-            flag=1
-            break
-          }
-        }
-        if(flag==0) i++
-      }
+     for(let i=0 ; i <questions.length; i++ ) {
+      quesList.push({"questionID":questions[i].questionID,
+        "questionLevelCodeID":questions[i].quesLevel})
     }
-     for(let i=0 ; i <quesComp[0].ques.length; i++ ) {
-      quesList.push({"questionID":quesComp[0].ques[i].questionID,
-        "questionLevelCodeID":quesComp[0].ques[i].quesLevel})
-    }
-
-    console.log(quesList)
 
      axios.post(baseURL+'api/cmp/addCmpQues/',{
         "CompetitionID":this.state.compID,
@@ -445,7 +391,6 @@ class Challenge extends React.PureComponent {
            Authorization: 'Token '+localStorage.getItem('id_token')
          }
        }).catch(err=> {
-         console.log("error during delete ques")
      });
   }
 
@@ -465,8 +410,6 @@ class Challenge extends React.PureComponent {
         info:compInfo[5].detail,
         name:this.state.compName
       }]
-
-      console.log(data)
 
       if(this.state.fromPage === "createComp"){
         this.props.history.push({
@@ -614,7 +557,6 @@ class Challenge extends React.PureComponent {
                           deleteAria: "Delete Selected Rows"
                         }
                       },
-                      onRowsSelect: selectedRows => {console.log(selectedRows)},
                       onRowsDelete : rowsDeleted => this.deleteQues(rowsDeleted),
                       customToolbar: selectedRows => (
                         <Tooltip title="Add questions">

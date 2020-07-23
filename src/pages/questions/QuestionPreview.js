@@ -74,7 +74,7 @@ export default class Preview extends React.PureComponent {
 		          compInfo.push({ name: "Additional info  : ", detail: this.props.location.data[5].detail })
 					
 					dataX = this.props.location.previewData
-        			marks = this.props.location.marks
+        			marks = [...this.props.location.marks]
 					ageGrpsPrev = this.props.location.ageGrpsPrev
 					this.setState({
 						fromPage:this.props.location.fromPage,

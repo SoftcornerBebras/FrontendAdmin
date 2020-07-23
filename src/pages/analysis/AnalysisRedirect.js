@@ -79,17 +79,17 @@ class AnalysisRedirect extends Component {
     var payload = {
         resource: { dashboard: 100 },
         params: {
+          "age_group":agevalue['label'],
           "competition": cmpvalue['label'],
-          "age_group":agevalue['label']
           
         },
         
       };
       var token = jwt.sign(payload, metabaseSecretKey);
-      var srcLiveGraph = "http://localhost:3000" + "/embed/dashboard/" + token + "#bordered=true&titled=true";
+      var srcLiveGraph = metabaseURL + "/embed/dashboard/" + token + "#bordered=true&titled=true";
       this.setState({src:srcLiveGraph})
       document.getElementById("progress").style.display="block"
-      this.sleep(1000).then(()=>{
+      this.sleep(2000).then(()=>{
       document.getElementById("Iframe").style.display="block"
       document.getElementById("Iframe").onload=function(){
       document.getElementById("progress").style.display="none"
@@ -116,7 +116,7 @@ class AnalysisRedirect extends Component {
     }
     }
     catch(error){
-       	this.props.history.push("/app/analysisPage")
+        this.props.history.push("/app/analysisPage")
     }
 }
 

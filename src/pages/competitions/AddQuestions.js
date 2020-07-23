@@ -8,10 +8,19 @@ import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert'
 import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
+import Backdrop from '@material-ui/core/Backdrop';
+import { withStyles } from '@material-ui/core/styles';
 import {Link} from 'react-router-dom';
 import axios from 'axios'
+import Typography from '@material-ui/core/Typography'
 import {baseURL} from '../constants'
 
+const styles = theme => ({
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+  }
+});
 
 const columns = [
   {
@@ -64,7 +73,7 @@ const columns = [
 ];
 
 let finalData=[],selectedRows=[],selectedAgeGroup="",ageGrpsPrev,compInfo=[],marks=[];
-export default class AddQuestions extends React.PureComponent {
+class AddQuestions extends React.PureComponent {
 
   constructor(props) {
     super(props);
@@ -77,19 +86,24 @@ export default class AddQuestions extends React.PureComponent {
       compName:"",
       compID:"",
       openError:false,
+      openprogress:false,
     }
   }
 
   async componentDidMount() {
 
+    this.setState({openprogress:true})
+
     selectedRows.length=0
+
+    localStorage.setItem("quesAdded","true")
 
     try{
 
         selectedAgeGroup = this.props.location.selectedAgeGroup
         ageGrpsPrev = this.props.location.ageGrpsPrev
 
-        marks = this.props.location.marks
+        marks = [...this.props.location.marks]
 
         compInfo.length = 0
         compInfo.push({ name: "Type :", detail: this.props.location.data[0].detail })
@@ -143,6 +157,13 @@ export default class AddQuestions extends React.PureComponent {
           });
           this.setState({selectedAgeGroup:selectedAgeGroup,fromPage:this.props.location.initPage})
         }
+
+        if(gAddQues.data.QuesAge.length === 0){
+          this.setState({openEmpty:true})
+          this.setState({openprogress:true})
+          return
+        }
+
         let ques = gAddQues.data.QuesAge
         let quesTrans = gAddQues.data.Questions
         let opt = gAddQues.data.Options
@@ -244,13 +265,13 @@ export default class AddQuestions extends React.PureComponent {
       }
     }
     catch(error){
-      console.log(error)
-      // this.props.history.push('/app/dashboard')
+      this.props.history.push('/app/dashboard')
     }
+    this.setState({openprogress:true})
   }
 
   handleClose = () => {
-    this.setState({openError:false,noDataAlert:false})
+    this.setState({openError:false,noDataAlert:false,openEmpty:false})
   }
 
   handleBack = () => {
@@ -330,8 +351,6 @@ export default class AddQuestions extends React.PureComponent {
 
   addToComp = () => {
 
-    localStorage.setItem("quesAdded","true")
-
     if(selectedRows.length == 0) {
       return
     }
@@ -351,6 +370,7 @@ export default class AddQuestions extends React.PureComponent {
             compName: this.state.compName,
             selectedAgeGroup:selectedAgeGroup,
             compID: this.state.compID,
+            marks:marks,
             fromPage: "quesPage",
             ageGrpsPrev:ageGrpsPrev
        }): (
@@ -362,6 +382,7 @@ export default class AddQuestions extends React.PureComponent {
             initPage:this.state.fromPage,
             data:compInfo,
             compName: this.state.compName,
+            marks:marks,
             compID: this.state.compID,
             selectedAgeGroup:selectedAgeGroup,
             fromPage: "quesPage",
@@ -385,12 +406,21 @@ export default class AddQuestions extends React.PureComponent {
   }
 
   render() {
+
+    const {classes} = this.props
+
     return (
       <div className="App">
       <Snackbar open={this.state.openError} autoHideDuration={4000} anchorOrigin={{ vertical:'top', horizontal:'center'} }
          onClose={this.handleClose}>
         <Alert onClose={this.handleClose} variant="filled" severity="error">
         <b>Error occured!</b>
+        </Alert>
+      </Snackbar>
+      <Snackbar open={this.state.openEmpty} autoHideDuration={4000} anchorOrigin={{ vertical:'top', horizontal:'center'} }
+         onClose={this.handleClose}>
+        <Alert onClose={this.handleClose} variant="filled" severity="info">
+        <b>No Questions Present in this Category!</b>
         </Alert>
       </Snackbar>
       <Snackbar open={this.state.noDataAlert} autoHideDuration={4000} anchorOrigin={{ vertical:'top', horizontal:'center'} }
@@ -403,7 +433,7 @@ export default class AddQuestions extends React.PureComponent {
       <Button color="primary" variant="contained" style={{marginBottom:'15px'}}
         onClick={this.handleBack }><ArrowBack/> Back </Button>
         <Button color="primary" variant="contained" style={{marginTop:'-62px',marginBottom:'15px', marginLeft:'80%'}}
-        onClick={this.addToComp }>Add To Competition </Button>
+        onClick={this.addToComp }>Add Question </Button>
         <MUIDataTable
           title={"Select questions"}
           data={this.state.data.map(item => {return [
@@ -433,10 +463,14 @@ export default class AddQuestions extends React.PureComponent {
                 },
             },
             customToolbarSelect: selectedRows => null
-          }}
-        />
+          }} />
+        {/*<Backdrop className={classes.backdrop}  open={this.state.openprogress}  >
+          <CircularProgress  color="primary" />
+          <Typography component="h1" style={{color:"black"}}><b> Please Wait..</b></Typography>
+        </Backdrop>*/}
       </div>
     );
   }
 }
 
+export default withStyles(styles)(AddQuestions)

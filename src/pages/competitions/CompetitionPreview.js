@@ -51,7 +51,7 @@ class CompetitionPreview extends React.PureComponent {
             let compID = this.props.location.compID
             let compName = this.props.location.compName
             let ageLang = this.props.location.ageGroupName.split("-")
-            this.setState({ageName:ageLang[0], language:ageLang[1], compName})
+            this.setState({ageName:ageLang[0], language:ageLang[1], compName,compID:compID})
 
             try{
                 let cmpData = await axios.get(baseURL+'api/cmp/getCmpPreview/'+ageID+'&'+compID+"/",{

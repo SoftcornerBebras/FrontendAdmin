@@ -15,6 +15,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
 import InputLabel from "@material-ui/core/InputLabel";
 import Autocomplete from "@material-ui/lab/Autocomplete";
+import Backdrop from '@material-ui/core/Backdrop';
 import {Redirect} from 'react-router-dom';
 import ErrorBoundary from '../error/ErrorBoundary'
 import Alert from '@material-ui/lab/Alert'; 
@@ -63,6 +64,10 @@ const useStyles = theme => ({
   button: {
     marginTop: theme.spacing(3),
     marginLeft: theme.spacing(1)
+  },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
   }
 });
 
@@ -86,10 +91,14 @@ class CreateCompetition extends React.PureComponent {
       cmpTypes:[],
       duration:"00",
       durationMins:"00",
+      openprogress:false,
     };
   };
 
   async componentDidMount() {
+
+    this.setState({openprogress:true})
+
     try {
         let gcmpType = await axios.get(baseURL+'api/com/getCmpTypes/',{
         headers:{
@@ -162,6 +171,7 @@ class CreateCompetition extends React.PureComponent {
           if(localStorage.getItem("addedNewGrp") === "true") {
             compInfo[0].ageGroup = this.props.location.data[0].detail
             compInfo[0].bonus = this.props.location.data[5].detail
+            localStorage.removeItem("addedNewGrp")
           }
 
           this.setState({compID : this.props.location.compID,  
@@ -176,9 +186,9 @@ class CreateCompetition extends React.PureComponent {
         }
    }
    catch(error){
-    console.log(error)
-      // this.props.history.push('/app/dashboard')
+      this.props.history.push('/app/dashboard')
    }
+   this.setState({openprogress:false})
   };
 
   handleChangeDuration = event => {
@@ -651,6 +661,10 @@ class CreateCompetition extends React.PureComponent {
             </React.Fragment>
           </Paper>
         </main>
+        <Backdrop className={classes.backdrop}  open={this.state.openprogress}  >
+          <CircularProgress  color="primary" />
+          <Typography component="h1" style={{color:"black"}}><b> Please Wait..</b></Typography>
+        </Backdrop>
       </ErrorBoundary>
     );
   }

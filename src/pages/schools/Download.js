@@ -216,7 +216,12 @@ handleCloseS10=(event,reason)=>{
        })
        .then(response =>{
              success=true
-             group=response.data.AgeGroupName
+             if(response.data.length == 0){
+                success = false
+                this.setState({openS8:true})
+             } else {
+                group=response.data.AgeGroupName
+             }
         })
         .catch(function (response) {
           success=false

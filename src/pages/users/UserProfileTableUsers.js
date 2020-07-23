@@ -105,7 +105,7 @@ class TableUsers extends React.PureComponent {
                   <TableCell align="left">The user {row.userName} with {row.loginID} email ID was
                   {row.created_by == this.state.loggedIn ? <> created on {row.created_on} </> : null }
                   {row.modified_by == this.state.loggedIn ? <> {row.modified_by == this.state.loggedIn && row.created_by == this.state.loggedIn ? <>and </> : null}
-                    modified on {row.modified_on} </> : null }
+                    modified on {row.modified_on.replace(/T|Z/g," ").substring(0,19)} </> : null }
                   </TableCell>
                 </TableRow>
              )})}

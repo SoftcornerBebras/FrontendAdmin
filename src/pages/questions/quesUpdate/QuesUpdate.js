@@ -123,8 +123,6 @@ class QuesUpdate extends React.PureComponent {
 
     try {
 
-      console.log(this.props.location)
-
       quesType=this.props.location.data.questionType
 
     this.clearData()
@@ -263,7 +261,10 @@ class QuesUpdate extends React.PureComponent {
 
   }
 
-  handleClose = () => {
+  handleClose = (event,reason) => {
+    if (reason === 'clickaway' || reason === 'backdropClick') {
+      return;
+    }
     this.setState({open:false,activeStep:4});
   };
 
@@ -323,14 +324,15 @@ class QuesUpdate extends React.PureComponent {
            <DialogActions>
             {this.state.isProcessing ? (
             <CircularProgress size={26} />
-            ) : (
+            ) : (<>
             <Button onClick={this.insertQues} color="primary">
               Yes
             </Button>
-            )}
             <Button onClick={this.handleClose} color="primary">
               No
             </Button>
+            </>
+            )}
           </DialogActions>
        </Dialog>
       </React.Fragment>
@@ -339,6 +341,10 @@ class QuesUpdate extends React.PureComponent {
 
   insertQues = () => {
   this.setState({isProcessing:true})
+
+  let blobImgQues=[],blobImgAns=[],blobImgQuesName=[],blobImgAnsName=[]
+
+    var bodyFormData = new FormData();
 
       let content = quesString[0].question
       let imgs=content.match(/src/g)
@@ -363,29 +369,30 @@ class QuesUpdate extends React.PureComponent {
             sub1[0] = sub1[0].substring(0,sub1[0].search("img")+3) + " style=\"max-height:100%;max-width:100%\"" + sub1[0].substring(sub1[0].search("img")+3,)
             
             let x = content.substring(content.search("src")+5,content.substring("src").indexOf(" ",content.indexOf("src"))-1)
-
+  
             if(!x.includes(baseURL)){
               var name= content.substring(content.search("alt")+5, content.substring("alt").indexOf(" ",content.indexOf("alt"))-1)
               var imgn = name.split(".");
               imgName[i] = imgn[0]+'_'+finalDate+'.'+imgn[1];
               imagesToUpload[i] = content.substring(content.search("src")+5,content.substring("src").indexOf(" ",content.indexOf("src"))-1) // to keep quotes
               imgNameConcat = imgName[i];
-              // quesImgList.push(imgName[i])
               imgType = "imageQuestion";
               uploadedURL = imgName[i];
               replaceImg[0] = "=\""+baseURL+"media/images/"+imgName[i]+"\" "
               sub2[0] = content.substring(content.substring("src").indexOf(" ",content.indexOf("src")),)
               total = sub1[0]+replaceImg[0]
-              console.log(total)
+            
+              blobImgQues.push(imagesToUpload[i])
+              blobImgQuesName.push(imgName[i])
+              // this.returnBLOB(imagesToUpload[i],imgName[i],bodyFormData)
+
             } else {
               imgName[i] = x.substring(x.indexOf('images/')+7,)
               imgNameConcat = imgName[i];
               imgType = "imageQuestion";
-              uploadedURL = ""
-              // quesImgList.push(x.substring(x.indexOf('images/')+7,))
+              uploadedURL = "-"
               sub2[0] = content.substring(content.substring("src").indexOf(" ",content.indexOf("src")),)
-              total = sub1[0]+x
-              console.log(total)
+              total = sub1[0]+"=\""+x+"\""
             }
             
           }
@@ -395,32 +402,31 @@ class QuesUpdate extends React.PureComponent {
             sub1[i] = sub1[i].substring(0,sub1[i].search("img")+3) + " style=\"max-height:100%;max-width:100%\"" + sub1[i].substring(sub1[i].search("img")+3,)
             
             let x = sub2[i-1].substring(sub2[i-1].search("src")+5,sub2[i-1].substring("src").indexOf(" ",sub2[i-1].indexOf("src"))-1)
-
+       
             if(!x.includes(baseURL)){
               imagesToUpload[i] =  sub2[i-1].substring(sub2[i-1].search("src")+5,sub2[i-1].substring("src").indexOf(" ",sub2[i-1].indexOf("src"))-1)
               var name= sub2[i].substring(sub2[i].search("alt")+5, sub2[i].substring("alt").indexOf(" ",sub2[i].indexOf("alt"))-1)
               var imgn = name.split(".");
               imgName[i] = imgn[0]+'_'+finalDate+'.'+imgn[1];
-              // quesImgList.push(imgName[i])
               imgNameConcat = imgNameConcat +","+imgName[i];
               imgType += ",imageQuestion";
               uploadedURL += ",media/images/"+ imgName[i];
               replaceImg[i] = baseURL+"media/images/"+imgName[i]+"\" "
               total += sub1[i] + replaceImg[i]
-              console.log(total)
+       
+              blobImgQues.push(imagesToUpload[i])
+              blobImgQuesName.push(imgName[i])
+              // this.returnBLOB(imagesToUpload[i],imgName[i],bodyFormData)
             }else {
               imgName[i] = x.substring(x.indexOf('images/')+7,)
               imgNameConcat = imgNameConcat +","+imgName[i];
               imgType += ",imageQuestion";
-              uploadedURL += ""
-              // quesImgList.push(x.substring(x.indexOf('images/')+7,))
-              total = sub1[0]+x
-              console.log(total)
+              uploadedURL += ",-"
+              total += sub1[i].substring(0,sub1[i].length-2)+"=\""+x+"\""
             }
           }
         }
         total = total+sub2[countOfImgs-1]
-        console.log(quesImgList)
       }
 
       content = quesString[1].question
@@ -436,12 +442,11 @@ class QuesUpdate extends React.PureComponent {
             sub1[0] = sub1[i].substring(0,sub1[0].search("img")+3) + " style=\"max-height:100%;max-width:100%\"" + sub1[0].substring(sub1[0].search("img")+3,)
             
             let x = content.substring(content.search("src")+5,content.substring("src").indexOf(" ",content.indexOf("src"))-1)
-
+            
             if(!x.includes(baseURL)){
               var name= content.substring(content.search("alt")+5, content.substring("alt").indexOf(" ",content.indexOf("alt"))-1)
               var imgn = name.split(".");
               imgNameAns[i] = imgn[0]+'_'+finalDate+'.'+imgn[1];
-              // ansImgList.push(imgNameAns[i])
               imagesToUploadAns[i] = content.substring(content.search("src")+5,content.substring("src").indexOf(" ",content.indexOf("src"))-1) // to keep quotes
               imgNameConcatAns = imgNameAns[i];
               imgTypeAns = "imageAnsExplanation";
@@ -449,15 +454,17 @@ class QuesUpdate extends React.PureComponent {
               replaceImg[0] = "=\""+baseURL+"media/images/"+imgNameAns[i]+"\" "
               sub2[0] = content.substring(content.substring("src").indexOf(" ",content.indexOf("src")),)
               totalAns = sub1[0]+replaceImg[0]
+              blobImgAns.push(imagesToUploadAns[i])
+              blobImgAnsName.push(imgNameAns[i])
+              // this.returnBLOB(imagesToUploadAns[i],imgNameAns[i],bodyFormData)
             } else {
               imgNameAns[i] = x.substring(x.indexOf('images/')+7,)
               imgNameConcatAns = imgNameAns[i];
               imgTypeAns = "imageAnsExplanation";
-              uploadedURLAns = ""
+              uploadedURLAns = "-"
               sub2[0] = content.substring(content.substring("src").indexOf(" ",content.indexOf("src")),)
-              total = sub1[0]+x
-              // ansImgList.push(x.substring(x.indexOf('images/')+7,))
-              console.log(total)
+              total = sub1[0]+"=\""+x+"\""
+              
             }
           }
           else {
@@ -471,28 +478,26 @@ class QuesUpdate extends React.PureComponent {
               var name= sub2[i].substring(sub2[i].search("alt")+5, sub2[i].substring("alt").indexOf(" ",sub2[i].indexOf("alt"))-1)
               var imgn = name.split(".");
               imgNameAns[i] = imgn[0]+'_'+finalDate+'.'+imgn[1];
-              // ansImgList.push(imgNameAns[i])
               imgNameConcatAns = imgNameConcatAns +","+imgNameAns[i];
               uploadedURLAns += ",media/images/"+ imgNameAns[i];
               imgTypeAns += ",imageAnsExplanation";
               replaceImg[i] = baseURL+"media/images/"+imgNameAns[i]+"\" "
               totalAns += sub1[i] + replaceImg[i]
+              blobImgAns.push(imagesToUploadAns[i])
+              blobImgAnsName.push(imgNameAns[i])
+              // this.returnBLOB(imagesToUploadAns[i],imgNameAns[i],bodyFormData)
             }else {
-              total = sub1[0]+x
-              // ansImgList.push(x.substring(x.indexOf('images/')+7,))
+              total += sub1[i].substring(0,sub1[i].length-2)+"=\""+x+"\""
               imgNameAns[i] = x.substring(x.indexOf('images/')+7,)
               imgNameConcatAns = imgNameAns[i];
               imgTypeAns = "imageAnsExplanation";
-              uploadedURLAns = ""
-              console.log(total)
+              uploadedURLAns += ",-"
             }
           }
         }
         totalAns = totalAns+sub2[countOfImgs-1]
-        console.log(ansImgList)
       }
-
-      var bodyFormData = new FormData();
+     
       var correctOpt = ""
 
         if(answer[0].desc==""){
@@ -501,8 +506,8 @@ class QuesUpdate extends React.PureComponent {
             correctOpt=options[answer[0].desc-1].desc
         }
 
-      this.returnBLOB(imagesToUpload,imgName,bodyFormData)
-      this.returnBLOB(imagesToUploadAns,imgNameAns,bodyFormData)
+      this.returnBLOB(blobImgQues,blobImgQuesName,bodyFormData)
+      this.returnBLOB(blobImgAns,blobImgAnsName,bodyFormData)
 
       var body=""
 
@@ -517,8 +522,6 @@ class QuesUpdate extends React.PureComponent {
           imgNameOpt[i]=""
         }
       }
-
-      console.log(imgNameOpt)
 
         body = {
       "questionTranslationID":{
@@ -541,8 +544,8 @@ class QuesUpdate extends React.PureComponent {
           "translation":{
             "translation":{
               "caption" : quesInfo[0].detail,
-              "background" : quesString[0].question,
-              "explanation" : quesString[1].question
+              "background" : total,
+              "explanation" : totalAns
             },
             "quesAgeID":{
               "quesData": toInsertAgeGroups,
@@ -636,30 +639,27 @@ class QuesUpdate extends React.PureComponent {
         }
       }
 
-      console.log(pos)
-
       bodyFormData.append('data', JSON.stringify(body));
       for(let i=0;i<pos.length;i++){
         bodyFormData.append('image', options[pos[i]].price,imgNameOpt[pos[i]]);
-        console.log(options[pos[i]].price,imgNameOpt[pos[i]])
       }
 
-//     setTimeout(()=>{
-// axios.post(baseURL+'api/cmp/updateQuestion/'+this.state.dataX.quesTransID+"/",bodyFormData,{
-//             headers: {
-//                  'Content-Type' : 'application/json',
-//                  Authorization: 'Token '+localStorage.getItem('id_token')
-//             }
-//         }).then(response =>{
-//           this.clearData();
-//           setTimeout(()=>{
-//             this.setState({uploadSuccess:true,isProcessing:false,open:false,activeStep:5});
-//           },2000);
-//           setTimeout(()=>{
-//             this.redirect();
-//           },2000);
-//         }).catch(error => {this.setState({openError:true,isProcessing:false,open:false,activeStep:4});});
-//       },10000)
+    setTimeout(()=>{
+      axios.post(baseURL+'api/cmp/updateQuestion/'+this.state.dataX.quesTransID+"/",bodyFormData,{
+            headers: {
+                 'Content-Type' : 'application/json',
+                 Authorization: 'Token '+localStorage.getItem('id_token')
+            }
+        }).then(response =>{
+          this.clearData();
+          setTimeout(()=>{
+            this.setState({uploadSuccess:true,isProcessing:false,open:false,activeStep:5});
+          },2000);
+          setTimeout(()=>{
+            this.redirect();
+          },2000);
+        }).catch(error => {this.setState({openError:true,isProcessing:false,open:false,activeStep:4});});
+      },10000)
     }
 
     async returnBLOB(imagesToUpload,imgName,bodyFormData){

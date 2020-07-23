@@ -213,7 +213,25 @@ class CheckOut extends React.PureComponent {
 }catch(error){this.props.history.push('/app/dashboard')}
   }
 
-handleClose = () => {
+  displayLoadingQues = () => {
+    return (
+      <React.Fragment>
+       <Dialog open={!this.state.rerender} aria-labelledby="form-dialog-title" style={{backgroundColor:'rgba(0,0,0,0.5'}}>
+          <DialogTitle id="form-dialog-title">Alert</DialogTitle>
+            <DialogContent>
+            <DialogContentText>
+              <Typography variant="h6">Please Wait... </Typography>
+            </DialogContentText>
+            </DialogContent>
+       </Dialog>
+      </React.Fragment>
+    );
+  };
+
+handleClose = (event,reason) => {
+  if (reason === 'clickaway' || reason === 'backdropClick') {
+      return;
+    }
     this.setState({open:false,activeStep:4,isProcessing:false});
   };
 
@@ -251,14 +269,15 @@ handleClose = () => {
            <DialogActions>
             {this.state.isProcessing ? (
             <CircularProgress size={26} />
-            ) : (
+            ) : (<>
             <Button onClick={this.insertQues} color="primary">
               Yes
             </Button>
-            )}
             <Button onClick={this.handleClose} color="primary">
               No
             </Button>
+            </>
+            )}
           </DialogActions>
        </Dialog>
       </React.Fragment>
@@ -584,14 +603,6 @@ handleClose = () => {
         }
       }
 
-        // var imgn1 = options[0].price.name.split( ".");
-        // var imgn2 = options[1].price.name.split( ".");
-        // var imgn3 = options[2].price.name.split( ".");
-        // var imgn4 = options[3].price.name.split( ".");
-        // let imgName1 = imgn1[0]+'_'+finalDate+'.'+imgn1[1];
-        // let imgName2 = imgn2[0]+'_'+finalDate+'.'+imgn2[1];
-        // let imgName3 = imgn3[0]+'_'+finalDate+'.'+imgn3[1];
-        // let imgName4 = imgn4[0]+'_'+finalDate+'.'+imgn4[1];
         var bodyFormData = new FormData();
 
         this.returnBLOB(imagesToUpload,imgName,bodyFormData)
@@ -720,10 +731,6 @@ handleClose = () => {
         for(let i=0;i<pos.length;i++){
           bodyFormData.append('image', options[pos[i]].price,imgNameOpt[pos[i]]);
         }
-        // bodyFormData.append('image', options[0].price,imgName1);
-        // bodyFormData.append('image', options[1].price,imgName2);
-        // bodyFormData.append('image', options[2].price,imgName3);
-        // bodyFormData.append('image', options[3].price,imgName4);
        try{
        setTimeout(()=>{
         axios({
@@ -893,6 +900,7 @@ handleAlertClose=()=>{
             </React.Fragment>
             {this.displayAlert()}
           </Paper>
+          {this.displayLoadingQues()}
         </main>
       </React.Fragment>
     );

@@ -552,7 +552,7 @@ render(){
                   item.username,
                   item.loginID,
                   item.gender.codeName,
-                  item.createdOn,
+                  item.createdOn.replace(/T|Z/g," ").substring(0,19),
                   item.userID,
                   item.createdBy,
                   item.role,

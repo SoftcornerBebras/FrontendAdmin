@@ -18,9 +18,11 @@ export function setDataQues() {
       posStart = posStart - 12 //reached start of required div
       posEnd = posEnd - 13 //reached end of required div
       quesString[0].question = x.substring(posStart,posEnd)
-      let start = quesString[0].substring(0,quesString[0].indexOf("contenteditable")-1)
-      let end = quesString[0].substring(quesString[0].indexOf("tabindex")-2,)
+      let start = quesString[0].question.substring(0,quesString[0].question.indexOf("contenteditable")-1)
+      let end = quesString[0].question.substring(quesString[0].question.indexOf("tabindex")-2,)
       quesString[0].question = start + end
+
+      console.log(quesString)
 }
 
 export default class QuestionsForm extends React.PureComponent {

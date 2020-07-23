@@ -12,6 +12,8 @@ import { withStyles } from '@material-ui/core/styles';
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
 import ArrowBack from "@material-ui/icons/ArrowBack";
+import CircularProgress from '@material-ui/core/CircularProgress'
+import Backdrop from '@material-ui/core/Backdrop';
 import {baseURL} from '../constants'
 
 const styles = theme => ({
@@ -20,6 +22,10 @@ const styles = theme => ({
   },
   input: {
     display: "none"
+  },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
   }
 });
 
@@ -42,12 +48,15 @@ class MarkingScheme extends React.PureComponent{
         rerenderer:false,
         openError:false,
         ageGrpsPrev:null,
+        openprogress:false,
       }
     };
 
 
   async componentDidMount ()
   {
+
+    this.setState({openprogress:true})
 
     localStorage.setItem("addedNewGrp","true")
 
@@ -120,6 +129,8 @@ class MarkingScheme extends React.PureComponent{
         catch(error){
             this.props.history.push('/app/dashboard')
         }
+
+        this.setState({openprogress:false})
   }
 
   handleCorrectMarks=(newValue, id)=>{
@@ -295,16 +306,15 @@ class MarkingScheme extends React.PureComponent{
     data.push({ name: "End date  :", detail:compInfo[2].detail})
     data.push({ name: "Time Limit (hh:mm)  :", detail:compInfo[3].detail})
     data.push({ name: "Additional info  : ", detail:compInfo[5].detail })
+    data.push({ name: "Bonus  : ", detail:compInfo[4].detail })
+    data.push({ name: "Age Group : ", detail:selectedAgeGroup.AgeGroupName })
 
     if(this.state.fromPage==="createComp"){
-
-      data.push({ name: "Bonus  : ", detail:compInfo[4].detail })
-      data.push({ name: "Age Group : ", detail:selectedAgeGroup.AgeGroupName })
-
       this.props.history.push({
         pathname:'/app/competitions/create/1/',
         data:data,
         compID:this.state.compID,
+        prevAges:this.state.ageGrpsPrev,
         compName:this.state.compName
       })
     }
@@ -319,9 +329,6 @@ class MarkingScheme extends React.PureComponent{
       })
     }
     if(this.state.fromPage==="addNewGroup"){
-      data.push({ name: "Bonus  : ", detail:compInfo[4].detail })
-      data.push({ name: "Age Group : ", detail:selectedAgeGroup.AgeGroupName })
-
       this.props.history.push({
         pathname:'/app/competitions/update/1/',
         data:data,
@@ -446,6 +453,10 @@ class MarkingScheme extends React.PureComponent{
       </Button>
     </div>
     </Paper>
+    <Backdrop className={classes.backdrop}  open={this.state.openprogress}  >
+      <CircularProgress  color="primary" />
+      <Typography component="h1" style={{color:"black"}}><b> Please Wait..</b></Typography>
+    </Backdrop>
     </>
   );
   }

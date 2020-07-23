@@ -53,7 +53,7 @@ import Toppers from "../../pages/analysis/Toppers";
 import ExportDocs from "../../pages/exports/ExportDocs";
 import DownloadCertificate from "../../pages/exports/DownloadCertificate.js";
 import FAQs from '../../pages/faqs/faqs'
-import QuesAttr from '../../pages/quesAttributes'
+import QuesAttr from '../../pages/faqs/quesAttributes'
 import { useLayoutState } from "../../context/LayoutContext";
 
 function Layout(props) {
@@ -88,7 +88,7 @@ function Layout(props) {
               <Route path="/app/competitions/create/1/" component={CreateCompetition} />
               <Route path="/app/competitions/info" component={CompetitionMainPage} />
               <Route path="/app/competitions/addQues" component={AddQuestions} />
-               <Route path="/app/competitions/update/1/" component={UpdateCompetition} />
+              <Route path="/app/competitions/update/1/" component={UpdateCompetition} />
               <Route path="/app/competitions/update/2/" component={CreateCompMarks} />
               <Route path="/app/competitions/update/3/" component={CreateChallenge} />
               <Route path="/app/competitions/edit/1/" component={UpdateCompetition} />

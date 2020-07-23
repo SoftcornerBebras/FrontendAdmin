@@ -11,12 +11,22 @@ import {Menu, MenuItem} from '@material-ui/core';
 import Snackbar from '@material-ui/core/Snackbar'
 import Paper from '@material-ui/core/Paper'
 import Alert from '@material-ui/lab/Alert'
+import CircularProgress from '@material-ui/core/CircularProgress'
+import Backdrop from '@material-ui/core/Backdrop';
+import { withStyles } from '@material-ui/core/styles';
 import axios from 'axios'
 import {baseURL} from '../constants'
 import ErrorBoundary from '../error/ErrorBoundary'
-export var compInfo = [], quesComp=[], challengeInfo=[];
 
+export var compInfo = [], quesComp=[], challengeInfo=[];
 export const ageGrps = [],prevAgeGroups=[];
+
+const styles = theme => ({
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+  }
+});
 
 class SelectAges extends React.PureComponent {
 
@@ -28,11 +38,14 @@ class SelectAges extends React.PureComponent {
       ages:[],
       anchorEl:null,
       openError:false,
-      compStarted:false
+      compStarted:false,
+      openprogress:false,
     };
   }
 
   async componentDidMount() {
+
+    this.setState({openprogress:true})
 
     try {
 
@@ -96,6 +109,7 @@ class SelectAges extends React.PureComponent {
       console.log(error)
         // this.props.history.push('/app/dashboard')
     }
+    this.setState({openprogress:false})
   }
 
  handleListItemClick = (event, i,j) => {
@@ -156,6 +170,9 @@ class SelectAges extends React.PureComponent {
   }
 
   render() {
+
+    const {classes} = this.props
+
     return (
       <ErrorBoundary>
       <Paper>
@@ -244,9 +261,13 @@ class SelectAges extends React.PureComponent {
         </Grid>
       </div>
       </Paper>
+      <Backdrop className={classes.backdrop}  open={this.state.openprogress}  >
+        <CircularProgress  color="primary" />
+        <Typography component="h1" style={{color:"black"}}><b> Please Wait..</b></Typography>
+      </Backdrop>
       </ErrorBoundary>
     );
   }
 }
 
-export default (SelectAges);
+export default withStyles(styles)(SelectAges);

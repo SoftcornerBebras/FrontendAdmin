@@ -206,7 +206,7 @@ class ContactInfo extends React.PureComponent{
                   item.email,
                   item.phone,
                   item.role,
-                  item.createdOn,
+                  item.createdOn.replace(/T|Z/g," ").substring(0,19),
                   item.createdBy,
                   item.userID,
                   item.gender,

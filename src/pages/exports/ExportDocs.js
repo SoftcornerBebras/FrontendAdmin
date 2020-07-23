@@ -1044,10 +1044,13 @@ async fetchAllStudentsSchoolWise(){
   if(gresultStudents!=null){
     if(gresultStudents.data.length==0){
       this.setState({openS5:true})
+      document.getElementById('List').style.display="none"
+    }
+    else{
+      this.fillDataSetList(gresultStudents)
+       document.getElementById('List').style.display="block" 
     }
   }
-  this.fillDataSetList(gresultStudents)
-   document.getElementById('List').style.display="block"
 }
 
 

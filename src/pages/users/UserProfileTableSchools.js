@@ -86,7 +86,7 @@ class TableQuestions extends React.PureComponent {
                 <TableRow key={row.quesID}>
                   <TableCell align="left">{row.date}</TableCell>
                   <TableCell align="left">{this.state.type}</TableCell>
-                  <TableCell align="left">The {row.SchoolName} was modified on {row.date}.</TableCell>
+                  <TableCell align="left">The {row.SchoolName} was modified on {row.date.replace(/T|Z/g," ").substring(0,19)}.</TableCell>
                 </TableRow>
              )})}
              {this.state.emptyRows > 0 && (

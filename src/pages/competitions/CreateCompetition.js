@@ -11,6 +11,7 @@ import Grid from "@material-ui/core/Grid";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
+import Backdrop from '@material-ui/core/Backdrop';
 import Alert from '@material-ui/lab/Alert'
 import InputLabel from "@material-ui/core/InputLabel";
 import Autocomplete from "@material-ui/lab/Autocomplete";
@@ -60,6 +61,10 @@ const useStyles = theme => ({
   button: {
     marginTop: theme.spacing(3),
     marginLeft: theme.spacing(1)
+  },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
   }
 });
 
@@ -80,11 +85,16 @@ class CreateCompetition extends React.PureComponent {
       openError:false,
       duration:"00",
       durationMins:"00",
+      openprogress:false,
     };
   };
 
   async componentDidMount() {
+
+    this.setState({openprogress:true})
+    
     try{
+
     let gAgeGroup = await axios.get(baseURL+'api/cmp/viewAgeGroup/',{
         headers:{
             'Content-Type' : 'application/json',
@@ -139,11 +149,15 @@ class CreateCompetition extends React.PureComponent {
         duration:compInfo[0].hh,
         durationMins:compInfo[0].mm
       })
+    } else {
+      localStorage.removeItem("created")
     }
 
   }catch(err){
+    localStorage.removeItem("created")
     this.props.history.push('/app/dashboard')
   }
+  this.setState({openprogress:false})
   };
   handleChangeDuration = event => {
     this.setState({duration:event.target.value});
@@ -241,12 +255,45 @@ class CreateCompetition extends React.PureComponent {
       document.getElementById("errMarks").style.display = "none";
     }
 
-    console.log(compInfo[0].info)
-
     try{
     if (anyError == "") {
       if(compInfo[0].info ===""){compInfo[0].info="-"}
 
+        if(localStorage.getItem("created") === "done"){
+          axios.post(baseURL+'api/cmp/updateCmp/',{
+            "CompetitionData":{
+              "competitionName":this.state.compName,
+              "competitionInfo":compInfo[0].info,
+              "startDate":compInfo[0].start,
+              "endDate":compInfo[0].end,
+              "testDuration":compInfo[0].time,
+              "competitionType":{
+                "codeName":compInfo[0].type
+              }
+            },
+            "CompetitionID":this.state.compID,
+            "bonus":compInfo[0].bonus,
+            "agedata":{
+              "ageid":selectedAgeGroup.AgeGroupID,
+              "agename":selectedAgeGroup.AgeGroupName
+            }
+          },{
+              headers: {
+                  'Content-Type' : 'application/json',
+                  Authorization: 'Token '+localStorage.getItem('id_token')
+              }
+            }
+          ).then(response =>{
+            if(compInfo[0].info ==="-")compInfo[0].info=""
+            this.props.history.push({
+              pathname: "/app/competitions/edit/2/",
+              data: compInfo,
+              selectedAgeGroup:selectedAgeGroup,
+              compID: this.state.compID,
+              fromPage: "editDetails"
+            });
+          })
+        } else {
         axios.post(baseURL+'api/cmp/insertCmp/', {
            "AgeGroupClassID":
           {
@@ -284,6 +331,7 @@ class CreateCompetition extends React.PureComponent {
               selectedAgeGroup:selectedAgeGroup
             });
         })
+      }
     }}catch(err){
       this.setState({openError:true})
     }
@@ -545,6 +593,10 @@ class CreateCompetition extends React.PureComponent {
           </Paper>
         </main>
         {this.displayAlertAgeGroups()}
+        <Backdrop className={classes.backdrop}  open={this.state.openprogress}  >
+          <CircularProgress  color="primary" />
+          <Typography component="h1" style={{color:"black"}}><b> Please Wait..</b></Typography>
+        </Backdrop>
       </React.Fragment>
     );
   }

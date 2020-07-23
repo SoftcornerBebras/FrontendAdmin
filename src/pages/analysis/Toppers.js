@@ -802,17 +802,9 @@ for(var i=0;i<getStudents.data.length;i++)
                     noMatch: <CircularProgress variant='indeterminate' style={{color:'primary'}}/>,
                 },
             },
-
-
-          }}
-
-              />
-
-
+          }}/>
         </Grid>
       </Grid>
-      }
-
         </div>
     );
   }
