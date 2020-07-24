@@ -1,3 +1,6 @@
+This is the project for Frontend Admin Portal for Bebras, Build is available at  https://github.com/SoftcornerBebras/FrontendAdmin-build
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
