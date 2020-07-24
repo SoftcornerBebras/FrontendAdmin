@@ -84,7 +84,7 @@ class TableQuestions extends React.PureComponent {
                 .map((row) => {
                 return (
                 <TableRow key={row.quesID}>
-                  <TableCell align="left">{row.date}</TableCell>
+                  <TableCell align="left">{row.date.replace(/T|Z/g," ").substring(0,19)}</TableCell>
                   <TableCell align="left">{this.state.type}</TableCell>
                   <TableCell align="left">The question {row.caption} was modified on {row.date.replace(/T|Z/g," ").substring(0,19)}.</TableCell>
                 </TableRow>

@@ -45,20 +45,20 @@ class RegisteredBy extends Component {
       email:gresult.data[0].loginID,
       phone:gresult.data[0].phone,
       createdBy:gresult.data[0].created_by,
-      createdOn:gresult.data[0].created_on,
+      createdOn:gresult.data[0].created_on.replace(/T|Z/g," ").substring(0,19),
       dob:gresult.data[0].birthdate,
       status:gresult.data[0].is_active.codeName,
       gender:gresult.data[0].gender.codeName
           }]}))
 
        let date=this.state.getValue['0'].dob.split("-");
-       let createdOn=arr[0].registeredOn.split("-");
+       let createdOn=arr[0].registeredOn.replace(/T|Z/g," ").substring(0,19);
         this.setState({nameVar:this.state.getValue['0'].username,
       gender:this.state.getValue['0'].gender,
       email:this.state.getValue['0'].email,
     phone:this.state.getValue['0'].phone,
     dob:date[2]+"/"+date[1]+'/'+date[0],
-    created_on: createdOn[2]+"/"+createdOn[1]+'/'+createdOn[0]});
+    created_on: createdOn});
     }catch(error){ this.props.history.push('/app/dashboard') }
 
 }

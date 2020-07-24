@@ -63,8 +63,8 @@ export default class FAQ extends React.PureComponent {
 
 				<li style={listSpacing}><span style={headingStyle}>Competitions Module Instructions:</span>
 					<ul>
-						<li>Please do not press the back button. Go till the end of the option chosen or
-						select another menu option and come back to Competitions page.</li>
+						<li>On clicking on a language of an age group, results can be seen but 
+						only after the competition ends.</li>
 	          			<li>After a competition gets started, you cannot edit the competitions.
 	          			The options will be disabled.</li>
 	          			<li>Please insert <b>-</b> (negative) sign while entering incorrect marks</li>

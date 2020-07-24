@@ -100,10 +100,10 @@ class TableUsers extends React.PureComponent {
                 .map((row) => {
                 return (
                 <TableRow key={row.userID}>
-                  <TableCell align="left">{row.date}</TableCell>
+                  <TableCell align="left">{row.date.replace(/T|Z/g," ").substring(0,19)}</TableCell>
                   <TableCell align="left">{row.type}</TableCell>
                   <TableCell align="left">The user {row.userName} with {row.loginID} email ID was
-                  {row.created_by == this.state.loggedIn ? <> created on {row.created_on} </> : null }
+                  {row.created_by == this.state.loggedIn ? <> created on {row.created_on.replace(/T|Z/g," ").substring(0,19)} </> : null }
                   {row.modified_by == this.state.loggedIn ? <> {row.modified_by == this.state.loggedIn && row.created_by == this.state.loggedIn ? <>and </> : null}
                     modified on {row.modified_on.replace(/T|Z/g," ").substring(0,19)} </> : null }
                   </TableCell>

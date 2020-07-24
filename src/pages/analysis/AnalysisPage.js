@@ -299,7 +299,6 @@ console.log(cmp)
 
             <Box display="flex" flexDirection="row" p={1} m={1} style={{marginTop:'-1%'}}>
             <Box  p={1} m={1} style={{marginLeft:"15.5%"}}>
-            <Tooltip title="Analysis of Current Competitions" arrow >
             <Link to={{
              pathname: "/app/analysisRedirect",
               data :  this.state.cmp+"*"+'Live Analysis'
@@ -309,7 +308,6 @@ console.log(cmp)
         <b>Live Analysis</b>
       </Button>
       </Link>
-      </Tooltip>
             </Box>
             </Box>
       </ErrorBoundary>
