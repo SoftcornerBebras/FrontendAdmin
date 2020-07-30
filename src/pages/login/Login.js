@@ -96,7 +96,7 @@ function Login( props) {
     <Grid container className={classes.container}>
       <div className={classes.logotypeContainer}>
         <img src={logo} alt="logo" className={classes.logotypeImage} width="1000px" />
-        <Typography className={classes.logotypeText}>Bebras</Typography>
+        <Typography className={classes.logotypeText}>Bebras India</Typography>
       </div>
       <div className={classes.formContainer}>
         <div className={classes.form}>

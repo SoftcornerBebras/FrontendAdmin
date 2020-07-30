@@ -33,9 +33,9 @@ export default makeStyles(theme => ({
   logotypeText: {
     color: "white",
     fontWeight: 500,
-    fontSize: 84,
+    fontSize: 60,
     [theme.breakpoints.down("md")]: {
-      fontSize: 48,
+      fontSize: 38,
     },
   },
   formContainer: {

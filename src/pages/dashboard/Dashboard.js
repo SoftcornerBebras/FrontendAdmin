@@ -41,7 +41,7 @@ class Dashboard extends Component {
                 top: 40,
                 left: '50%',
                 transform: 'translateX(-50%)'
-              }} ><h1 style={{fontSize:"80px",color:"black"}} >Bebras Administration</h1></div>
+              }} ><h1 style={{fontSize:"80px",color:"black"}} >Bebras India Administration</h1></div>
 
 <div style={{
                 position: 'absolute',

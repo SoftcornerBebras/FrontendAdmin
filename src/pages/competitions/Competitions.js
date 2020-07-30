@@ -121,7 +121,7 @@ async getData(year) {
             id="panel1a-header"
           >
             <Typography variant="h6" gutterBottom>
-              {year} Challenges
+              {year} Competitions
             </Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails>
@@ -130,8 +130,8 @@ async getData(year) {
                 <TableHead>
                   <TableRow>
                     <TableCell />
-                    <TableCell>Challenge&nbsp;Name</TableCell>
-                    <TableCell>Challenge&nbsp;Type</TableCell>
+                    <TableCell>Competition&nbsp;Name</TableCell>
+                    <TableCell>Competition&nbsp;Type</TableCell>
                     <TableCell align="center">Start&nbsp;date</TableCell>
                     <TableCell align="center">End&nbsp;date</TableCell>
                   </TableRow>

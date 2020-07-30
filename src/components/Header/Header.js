@@ -136,7 +136,7 @@ export default function Header(props) {
           )}
         </IconButton>
         <Typography variant="h6" weight="medium" className={classes.logotype}>
-          Bebras - Admin
+          Bebras India - Admin
         </Typography>
         <div className={classes.grow} />
 

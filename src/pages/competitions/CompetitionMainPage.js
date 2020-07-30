@@ -39,6 +39,7 @@ class SelectAges extends React.PureComponent {
       anchorEl:null,
       openError:false,
       compStarted:false,
+      compEnded:false,
       openprogress:false,
     };
   }
@@ -64,11 +65,15 @@ class SelectAges extends React.PureComponent {
 
     let timer = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate() + " "
      + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-    let endTime = new Date(compInfo[1].detail)
+    let startTime = new Date(compInfo[1].detail)
+    let endTime = new Date(compInfo[2].detail)
     let currTime = new Date(timer)
 
-    if(currTime >= endTime && compInfo[0].detail=='Main Challenge') {
+    if(currTime >= startTime && compInfo[0].detail=='Main Challenge') {
       this.setState({compStarted:true})
+    }
+    if(currTime >= endTime && compInfo[0].detail=='Main Challenge') {
+      this.setState({compEnded:true})
     }
 
     let gAgeGrp = await axios.get(baseURL+'api/cmp/getAgeCmpWise/'+this.props.location.data.competitionID+"/",{
@@ -205,9 +210,9 @@ class SelectAges extends React.PureComponent {
         onClose={this.handleClose}
         style={{marginTop:'50px'}}
       >
-        <MenuItem disabled={this.state.compStarted} onClick={this.editDetails}>Edit Details</MenuItem>
+        <MenuItem disabled={this.state.compEnded} onClick={this.editDetails}>Edit Details</MenuItem>
         <MenuItem disabled={this.state.compStarted} onClick={this.addNewGroup}>Add Group</MenuItem>
-        <MenuItem onClick={this.compPrev}>Take Test</MenuItem>
+        <MenuItem onClick={this.compPrev}>Preview Competition</MenuItem>
       </Menu>
 
         </Box>

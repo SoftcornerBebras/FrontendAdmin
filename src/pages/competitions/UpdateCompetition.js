@@ -92,6 +92,7 @@ class CreateCompetition extends React.PureComponent {
       duration:"00",
       durationMins:"00",
       openprogress:false,
+      compStarted:false,
     };
   };
 
@@ -167,6 +168,17 @@ class CreateCompetition extends React.PureComponent {
           compInfo[0].mm = compInfo[0].time.substring(3,)
           compInfo[0].start = this.props.location.data[1].detail
           compInfo[0].end = this.props.location.data[2].detail
+
+          let today = new Date()
+
+          let timer = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate() + " "
+           + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+          let startTime = new Date(compInfo[0].start)
+          let currTime = new Date(timer)
+
+          if(currTime >= startTime && compInfo[0].type=='Main Challenge') {
+            this.setState({compStarted:true})
+          }
 
           if(localStorage.getItem("addedNewGrp") === "true") {
             compInfo[0].ageGroup = this.props.location.data[0].detail
@@ -263,13 +275,13 @@ class CreateCompetition extends React.PureComponent {
     } else {
       document.getElementById("errType").style.display = "none";
     }
-    if (compInfo[0].ageGroup == "") {
+    if (compInfo[0].ageGroup == "" && this.state.compStarted == false) {
       document.getElementById("errAgeGroups").style.display = "block";
       anyError = "yes";
     } else {
       document.getElementById("errAgeGroups").style.display = "none";
     }
-    if (compInfo[0].bonus == "") {
+    if (compInfo[0].bonus == "" && this.state.compStarted == false) {
       document.getElementById("errMarks").style.display = "block";
       anyError = "yes";
     } else {
@@ -654,7 +666,7 @@ class CreateCompetition extends React.PureComponent {
                     onClick={this.handleUpdate}
                     className={classes.button}
                   >
-                    {this.state.fromPage=="editDetails" ? <>Next</> : <>Add </>}
+                    {this.state.fromPage=="editDetails" ? (this.state.compStarted ? <>Save</> : <>Next</>) : <>Add </>}
                   </Button>
                 </div>
               </React.Fragment>
