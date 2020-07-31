@@ -28,7 +28,7 @@ import google from "../../images/google.svg";
 // context
 import { useUserDispatch, loginUser, signOut } from "../../context/UserContext";
 
-import {baseURL} from '../constants'
+import {baseURL,userPortalURL} from '../constants'
 
 
 function Login( props) {
@@ -214,7 +214,7 @@ function Login( props) {
                       <DialogContentText>
                         Please go to the below link given to access your account:
                         <br/>
-                        <a href='http://54.196.61.229:3001' target="_blank">Bebras User Site</a>
+                        <a href={userPortalURL} target="_blank">Bebras User Site</a>
                       </DialogContentText>
                     </DialogContent>
                   </Dialog>

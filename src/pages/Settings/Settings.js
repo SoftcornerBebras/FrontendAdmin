@@ -12,7 +12,7 @@ import Select from 'react-select';
 import PageTitle from "../../components/PageTitle/PageTitle";
 import Paper from '@material-ui/core/Paper';
 import axios from 'axios';
-import {baseURL} from '../constants';
+import {baseURL,userPortalURL} from '../constants';
 import PublishIcon from '@material-ui/icons/Publish';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import InsertDriveFileIcon from '@material-ui/icons/InsertDriveFile';
@@ -474,6 +474,11 @@ else{
     });
   }
 }
+
+  goToPortalPage = () => {
+    window.location.replace(userPortalURL+"bulkresponseupload")
+  }
+
  handleSchoolGroupInsert=()=>{
 
   value="School Group"
@@ -490,8 +495,8 @@ else{
     url: baseURL + 'api/com/insertSchoolGrps/',
     data: data,
     headers: {
-                 'Content-Type' : 'application/json',
-                 Authorization: 'Token '+localStorage.getItem('id_token')
+               'Content-Type' : 'application/json',
+               Authorization: 'Token '+localStorage.getItem('id_token')
             }
     })
     .then(response =>{
@@ -939,6 +944,28 @@ handleGroup=(newValue)=>{
             </Box>
          </Box>
              </Paper>
+
+             <Paper elevation={3} style={{width:'1000px',marginLeft:'100px'}}>
+           <Box display="flex" flexDirection="row" p={1} m={1}>
+     <Box p={1} m={1}>
+      <Typography variant="h6" color='textSecondary' style={{marginTop:'15px'}}  >
+          Add Offline Responses
+          </Typography>
+
+          </Box>
+          <Box p={1} m={1} style={{marginLeft:'10%',marginTop:'2.5%'}}>
+          <Button
+              variant="contained"
+              color="primary"
+              onClick={this.goToPortalPage}
+             startIcon={<ArrowForwardIcon />   }
+               component="label">
+                  Proceed
+              </Button>
+            </Box>
+            </Box>
+          </Paper>
+
              <Paper elevation={3} style={{width:'1000px',marginLeft:'100px'}}>
            <Box display="flex" flexDirection="row" p={1} m={1}>
      <Box p={1} m={1}>

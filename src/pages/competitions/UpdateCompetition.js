@@ -275,13 +275,13 @@ class CreateCompetition extends React.PureComponent {
     } else {
       document.getElementById("errType").style.display = "none";
     }
-    if (compInfo[0].ageGroup == "" && this.state.compStarted == false) {
+    if (compInfo[0].ageGroup == "" ) {
       document.getElementById("errAgeGroups").style.display = "block";
       anyError = "yes";
     } else {
       document.getElementById("errAgeGroups").style.display = "none";
     }
-    if (compInfo[0].bonus == "" && this.state.compStarted == false) {
+    if (compInfo[0].bonus == "") {
       document.getElementById("errMarks").style.display = "block";
       anyError = "yes";
     } else {
@@ -293,6 +293,7 @@ class CreateCompetition extends React.PureComponent {
       if(compInfo[0].info ==="")compInfo[0].info="-"
 
     try{
+
       if(this.state.fromPage == "addNewGroup") {
           axios.post(baseURL+'api/cmp/insertCmpAge/', {
                 "AgeGroupClassID":
@@ -356,20 +357,25 @@ class CreateCompetition extends React.PureComponent {
         }
       ).then(response =>{
         if(compInfo[0].info ==="-")compInfo[0].info=""
-        this.props.history.push({
-          pathname: "/app/competitions/edit/2/",
-          data: compInfo,
-          ageGrpsPrev:ageGrpsPrev,
-          selectedAgeGroup:selectedAgeGroup,
-          compID: this.state.compID,
-          fromPage: "editDetails"
-        });
+
+        if(this.state.compStarted == true){
+          this.props.history.push("/app/competition")
+        } else {
+          this.props.history.push({
+            pathname: "/app/competitions/edit/2/",
+            data: compInfo,
+            ageGrpsPrev:ageGrpsPrev,
+            selectedAgeGroup:selectedAgeGroup,
+            compID: this.state.compID,
+            fromPage: "editDetails"
+          });
+        }
       })
       }
     }catch(error){
         this.setState({openError:true})
       }
-  }
+    }
   };
 
   validateRange = () => {
