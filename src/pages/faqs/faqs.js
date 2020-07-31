@@ -46,8 +46,8 @@ export default class FAQ extends React.PureComponent {
 					<ul>
 						<li>Question Identifier Format - YYYY-CountryCode-QuestionNumber-Caption_LanguageCode</li>
 						<li>Currently search feature for Questions works only for the English language only.</li>
-						<li>Please select images carefully during inserting of a question. Images <b>cannot</b> be added or deleted later
-						during updating of a question or adding its translations.</li>
+						<li>Currently images <b>cannot</b> be added while adding its translations. The images added while inserting
+						original question will be shown. You can rearrange it in the question accordingly.</li>
 						<li>For inserting translations of a question, please go to the details of the question and add
 						it via the 'Translations' tab.</li>
 						<li>Please keep the image names shorter than 45 letters.</li>
