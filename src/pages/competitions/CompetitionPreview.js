@@ -61,9 +61,19 @@ class CompetitionPreview extends React.PureComponent {
                 }
                });
 
-
-                let quesIDs = cmpData.data.cmpQuesList.map((elem) =>{return {quesID:elem.questionID,
+                let quesIds = cmpData.data.cmpQuesList.map((elem) =>{return {quesID:elem.questionID,
                     quesLevel:elem.questionLevelCodeID.codeName}})
+
+                let quesIDs=[]
+                for(let i=0;i<cmpData.data.QuesTrans.length;i++){
+                    let elem = cmpData.data.QuesTrans[i]
+                    for(let j=0;j<quesIds.length;j++){
+                        if(quesIds[j].quesID == elem.questionTranslationID.questionID.questionID){
+                            quesIDs.push({quesID:quesIds[j].quesID,quesLevel:quesIds[j].quesLevel})
+                            break;
+                        }
+                    }
+                }
 
                 let questions =[], options=[]
 
