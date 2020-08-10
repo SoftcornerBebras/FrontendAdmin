@@ -1,12 +1,12 @@
 import React from 'react'
-import PageTitle from "../../components/PageTitle/PageTitle";
+import PageTitle from "../components/PageTitle/PageTitle";
 import Alert from '@material-ui/lab/Alert'
 import {Typography,ExpansionPanel,ExpansionPanelSummary,ExpansionPanelDetails,
 	Snackbar, Grid, TextField }
 	from '@material-ui/core'
 import {ExpandMore, Search} from "@material-ui/icons";
 import axios from 'axios'
-import {baseURL} from '../constants'
+import {baseURL} from './constants'
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
 export default class Lists extends React.PureComponent {
