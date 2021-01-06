@@ -9,7 +9,7 @@
     "@material-ui/styles": "^4.7.1",
     "@syncfusion/ej2-react-grids": "^18.1.54",
     "@syncfusion/ej2-react-richtexteditor": "^18.1.54",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "babel-polyfill": "^6.26.0",
     "classnames": "^2.2.6",
     "codemirror": "^5.54.0",
