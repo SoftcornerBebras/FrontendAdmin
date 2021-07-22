@@ -42,7 +42,7 @@
     "tempa-xlsx": "^0.8.20",
     "tinycolor2": "^1.4.1",
     "validator": "^13.0.0",
-    "xlsx": "^0.16.2"
+    "xlsx": "^0.17.0"
   },
   "scripts": {
     "start": "react-scripts start",
