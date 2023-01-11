@@ -18,7 +18,7 @@
     "interactjs": "^1.9.10",
     "jquery": "^3.5.0",
     "jquery-ui": "^1.12.1",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "leaflet": "^1.6.0",
     "leaflet-geosearch": "^3.0.6",
     "mui-datatables": "^2.13.1",
